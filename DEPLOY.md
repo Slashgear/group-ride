@@ -14,36 +14,19 @@ This guide covers deploying Group Ride on a Scaleway instance using Docker Compo
 
 A **DEV1-S** (2 vCPU, 2 GB RAM) is more than sufficient for this bot.
 
-Recommended image: **Ubuntu 24.04 LTS**
+When creating the instance, select the **Docker** InstantApp image — Docker and Docker Compose are pre-installed and ready to use, no manual setup needed.
 
-Once the instance is created, note its public IP address.
-
----
-
-## Step 2 — Install Docker
-
-SSH into the instance:
+Once the instance is created, SSH in and verify:
 
 ```bash
 ssh root@<YOUR_INSTANCE_IP>
-```
-
-Install Docker:
-
-```bash
-curl -fsSL https://get.docker.com | sh
-```
-
-Verify:
-
-```bash
 docker --version
 docker compose version
 ```
 
 ---
 
-## Step 3 — Authenticate to GitHub Container Registry
+## Step 2 — Authenticate to GitHub Container Registry
 
 The Docker image is hosted on GHCR (private). You need a GitHub Personal Access Token (PAT) to pull it.
 
