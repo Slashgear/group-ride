@@ -1,0 +1,10 @@
+services:
+  bot:
+    image: ghcr.io/slashgear/group-ride:latest
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - data:/app/data
+
+volumes:
+  data:
