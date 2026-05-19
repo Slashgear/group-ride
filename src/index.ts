@@ -1,5 +1,6 @@
 import { createConversation } from "@grammyjs/conversations"
 import { createBot } from "./adapters/telegram/bot"
+import { logger } from "./logger"
 import { buildCreateRideConversation } from "./adapters/telegram/conversations/create-ride"
 import { registerJoinRideHandler } from "./adapters/telegram/handlers/join-ride"
 import { registerMemberJoinedHandler } from "./adapters/telegram/handlers/member-joined"
@@ -29,11 +30,11 @@ registerJoinRideHandler(bot, rideService)
 registerMemberJoinedHandler(bot)
 registerMemberLeftHandler(bot, rideService)
 
-bot.catch((err) => console.error("Bot error:", err))
+bot.catch((err) => logger.error({ err }, "Unhandled bot error"))
 
 scheduler.start()
 
 await bot.start({
   allowed_updates: ["message", "callback_query", "chat_member"],
+  onStart: () => logger.info("Group Ride bot is running"),
 })
-console.log("Group Ride bot is running")

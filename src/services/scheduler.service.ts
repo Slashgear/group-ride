@@ -1,6 +1,8 @@
 import type { MessagingPort } from "../domain/ports/messaging.port"
 import type { RideRepository } from "../domain/ports/ride.repository"
+import { logger } from "../logger"
 
+const log = logger.child({ module: "scheduler" })
 const CLOSE_DELAY_MS = 24 * 60 * 60 * 1000
 
 export class SchedulerService {
@@ -24,6 +26,7 @@ export class SchedulerService {
           )
           await this.messaging.closeThread(ride.threadId)
         }
+        log.info({ rideId: ride.id }, "Ride thread closed by scheduler")
       }
     }
   }

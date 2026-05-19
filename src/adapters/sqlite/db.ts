@@ -1,6 +1,9 @@
 import { Database } from "bun:sqlite"
 import { mkdirSync, readFileSync } from "node:fs"
 import { dirname, join } from "node:path"
+import { logger } from "../../logger"
+
+const log = logger.child({ module: "sqlite" })
 
 const path = process.env.DATABASE_PATH ?? "./data/group-ride.db"
 mkdirSync(dirname(path), { recursive: true })
@@ -16,7 +19,8 @@ const { user_version: currentVersion } = db.query("PRAGMA user_version").get() a
 }
 
 for (let i = currentVersion; i < MIGRATIONS.length; i++) {
-  const sql = readFileSync(join(import.meta.dir, "migrations", MIGRATIONS[i]!), "utf-8")
-  db.exec(sql)
+  const name = MIGRATIONS[i]!
+  db.exec(readFileSync(join(import.meta.dir, "migrations", name), "utf-8"))
   db.exec(`PRAGMA user_version = ${i + 1}`)
+  log.info({ migration: name, version: i + 1 }, "Migration applied")
 }

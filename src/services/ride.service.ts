@@ -1,6 +1,9 @@
 import type { MessagingPort } from "../domain/ports/messaging.port"
 import type { RideRepository } from "../domain/ports/ride.repository"
 import type { CreateRideInput, Ride, RideId, UserId } from "../domain/ride"
+import { logger } from "../logger"
+
+const log = logger.child({ module: "ride-service" })
 
 export class RideService {
   constructor(
@@ -33,6 +36,7 @@ export class RideService {
     ride.pinnedMessageId = await this.messaging.pinSummary(threadId, ride)
     await this.rides.update(ride)
     await this.messaging.announce(ride)
+    log.info({ rideId: ride.id, proposerId: ride.proposerId, date: ride.date }, "Ride proposed")
     return ride
   }
 
@@ -41,6 +45,7 @@ export class RideService {
     if (!ride || ride.status !== "active" || !ride.threadId) return
     await this.rides.addMember(rideId, userId)
     await this.messaging.addMemberToThread(ride.threadId, userId)
+    log.info({ rideId, userId }, "Member joined ride")
   }
 
   async leave(rideId: RideId, userId: UserId): Promise<void> {
@@ -49,6 +54,7 @@ export class RideService {
     await this.rides.removeMember(rideId, userId)
     await this.messaging.removeMemberFromThread(ride.threadId, userId)
     await this.messaging.notifyThread(ride.threadId, "A member left the ride.")
+    log.info({ rideId, userId }, "Member left ride")
   }
 
   async cancel(rideId: RideId): Promise<void> {
@@ -60,6 +66,7 @@ export class RideService {
       `The ride on ${ride.date.toDateString()} (${ride.meetingPoint}) has been cancelled.`,
     )
     await this.messaging.closeThread(ride.threadId)
+    log.info({ rideId }, "Ride cancelled")
   }
 
   async update(rideId: RideId, changes: Partial<CreateRideInput>): Promise<void> {
@@ -71,10 +78,12 @@ export class RideService {
       await this.messaging.updatePinnedSummary(ride.threadId, ride)
       await this.messaging.notifyThread(ride.threadId, "Ride details have been updated.")
     }
+    log.info({ rideId, changes: Object.keys(changes) }, "Ride updated")
   }
 
   async removeMemberFromAllActiveRides(userId: UserId): Promise<void> {
     const activeRides = await this.rides.findActiveByMember(userId)
+    log.info({ userId, count: activeRides.length }, "Removing member from all active rides")
     await Promise.all(activeRides.map((ride) => this.leave(ride.id, userId)))
   }
 }
