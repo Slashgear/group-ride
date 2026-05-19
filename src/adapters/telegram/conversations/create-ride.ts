@@ -12,15 +12,20 @@ import { formatDate, formatDraftSummary } from "../format"
 
 type CreateRideConversation = Conversation<BotContext>
 
+interface Prefill {
+  distanceKm?: number
+  elevationGain?: number
+  elevationLoss?: number
+  level?: RideLevel
+  notes?: string
+  externalUrl?: string
+}
+
 export function buildCreateRideConversation(rideService: RideService) {
   return async (conversation: CreateRideConversation, ctx: BotContext): Promise<void> => {
     const proposerId = ctx.from!.id
-    let prefill: {
-      distanceKm?: number
-      elevationGain?: number
-      elevationLoss?: number
-      externalUrl?: string
-    } = {}
+    let prefill: Prefill = {}
+    let importConfirmed = false
 
     // Step 1: optional link import
     await ctx.reply(
@@ -32,7 +37,22 @@ export function buildCreateRideConversation(rideService: RideService) {
     if (linkText !== "/skip") {
       try {
         prefill = await importFromUrl(linkText)
-        await ctx.reply("✅ Details imported. Review and correct them in the next steps.")
+        const preview = formatDraftSummary({
+          date: new Date(),
+          meetingPoint: "—",
+          ...prefill,
+        })
+        const kb = new InlineKeyboard()
+          .text("✅ Confirm imported data", "import:confirm")
+          .row()
+          .text("✏️ Edit field by field", "import:edit")
+        await ctx.reply(
+          `Here's what I found:\n\n${preview}\n\n<i>Date and meeting point are not in the import — you'll fill them next.</i>`,
+          { reply_markup: kb, parse_mode: "HTML" },
+        )
+        const cbq = await conversation.waitForCallbackQuery(/^import:/)
+        await cbq.answerCallbackQuery()
+        importConfirmed = cbq.callbackQuery.data === "import:confirm"
       } catch (err) {
         if (err instanceof UnsupportedPlatformError) {
           await ctx.reply("⚠️ This platform is not supported. Switching to manual entry.")
@@ -44,7 +64,32 @@ export function buildCreateRideConversation(rideService: RideService) {
       }
     }
 
-    // Step 2: date (required, retry until valid)
+    // Optional fields — skipped if import was confirmed, shown with buttons if editing
+    let distanceKm: number | undefined = prefill.distanceKm
+    let elevationGain: number | undefined = prefill.elevationGain
+    let elevationLoss: number | undefined = prefill.elevationLoss
+    let level: RideLevel | undefined = prefill.level
+    let notes: string | undefined = prefill.notes
+
+    if (!importConfirmed) {
+      distanceKm = await askNumberField(conversation, ctx, "📏 Distance in km?", prefill.distanceKm)
+      elevationGain = await askNumberField(
+        conversation,
+        ctx,
+        "⬆️ Elevation gain D+ in meters?",
+        prefill.elevationGain,
+      )
+      elevationLoss = await askNumberField(
+        conversation,
+        ctx,
+        "⬇️ Elevation loss D- in meters?",
+        prefill.elevationLoss,
+      )
+      level = await askLevelField(conversation, ctx, prefill.level)
+      notes = await askTextField(conversation, ctx, "📝 Any notes?", prefill.notes)
+    }
+
+    // Required fields — always asked
     await ctx.reply("📅 What is the ride date? (DD/MM/YYYY)")
     let date: Date | null = null
     while (!date) {
@@ -53,62 +98,16 @@ export function buildCreateRideConversation(rideService: RideService) {
       if (!date) await ctx.reply("❌ Invalid format. Please use DD/MM/YYYY.")
     }
 
-    // Step 3: meeting point (required)
     await ctx.reply("📍 Where is the meeting point?")
     const meetingMsg = await conversation.waitFor("message:text")
     const meetingPoint = meetingMsg.message.text
 
-    // Step 4: distance (optional)
-    const distPrompt =
-      prefill.distanceKm != null
-        ? `📏 Distance: <b>${prefill.distanceKm} km</b> — send a new value, /keep or /skip.`
-        : "📏 Distance in km? (/skip to leave blank)"
-    await ctx.reply(distPrompt, { parse_mode: "HTML" })
-    const distMsg = await conversation.waitFor("message:text")
-    const distanceKm = parseOptionalNumber(distMsg.message.text, prefill.distanceKm)
-
-    // Step 5: D+ elevation gain (optional)
-    const gainPrompt =
-      prefill.elevationGain != null
-        ? `⬆️ D+: <b>${prefill.elevationGain} m</b> — send a new value, /keep or /skip.`
-        : "⬆️ Elevation gain D+ in meters? (/skip to leave blank)"
-    await ctx.reply(gainPrompt, { parse_mode: "HTML" })
-    const gainMsg = await conversation.waitFor("message:text")
-    const elevationGain = parseOptionalNumber(gainMsg.message.text, prefill.elevationGain)
-
-    // Step 6: D- elevation loss (optional)
-    const lossPrompt =
-      prefill.elevationLoss != null
-        ? `⬇️ D-: <b>${prefill.elevationLoss} m</b> — send a new value, /keep or /skip.`
-        : "⬇️ Elevation loss D- in meters? (/skip to leave blank)"
-    await ctx.reply(lossPrompt, { parse_mode: "HTML" })
-    const lossMsg = await conversation.waitFor("message:text")
-    const elevationLoss = parseOptionalNumber(lossMsg.message.text, prefill.elevationLoss)
-
-    // Step 7: level (optional, inline keyboard)
-    const levelKeyboard = new InlineKeyboard()
-      .text("🟢 Easy", "level:easy")
-      .text("🟡 Moderate", "level:moderate")
-      .text("🔴 Hard", "level:hard")
-      .row()
-      .text("Skip", "level:skip")
-    await ctx.reply("💪 What is the ride level?", { reply_markup: levelKeyboard })
-    const levelCbq = await conversation.waitForCallbackQuery(/^level:/)
-    await levelCbq.answerCallbackQuery()
-    const levelData = levelCbq.callbackQuery.data.split(":")[1]
-    const level: RideLevel | undefined = levelData === "skip" ? undefined : (levelData as RideLevel)
-
-    // Step 8: GPX URL (optional)
+    // GPX — always optional, never in imports
     await ctx.reply("🗺️ GPX track URL? (/skip to leave blank)")
     const gpxMsg = await conversation.waitFor("message:text")
     const gpxUrl = gpxMsg.message.text === "/skip" ? undefined : gpxMsg.message.text
 
-    // Step 9: notes (optional)
-    await ctx.reply("📝 Any notes? (/skip to leave blank)")
-    const notesMsg = await conversation.waitFor("message:text")
-    const notes = notesMsg.message.text === "/skip" ? undefined : notesMsg.message.text
-
-    // Step 10: confirmation
+    // Final confirmation
     const summary = formatDraftSummary({
       date,
       meetingPoint,
@@ -120,11 +119,11 @@ export function buildCreateRideConversation(rideService: RideService) {
       externalUrl: prefill.externalUrl,
       notes,
     })
-    const confirmKeyboard = new InlineKeyboard()
-      .text("✅ Confirm", "confirm:yes")
+    const confirmKb = new InlineKeyboard()
+      .text("✅ Create ride", "confirm:yes")
       .text("❌ Cancel", "confirm:no")
-    await ctx.reply(`Here's your ride:\n\n${summary}`, {
-      reply_markup: confirmKeyboard,
+    await ctx.reply(`Ready to create:\n\n${summary}`, {
+      reply_markup: confirmKb,
       parse_mode: "HTML",
     })
     const confirmCbq = await conversation.waitForCallbackQuery(/^confirm:/)
@@ -151,17 +150,92 @@ export function buildCreateRideConversation(rideService: RideService) {
   }
 }
 
+async function askNumberField(
+  conversation: CreateRideConversation,
+  ctx: BotContext,
+  prompt: string,
+  prefill?: number,
+): Promise<number | undefined> {
+  if (prefill != null) {
+    const kb = new InlineKeyboard()
+      .text(`✅ Keep: ${prefill}`, "field:keep")
+      .text("✏️ Change", "field:edit")
+    await ctx.reply(`${prompt}\n\nImported: <b>${prefill}</b>`, {
+      reply_markup: kb,
+      parse_mode: "HTML",
+    })
+    const cbq = await conversation.waitForCallbackQuery(/^field:/)
+    await cbq.answerCallbackQuery()
+    if (cbq.callbackQuery.data === "field:keep") return prefill
+    await ctx.reply("Send the new value or /skip to leave blank.")
+  } else {
+    await ctx.reply(`${prompt} (/skip to leave blank)`)
+  }
+  const msg = await conversation.waitFor("message:text")
+  if (msg.message.text === "/skip") return undefined
+  const n = Number(msg.message.text)
+  return isNaN(n) ? undefined : n
+}
+
+async function askTextField(
+  conversation: CreateRideConversation,
+  ctx: BotContext,
+  prompt: string,
+  prefill?: string,
+): Promise<string | undefined> {
+  if (prefill) {
+    const kb = new InlineKeyboard().text("✅ Keep", "field:keep").text("✏️ Change", "field:edit")
+    await ctx.reply(`${prompt}\n\nImported: <b>${prefill}</b>`, {
+      reply_markup: kb,
+      parse_mode: "HTML",
+    })
+    const cbq = await conversation.waitForCallbackQuery(/^field:/)
+    await cbq.answerCallbackQuery()
+    if (cbq.callbackQuery.data === "field:keep") return prefill
+    await ctx.reply("Send the new value or /skip to leave blank.")
+  } else {
+    await ctx.reply(`${prompt} (/skip to leave blank)`)
+  }
+  const msg = await conversation.waitFor("message:text")
+  return msg.message.text === "/skip" ? undefined : msg.message.text
+}
+
+async function askLevelField(
+  conversation: CreateRideConversation,
+  ctx: BotContext,
+  prefill?: RideLevel,
+): Promise<RideLevel | undefined> {
+  if (prefill) {
+    const kb = new InlineKeyboard()
+      .text(`✅ Keep: ${prefill}`, "field:keep")
+      .text("✏️ Change", "field:edit")
+    await ctx.reply(`💪 Ride level — imported: <b>${prefill}</b>`, {
+      reply_markup: kb,
+      parse_mode: "HTML",
+    })
+    const cbq = await conversation.waitForCallbackQuery(/^field:/)
+    await cbq.answerCallbackQuery()
+    if (cbq.callbackQuery.data === "field:keep") return prefill
+  } else {
+    await ctx.reply("💪 What is the ride level?")
+  }
+  const kb = new InlineKeyboard()
+    .text("🟢 Easy", "level:easy")
+    .text("🟡 Moderate", "level:moderate")
+    .text("🔴 Hard", "level:hard")
+    .row()
+    .text("Skip", "level:skip")
+  await ctx.reply("Choose a level:", { reply_markup: kb })
+  const cbq = await conversation.waitForCallbackQuery(/^level:/)
+  await cbq.answerCallbackQuery()
+  const data = cbq.callbackQuery.data.split(":")[1]
+  return data === "skip" ? undefined : (data as RideLevel)
+}
+
 function parseDate(text: string): Date | null {
   const parts = text.split("/").map(Number)
   if (parts.length !== 3) return null
   const [day, month, year] = parts as [number, number, number]
   const date = new Date(year, month - 1, day)
   return isNaN(date.getTime()) ? null : date
-}
-
-function parseOptionalNumber(text: string, prefill?: number): number | undefined {
-  if (text === "/keep" && prefill != null) return prefill
-  if (text === "/skip") return undefined
-  const n = Number(text)
-  return isNaN(n) ? undefined : n
 }
