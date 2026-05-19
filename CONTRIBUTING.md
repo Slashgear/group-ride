@@ -17,7 +17,7 @@ bun install
 cp .env.example .env   # fill in your values — see SETUP.md
 ```
 
-You don't need a real Telegram bot to run the tests or work on business logic. A bot token is only required to run the bot itself.
+You don't need a real Discord bot to run the tests or work on business logic. A bot token is only required to run the bot itself.
 
 ## Project structure
 
@@ -28,12 +28,18 @@ src/
 │   └── ports/                   # interfaces the domain depends on
 │       ├── messaging.port.ts    # MessagingPort
 │       └── ride.repository.ts   # RideRepository
-├── services/                    # business logic — no Telegram, no SQLite
+├── services/                    # business logic — no Discord, no SQLite
 │   ├── ride.service.ts
 │   ├── scheduler.service.ts
-│   └── importer/                # Komoot / Strava / Garmin scrapers
+│   └── importer/                # Komoot / Strava / Garmin importers
 ├── adapters/
-│   ├── telegram/                # grammY bot, handlers, conversations
+│   ├── discord/                 # discord.js bot, commands, handlers
+│   │   ├── client.ts
+│   │   ├── messaging.ts         # DiscordMessaging implements MessagingPort
+│   │   ├── format.ts
+│   │   ├── deploy-commands.ts   # registers /newride slash command at startup
+│   │   ├── commands/            # slash command + modal handlers
+│   │   └── handlers/            # join, member-joined, member-left
 │   └── sqlite/                  # SQLite implementation of RideRepository
 └── index.ts                     # dependency wiring + bot startup
 

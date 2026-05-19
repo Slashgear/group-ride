@@ -40,7 +40,7 @@ echo "<YOUR_PAT>" | docker login ghcr.io -u <YOUR_GITHUB_USERNAME> --password-st
 
 ---
 
-## Step 4 — Set up the deployment directory
+## Step 3 — Set up the deployment directory
 
 ```bash
 mkdir -p /opt/group-ride && cd /opt/group-ride
@@ -50,8 +50,11 @@ Create the `.env` file:
 
 ```bash
 cat > .env <<EOF
-BOT_TOKEN=<your_bot_token>
-GROUP_CHAT_ID=<your_group_chat_id>
+DISCORD_TOKEN=your_bot_token
+DISCORD_CLIENT_ID=your_client_id
+DISCORD_GUILD_ID=your_server_id
+DISCORD_ANNOUNCEMENT_CHANNEL_ID=your_announcement_channel_id
+DISCORD_FORUM_CHANNEL_ID=your_forum_channel_id
 DATABASE_PATH=/app/data/group-ride.db
 EOF
 ```
@@ -66,7 +69,7 @@ curl -fsSL https://raw.githubusercontent.com/Slashgear/group-ride/main/docker-co
 
 ---
 
-## Step 5 — Start the bot
+## Step 4 — Start the bot
 
 ```bash
 docker compose pull
