@@ -1,0 +1,25 @@
+{
+  "name": "group-ride",
+  "version": "0.1.0",
+  "description": "Telegram bot to organise group cycling rides",
+  "module": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts",
+    "test": "bun test",
+    "fmt": "oxfmt src tests",
+    "fmt:check": "oxfmt --check src tests",
+    "lint": "oxlint src",
+    "lint:fix": "oxlint --fix src"
+  },
+  "dependencies": {
+    "@grammyjs/conversations": "^2.0.1",
+    "grammy": "^1.30.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "oxfmt": "^0.51.0",
+    "oxlint": "^1.66.0"
+  }
+}
