@@ -1,40 +1,65 @@
-import type { CreateRideInput } from "../../domain/ride"
+import type { CreateRideInput, RideLevel } from "../../domain/ride"
 import { ExtractionFailedError } from "./index"
 
+interface KomootTour {
+  name: string
+  distance: number
+  elevation_up: number
+  elevation_down: number
+  difficulty: { grade: string } | null
+  sport: string
+}
+
 export async function importFromKomoot(url: string): Promise<Partial<CreateRideInput>> {
-  const res = await fetch(url, {
+  const parsed = new URL(url)
+
+  const tourIdMatch = parsed.pathname.match(/\/tour\/(\d+)/)
+  if (!tourIdMatch?.[1]) throw new ExtractionFailedError("Could not extract tour ID from URL.")
+
+  const tourId = tourIdMatch[1]
+  const shareToken = parsed.searchParams.get("share_token")
+
+  const apiUrl = new URL(`https://www.komoot.com/api/v007/tours/${tourId}`)
+  if (shareToken) apiUrl.searchParams.set("share_token", shareToken)
+
+  const res = await fetch(apiUrl, {
     headers: {
-      "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
-      "Accept-Language": "en-US,en;q=0.9",
+      Accept: "application/json, text/plain, */*",
+      "User-Agent":
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
     },
   })
 
+  if (res.status === 401 || res.status === 403) {
+    throw new ExtractionFailedError("Tour is private — share token may be missing or expired.")
+  }
   if (!res.ok) {
-    throw new ExtractionFailedError(`HTTP ${res.status} — the tour may be private or unavailable.`)
+    throw new ExtractionFailedError(`Komoot API returned HTTP ${res.status}.`)
   }
 
-  const html = await res.text()
-
-  // Komoot embeds tour data as JSON in page scripts
-  const distanceM = extractNumber(html, /"distance"\s*:\s*([\d.]+)/)
-  const elevationUp = extractNumber(html, /"elevation_up"\s*:\s*([\d.]+)/)
-  const elevationDown = extractNumber(html, /"elevation_down"\s*:\s*([\d.]+)/)
-
-  if (distanceM == null) {
-    throw new ExtractionFailedError("Could not extract tour data — the tour may be private.")
-  }
+  const tour = (await res.json()) as KomootTour
 
   return {
-    distanceKm: Math.round((distanceM / 1000) * 10) / 10,
-    elevationGain: elevationUp != null ? Math.round(elevationUp) : undefined,
-    elevationLoss: elevationDown != null ? Math.round(elevationDown) : undefined,
-    externalUrl: url,
+    distanceKm: Math.round((tour.distance / 1000) * 10) / 10,
+    elevationGain: Math.round(tour.elevation_up),
+    elevationLoss: Math.round(tour.elevation_down),
+    level: mapDifficulty(tour.difficulty?.grade ?? null),
+    notes: tour.name,
+    externalUrl: `https://www.komoot.com/tour/${tourId}`,
   }
 }
 
-function extractNumber(html: string, pattern: RegExp): number | null {
-  const match = html.match(pattern)
-  if (!match?.[1]) return null
-  const n = parseFloat(match[1])
-  return isNaN(n) ? null : n
+function mapDifficulty(difficulty: string | null): RideLevel | undefined {
+  switch (difficulty) {
+    case "easy":
+      return "easy"
+    case "moderate":
+      return "moderate"
+    case "difficult":
+    case "expert":
+    case "expert+":
+      return "hard"
+    default:
+      return undefined
+  }
 }
