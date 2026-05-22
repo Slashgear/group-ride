@@ -36,7 +36,9 @@ function makeRide(overrides: Partial<Ride> = {}): Ride {
     id: "ride-1",
     threadId: "thread-1",
     proposerId: 123,
+    proposerName: "Test User",
     date: new Date("2026-06-01"),
+    meetingTime: null,
     meetingPoint: "Place de la République",
     distanceKm: null,
     elevationGain: null,
@@ -60,6 +62,7 @@ describe("RideService.propose", () => {
 
     const ride = await service.propose({
       proposerId: 123,
+      proposerName: "Test User",
       date: new Date("2026-06-01"),
       meetingPoint: "Place de la République",
     })

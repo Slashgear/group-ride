@@ -6,7 +6,10 @@ interface RideRow {
   id: string
   thread_id: string | null
   proposer_id: number
+  proposer_name: string
+  name: string | null
   date: string
+  meeting_time: string | null
   meeting_point: string
   distance_km: number | null
   elevation_gain: number | null
@@ -25,7 +28,10 @@ function rowToRide(row: RideRow): Ride {
     id: row.id,
     threadId: row.thread_id,
     proposerId: row.proposer_id,
+    proposerName: row.proposer_name,
+    name: row.name,
     date: new Date(row.date),
+    meetingTime: row.meeting_time,
     meetingPoint: row.meeting_point,
     distanceKm: row.distance_km,
     elevationGain: row.elevation_gain,
@@ -44,13 +50,16 @@ export class SqliteRideRepository implements RideRepository {
   async save(ride: Ride): Promise<void> {
     db.run(
       `INSERT INTO rides
-        (id, thread_id, proposer_id, date, meeting_point, distance_km, elevation_gain, elevation_loss, level, gpx_url, external_url, notes, status, pinned_message_id, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        (id, thread_id, proposer_id, proposer_name, name, date, meeting_time, meeting_point, distance_km, elevation_gain, elevation_loss, level, gpx_url, external_url, notes, status, pinned_message_id, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         ride.id,
         ride.threadId,
         ride.proposerId,
+        ride.proposerName,
+        ride.name,
         ride.date.toISOString(),
+        ride.meetingTime,
         ride.meetingPoint,
         ride.distanceKm,
         ride.elevationGain,

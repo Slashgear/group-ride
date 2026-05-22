@@ -4,6 +4,8 @@ import { registerNewRideCommand } from "./adapters/discord/commands/new-ride"
 import { registerJoinRideHandler } from "./adapters/discord/handlers/join-ride"
 import { registerMemberJoinedHandler } from "./adapters/discord/handlers/member-joined"
 import { registerMemberLeftHandler } from "./adapters/discord/handlers/member-left"
+import { registerLeaveCancelHandler } from "./adapters/discord/handlers/leave-cancel"
+import { registerEditRideHandler } from "./adapters/discord/handlers/edit-ride"
 import { DiscordMessaging } from "./adapters/discord/messaging"
 import { SqliteRideRepository } from "./adapters/sqlite/ride.repo"
 import { RideService } from "./services/ride.service"
@@ -34,8 +36,10 @@ registerNewRideCommand(client, rideService)
 registerJoinRideHandler(client, rideService)
 registerMemberJoinedHandler(client)
 registerMemberLeftHandler(client, rideService)
+registerLeaveCancelHandler(client, rideService)
+registerEditRideHandler(client, rideRepo, rideService)
 
-client.once("ready", () => {
+client.once("clientReady", () => {
   logger.info({ username: client.user?.tag }, "Group Ride bot is running")
   scheduler.start()
 })

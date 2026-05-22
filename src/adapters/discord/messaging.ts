@@ -37,12 +37,12 @@ export class DiscordMessaging implements MessagingPort {
     const forum = channel as ForumChannel
     const thread = await forum.threads.create({
       name: formatThreadTitle(ride),
-      message: { content: formatSummary(ride) },
+      message: { content: formatSummary(ride), components: [buildRideActionsRow(ride.id)] },
     })
     return thread.id
   }
 
-  async pinSummary(threadId: ThreadId, ride: Ride): Promise<number> {
+  async pinSummary(threadId: ThreadId, _ride: Ride): Promise<number> {
     const thread = await this.client.channels.fetch(threadId)
     if (!thread?.isThread()) throw new Error(`Channel ${threadId} is not a thread`)
     // In a forum thread the starter message is already pinned by Discord.
@@ -58,7 +58,8 @@ export class DiscordMessaging implements MessagingPort {
     const thread = await this.client.channels.fetch(threadId)
     if (!thread?.isThread()) throw new Error(`Channel ${threadId} is not a thread`)
     const msg = await thread.messages.fetch(String(ride.pinnedMessageId))
-    await msg.edit(formatSummary(ride))
+    const components = ride.status === "active" ? [buildRideActionsRow(ride.id)] : []
+    await msg.edit({ content: formatSummary(ride), components })
   }
 
   async closeThread(threadId: ThreadId): Promise<void> {
@@ -91,4 +92,25 @@ export class DiscordMessaging implements MessagingPort {
     if (!channel?.isTextBased()) throw new Error("Announcement channel is not a text channel")
     await channel.send(message)
   }
+}
+
+function buildRideActionsRow(rideId: string): ActionRowBuilder<ButtonBuilder> {
+  return new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setCustomId(`join:${rideId}`)
+      .setLabel("🚴 Join")
+      .setStyle(ButtonStyle.Success),
+    new ButtonBuilder()
+      .setCustomId(`edit:${rideId}`)
+      .setLabel("✏️ Edit")
+      .setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder()
+      .setCustomId(`leave:${rideId}`)
+      .setLabel("🚪 Leave")
+      .setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder()
+      .setCustomId(`cancel:${rideId}`)
+      .setLabel("❌ Cancel")
+      .setStyle(ButtonStyle.Danger),
+  )
 }

@@ -9,7 +9,10 @@ export interface Ride {
   id: RideId
   threadId: ThreadId | null
   proposerId: UserId
+  proposerName: string
   date: Date
+  name: string | null
+  meetingTime: string | null
   meetingPoint: string
   distanceKm: number | null
   elevationGain: number | null
@@ -25,7 +28,10 @@ export interface Ride {
 
 export interface CreateRideInput {
   proposerId: UserId
+  proposerName: string
   date: Date
+  name?: string
+  meetingTime?: string
   meetingPoint: string
   distanceKm?: number
   elevationGain?: number

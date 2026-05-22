@@ -8,7 +8,9 @@ const LEVEL_LABEL: Record<string, string> = {
 
 export interface SummaryFields {
   date: Date
+  meetingTime?: string | null
   meetingPoint: string
+  proposerName?: string | null
   distanceKm?: number | null
   elevationGain?: number | null
   elevationLoss?: number | null
@@ -24,6 +26,7 @@ function buildSummaryLines(fields: SummaryFields): string[] {
     "",
     `📍 **Meeting point:** ${fields.meetingPoint}`,
   ]
+  if (fields.meetingTime) lines.splice(2, 0, `🕐 **Time:** ${fields.meetingTime}`)
   if (fields.distanceKm != null) lines.push(`📏 **Distance:** ${fields.distanceKm} km`)
   if (fields.elevationGain != null) lines.push(`⬆️ **D+:** ${fields.elevationGain} m`)
   if (fields.elevationLoss != null) lines.push(`⬇️ **D-:** ${fields.elevationLoss} m`)
@@ -31,20 +34,24 @@ function buildSummaryLines(fields: SummaryFields): string[] {
   if (fields.gpxUrl) lines.push(`🗺️ [GPX track](${fields.gpxUrl})`)
   if (fields.externalUrl) lines.push(`🔗 [View on platform](${fields.externalUrl})`)
   if (fields.notes) lines.push("", `📝 ${fields.notes}`)
+  if (fields.proposerName) lines.push("", `👤 **Organised by:** ${fields.proposerName}`)
   return lines
 }
 
 export function formatThreadTitle(ride: Ride): string {
-  return `Ride – ${formatDate(ride.date)}`
+  const base = `Ride – ${formatDate(ride.date)}`
+  if (!ride.name) return base
+  const full = `${base} – ${ride.name}`
+  return full.length <= 100 ? full : full.slice(0, 97) + "…"
 }
 
 export function formatAnnouncement(ride: Ride): string {
-  const lines = [
-    "🚴 **New ride proposed!**",
-    "",
-    `📅 **Date:** ${formatDate(ride.date)}`,
-    `📍 **Meeting point:** ${ride.meetingPoint}`,
-  ]
+  const title = ride.name
+    ? `🚴 **${ride.proposerName}** is organising a ride for **${formatDate(ride.date)}** — ${ride.name}`
+    : `🚴 **${ride.proposerName}** is organising a ride for **${formatDate(ride.date)}**`
+  const lines = [title, ""]
+  if (ride.meetingTime) lines.push(`🕐 **Time:** ${ride.meetingTime}`)
+  lines.push(`📍 **Meeting point:** ${ride.meetingPoint}`)
   if (ride.distanceKm != null) lines.push(`📏 **Distance:** ${ride.distanceKm} km`)
   if (ride.elevationGain != null) lines.push(`⬆️ **D+:** ${ride.elevationGain} m`)
   if (ride.elevationLoss != null) lines.push(`⬇️ **D-:** ${ride.elevationLoss} m`)

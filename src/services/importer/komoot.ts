@@ -40,11 +40,11 @@ export async function importFromKomoot(url: string): Promise<Partial<CreateRideI
   const tour = (await res.json()) as KomootTour
 
   return {
+    name: tour.name,
     distanceKm: Math.round((tour.distance / 1000) * 10) / 10,
     elevationGain: Math.round(tour.elevation_up),
     elevationLoss: Math.round(tour.elevation_down),
     level: mapDifficulty(tour.difficulty?.grade ?? null),
-    notes: tour.name,
     externalUrl: `https://www.komoot.com/tour/${tourId}`,
   }
 }

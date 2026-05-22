@@ -20,6 +20,7 @@ export class SchedulerService {
         ride.status = "closed"
         await this.rides.update(ride)
         if (ride.threadId) {
+          await this.messaging.updatePinnedSummary(ride.threadId, ride)
           await this.messaging.notifyThread(
             ride.threadId,
             "The ride is over. This thread is now read-only.",

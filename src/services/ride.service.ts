@@ -16,7 +16,10 @@ export class RideService {
       id: crypto.randomUUID(),
       threadId: null,
       proposerId: input.proposerId,
+      proposerName: input.proposerName,
+      name: input.name ?? null,
       date: input.date,
+      meetingTime: input.meetingTime ?? null,
       meetingPoint: input.meetingPoint,
       distanceKm: input.distanceKm ?? null,
       elevationGain: input.elevationGain ?? null,
@@ -31,10 +34,12 @@ export class RideService {
     }
 
     await this.rides.save(ride)
+    await this.rides.addMember(ride.id, ride.proposerId)
     const threadId = await this.messaging.createThread(ride)
     ride.threadId = threadId
     ride.pinnedMessageId = await this.messaging.pinSummary(threadId, ride)
     await this.rides.update(ride)
+    await this.messaging.addMemberToThread(threadId, ride.proposerId)
     await this.messaging.announce(ride)
     log.info({ rideId: ride.id, proposerId: ride.proposerId, date: ride.date }, "Ride proposed")
     return ride
@@ -62,6 +67,7 @@ export class RideService {
     if (!ride || ride.status !== "active" || !ride.threadId) return
     ride.status = "cancelled"
     await this.rides.update(ride)
+    await this.messaging.updatePinnedSummary(ride.threadId, ride)
     await this.messaging.notifyMainChannel(
       `The ride on ${ride.date.toDateString()} (${ride.meetingPoint}) has been cancelled.`,
     )

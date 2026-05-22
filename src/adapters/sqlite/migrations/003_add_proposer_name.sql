@@ -1,0 +1,1 @@
+ALTER TABLE rides ADD COLUMN proposer_name TEXT NOT NULL DEFAULT '';

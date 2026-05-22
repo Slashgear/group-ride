@@ -5,6 +5,7 @@
     "module": "ESNext",
     "moduleDetection": "force",
     "allowImportingTsExtensions": true,
+    "noEmit": true,
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
     "strict": true,
