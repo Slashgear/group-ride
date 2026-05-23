@@ -19,6 +19,7 @@ import { buildConfirmRow } from "./shared"
 import { NEW_RIDE_MODAL_ID, buildNewRideModal } from "./new-ride-modal"
 
 const pendingRides = new Map<string, RidePayload>()
+const PENDING_TTL_MS = 10 * 60 * 1000
 
 export { buildNewRideModal }
 
@@ -247,6 +248,7 @@ interface RidePayload {
 function encodePayload(data: RidePayload): string {
   const id = Math.random().toString(36).slice(2, 10)
   pendingRides.set(id, data)
+  setTimeout(() => pendingRides.delete(id), PENDING_TTL_MS)
   return id
 }
 
