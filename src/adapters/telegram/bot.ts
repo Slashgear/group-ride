@@ -3,7 +3,9 @@ import { type ConversationFlavor, conversations } from "@grammyjs/conversations"
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface SessionData {}
-export type BotContext = Context & SessionFlavor<SessionData> & ConversationFlavor<Context & SessionFlavor<SessionData>>
+export type BotContext = Context &
+  SessionFlavor<SessionData> &
+  ConversationFlavor<Context & SessionFlavor<SessionData>>
 
 export function createBot(token: string): Bot<BotContext> {
   const bot = new Bot<BotContext>(token)

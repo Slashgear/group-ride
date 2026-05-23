@@ -7,10 +7,7 @@ import { logger } from "../../logger"
 import { createBot } from "./bot"
 import { TelegramMessaging } from "./messaging"
 import { formatDate } from "./format"
-import {
-  CREATE_RIDE_CONVERSATION,
-  buildCreateRideConversation,
-} from "./conversations/create-ride"
+import { CREATE_RIDE_CONVERSATION, buildCreateRideConversation } from "./conversations/create-ride"
 import { registerJoinRideHandler } from "./handlers/join-ride"
 import { registerMemberJoinedHandler } from "./handlers/member-joined"
 import { registerMemberLeftHandler } from "./handlers/member-left"
@@ -28,7 +25,9 @@ export async function startTelegram(rideRepo: RideRepository): Promise<void> {
   const scheduler = new SchedulerService(rideRepo, messaging)
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  bot.use(createConversation(buildCreateRideConversation(rideService) as any, CREATE_RIDE_CONVERSATION))
+  bot.use(
+    createConversation(buildCreateRideConversation(rideService) as any, CREATE_RIDE_CONVERSATION),
+  )
 
   bot.command("newride", async (ctx) => {
     await ctx.conversation.enter(CREATE_RIDE_CONVERSATION)

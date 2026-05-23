@@ -1,12 +1,7 @@
 import { InlineKeyboard, type Api } from "grammy"
 import type { MessagingPort } from "../../domain/ports/messaging.port"
 import type { Ride, ThreadId, UserId } from "../../domain/ride"
-import {
-  formatAnnouncement,
-  formatSummary,
-  formatTopicTitle,
-  topicLink,
-} from "./format"
+import { formatAnnouncement, formatSummary, formatTopicTitle, topicLink } from "./format"
 
 export class TelegramMessaging implements MessagingPort {
   constructor(
@@ -38,7 +33,11 @@ export class TelegramMessaging implements MessagingPort {
     return msg.message_id
   }
 
-  async updatePinnedSummary(_threadId: ThreadId, ride: Ride, participants: UserId[]): Promise<void> {
+  async updatePinnedSummary(
+    _threadId: ThreadId,
+    ride: Ride,
+    participants: UserId[],
+  ): Promise<void> {
     if (ride.pinnedMessageId == null) return
     await this.api.editMessageText(
       this.groupChatId,

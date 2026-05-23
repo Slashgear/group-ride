@@ -65,7 +65,9 @@ export function formatSummary(ride: Ride, participants: number[] = []): string {
   const lines = buildSummaryLines(ride)
   lines.push("")
   if (participants.length > 0) {
-    lines.push(`👥 **Participants (${participants.length}):** ${participants.map((id) => `<@${id}>`).join(", ")}`)
+    lines.push(
+      `👥 **Participants (${participants.length}):** ${participants.map((id) => `<@${id}>`).join(", ")}`,
+    )
   } else {
     lines.push("👥 *No participants yet*")
   }

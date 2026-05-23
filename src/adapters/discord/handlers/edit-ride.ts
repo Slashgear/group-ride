@@ -13,7 +13,12 @@ import type { RideRepository } from "../../../domain/ports/ride.repository"
 import type { Ride } from "../../../domain/ride"
 import type { RideService } from "../../../services/ride.service"
 import { formatDate } from "../format"
-import { formatDateTimeValue, formatStatsValue, parseDateAndTime, parseStats } from "../../shared/parse"
+import {
+  formatDateTimeValue,
+  formatStatsValue,
+  parseDateAndTime,
+  parseStats,
+} from "../../shared/parse"
 
 const MODAL_PREFIX = "edit-ride:"
 

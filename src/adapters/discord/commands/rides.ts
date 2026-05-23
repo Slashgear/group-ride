@@ -36,7 +36,10 @@ async function handleRidesCommand(
     .slice(0, MAX_RIDES_SHOWN)
 
   if (upcoming.length === 0) {
-    await interaction.reply({ content: "No upcoming rides at the moment.", flags: MessageFlags.Ephemeral })
+    await interaction.reply({
+      content: "No upcoming rides at the moment.",
+      flags: MessageFlags.Ephemeral,
+    })
     return
   }
 
@@ -57,7 +60,8 @@ function formatRideLine(ride: Ride): string {
   if (ride.meetingTime != null) stats.push(`🕐 ${ride.meetingTime}`)
   if (ride.distanceKm != null) stats.push(`📏 ${ride.distanceKm} km`)
   if (ride.elevationGain != null) stats.push(`⬆️ ${ride.elevationGain} m`)
-  if (ride.level != null) stats.push(`💪 ${ride.level.charAt(0).toUpperCase() + ride.level.slice(1)}`)
+  if (ride.level != null)
+    stats.push(`💪 ${ride.level.charAt(0).toUpperCase() + ride.level.slice(1)}`)
   return stats.length > 0 ? `${header}\n${stats.join(" · ")}` : header
 }
 
