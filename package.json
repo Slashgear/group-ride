@@ -12,7 +12,8 @@
     "fmt:check": "oxfmt --check src tests",
     "lint": "oxlint src",
     "lint:fix": "oxlint --fix src",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "release": "git tag -a \"v$(node -p \"require('./package.json').version\")\" -m \"Release v$(node -p \"require('./package.json').version\")\" && git push --tags"
   },
   "dependencies": {
     "@grammyjs/conversations": "^2.1.1",
