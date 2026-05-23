@@ -9,8 +9,8 @@ const path = process.env.DATABASE_PATH ?? "./data/group-ride.db"
 mkdirSync(dirname(path), { recursive: true })
 
 export const db = new Database(path, { create: true })
-db.exec("PRAGMA journal_mode = WAL;")
-db.exec("PRAGMA foreign_keys = ON;")
+db.run("PRAGMA journal_mode = WAL;")
+db.run("PRAGMA foreign_keys = ON;")
 
 const MIGRATIONS = [
   "001_initial.sql",
@@ -28,7 +28,7 @@ const { user_version: currentVersion } = db.query("PRAGMA user_version").get() a
 for (let i = currentVersion; i < MIGRATIONS.length; i++) {
   const name = MIGRATIONS[i]
   if (name == null) continue
-  db.exec(readFileSync(join(import.meta.dir, "migrations", name), "utf-8"))
-  db.exec(`PRAGMA user_version = ${i + 1}`)
+  db.run(readFileSync(join(import.meta.dir, "migrations", name), "utf-8"))
+  db.run(`PRAGMA user_version = ${i + 1}`)
   log.info({ migration: name, version: i + 1 }, "Migration applied")
 }

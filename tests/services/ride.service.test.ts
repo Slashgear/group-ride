@@ -38,6 +38,7 @@ function makeRide(overrides: Partial<Ride> = {}): Ride {
     proposerId: 123,
     proposerName: "Test User",
     date: new Date("2026-06-01"),
+    name: null,
     meetingTime: null,
     meetingPoint: "Place de la République",
     distanceKm: null,
@@ -49,6 +50,8 @@ function makeRide(overrides: Partial<Ride> = {}): Ride {
     notes: null,
     status: "active",
     pinnedMessageId: null,
+    reminderDaySent: false,
+    reminderHourSent: false,
     createdAt: new Date(),
     ...overrides,
   }

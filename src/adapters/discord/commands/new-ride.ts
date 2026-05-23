@@ -3,75 +3,24 @@ import {
   type ChatInputCommandInteraction,
   type Client,
   type Interaction,
-  LabelBuilder,
   MessageFlags,
   type ModalSubmitInteraction,
-  ModalBuilder,
-  TextInputBuilder,
-  TextInputStyle,
 } from "discord.js"
 import {
   ExtractionFailedError,
   UnsupportedPlatformError,
   importFromUrl,
 } from "../../../services/importer/index"
+import type { RideLevel } from "../../../domain/ride"
 import type { RideService } from "../../../services/ride.service"
 import { formatDate, formatDraftSummary } from "../format"
 import { parseDateAndTime, parseStats } from "../parse"
 import { buildConfirmRow } from "./shared"
-
-const MODAL_ID = "create-ride-modal"
+import { NEW_RIDE_MODAL_ID, buildNewRideModal } from "./new-ride-modal"
 
 const pendingRides = new Map<string, RidePayload>()
 
-export function buildNewRideModal(): ModalBuilder {
-  const field = (labelText: string, input: TextInputBuilder) =>
-    new LabelBuilder().setLabel(labelText).setTextInputComponent(input)
-
-  return new ModalBuilder()
-    .setCustomId(MODAL_ID)
-    .setTitle("Propose a ride")
-    .addLabelComponents(
-      field(
-        "Import URL (Komoot/Strava/Garmin)",
-        new TextInputBuilder()
-          .setCustomId("importUrl")
-          .setStyle(TextInputStyle.Short)
-          .setRequired(false)
-          .setPlaceholder("https://www.komoot.com/tour/…"),
-      ),
-      field(
-        "Date & time (DD/MM/YYYY or +HH:MM)",
-        new TextInputBuilder()
-          .setCustomId("dateTime")
-          .setStyle(TextInputStyle.Short)
-          .setRequired(true)
-          .setPlaceholder("25/05/2025 08:00"),
-      ),
-      field(
-        "Meeting point",
-        new TextInputBuilder()
-          .setCustomId("meetingPoint")
-          .setStyle(TextInputStyle.Short)
-          .setRequired(true),
-      ),
-      field(
-        "Stats: distance km / D+ m / D- m — optional",
-        new TextInputBuilder()
-          .setCustomId("stats")
-          .setStyle(TextInputStyle.Short)
-          .setRequired(false)
-          .setPlaceholder("100 / 2500 / 2000"),
-      ),
-      field(
-        "Notes — optional",
-        new TextInputBuilder()
-          .setCustomId("notes")
-          .setStyle(TextInputStyle.Paragraph)
-          .setRequired(false),
-      ),
-    )
-}
+export { buildNewRideModal }
 
 export function registerNewRideCommand(client: Client, rideService: RideService): void {
   client.on("interactionCreate", (interaction) => {
@@ -88,7 +37,7 @@ async function onNewRideInteraction(
     return
   }
 
-  if (interaction.isModalSubmit() && interaction.customId === MODAL_ID) {
+  if (interaction.isModalSubmit() && interaction.customId === NEW_RIDE_MODAL_ID) {
     await handleModalSubmit(interaction, rideService)
     return
   }
@@ -118,37 +67,12 @@ async function handleModalSubmit(
   const rawNotes = fields.getTextInputValue("notes").trim()
   const rawUrl = fields.getTextInputValue("importUrl").trim()
 
-  const parsed = parseDateAndTime(rawDateTime)
-  if (parsed == null) {
-    await interaction.reply({
-      content: "❌ Invalid date format. Please use DD/MM/YYYY or DD/MM/YYYY HH:MM.",
-      flags: MessageFlags.Ephemeral,
-    })
-    return
-  }
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  if (parsed.date < today) {
-    await interaction.reply({
-      content: "❌ The ride date must be in the future.",
-      flags: MessageFlags.Ephemeral,
-    })
-    return
-  }
+  const parsed = await validateRideDate(rawDateTime, interaction)
+  if (parsed == null) return
 
   const { date, meetingTime } = parsed
-  const manualStats = parseStats(rawStats)
-  const { importedFields, importWarning } = await resolveImport(rawUrl, manualStats)
-
+  const { importedFields, importWarning } = await resolveImport(rawUrl, parseStats(rawStats))
   const notes = importedFields.notes ?? (rawNotes === "" ? undefined : rawNotes)
-  const summary = formatDraftSummary({
-    date,
-    meetingTime,
-    meetingPoint,
-    proposerName: interaction.user.displayName,
-    ...importedFields,
-    notes,
-  })
   const payload = encodePayload({
     dateTime: rawDateTime,
     name: importedFields.name,
@@ -163,11 +87,43 @@ async function handleModalSubmit(
     proposerId: interaction.user.id,
     proposerName: interaction.user.displayName,
   })
+  const summary = formatDraftSummary({
+    date,
+    meetingTime,
+    meetingPoint,
+    proposerName: interaction.user.displayName,
+    ...importedFields,
+    notes,
+  })
   await interaction.reply({
     content: `Ready to create:${importWarning}\n\n${summary}`,
     components: [buildConfirmRow(payload)],
     flags: MessageFlags.Ephemeral,
   })
+}
+
+async function validateRideDate(
+  rawDateTime: string,
+  interaction: ModalSubmitInteraction,
+): Promise<{ date: Date; meetingTime?: string } | null> {
+  const parsed = parseDateAndTime(rawDateTime)
+  if (parsed == null) {
+    await interaction.reply({
+      content: "❌ Invalid date format. Please use DD/MM/YYYY or DD/MM/YYYY HH:MM.",
+      flags: MessageFlags.Ephemeral,
+    })
+    return null
+  }
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  if (parsed.date < today) {
+    await interaction.reply({
+      content: "❌ The ride date must be in the future.",
+      flags: MessageFlags.Ephemeral,
+    })
+    return null
+  }
+  return parsed
 }
 
 interface ImportResult {
@@ -176,7 +132,7 @@ interface ImportResult {
     distanceKm?: number
     elevationGain?: number
     elevationLoss?: number
-    level?: string
+    level?: RideLevel
     externalUrl?: string
     notes?: string
   }

@@ -11,7 +11,8 @@
     "fmt": "oxfmt src tests",
     "fmt:check": "oxfmt --check src tests",
     "lint": "oxlint src",
-    "lint:fix": "oxlint --fix src"
+    "lint:fix": "oxlint --fix src",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "discord.js": "^14.26.4",

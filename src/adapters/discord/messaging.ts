@@ -5,6 +5,7 @@ import {
   ChannelType,
   type Client,
   type ForumChannel,
+  type TextChannel,
 } from "discord.js"
 import type { MessagingPort } from "../../domain/ports/messaging.port"
 import type { Ride, ThreadId, UserId } from "../../domain/ride"
@@ -28,7 +29,10 @@ export class DiscordMessaging implements MessagingPort {
         .setLabel("Join this ride 🚴")
         .setStyle(ButtonStyle.Primary),
     )
-    await channel.send({ content: formatAnnouncement(ride), components: [row] })
+    await (channel as unknown as TextChannel).send({
+      content: formatAnnouncement(ride),
+      components: [row],
+    })
   }
 
   async createThread(ride: Ride): Promise<ThreadId> {
@@ -92,7 +96,7 @@ export class DiscordMessaging implements MessagingPort {
     const channel = await this.client.channels.fetch(this.announcementChannelId)
     if (channel?.isTextBased() !== true)
       throw new Error("Announcement channel is not a text channel")
-    await channel.send(message)
+    await (channel as unknown as TextChannel).send(message)
   }
 }
 
