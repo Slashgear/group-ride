@@ -32,29 +32,44 @@ export function buildNewRideModal(): ModalBuilder {
     .setCustomId(MODAL_ID)
     .setTitle("Propose a ride")
     .addLabelComponents(
-      field("Import URL (Komoot/Strava/Garmin)", new TextInputBuilder()
-        .setCustomId("importUrl")
-        .setStyle(TextInputStyle.Short)
-        .setRequired(false)
-        .setPlaceholder("https://www.komoot.com/tour/…")),
-      field("Date & time (DD/MM/YYYY or +HH:MM)", new TextInputBuilder()
-        .setCustomId("dateTime")
-        .setStyle(TextInputStyle.Short)
-        .setRequired(true)
-        .setPlaceholder("25/05/2025 08:00")),
-      field("Meeting point", new TextInputBuilder()
-        .setCustomId("meetingPoint")
-        .setStyle(TextInputStyle.Short)
-        .setRequired(true)),
-      field("Stats: distance km / D+ m / D- m — optional", new TextInputBuilder()
-        .setCustomId("stats")
-        .setStyle(TextInputStyle.Short)
-        .setRequired(false)
-        .setPlaceholder("100 / 2500 / 2000")),
-      field("Notes — optional", new TextInputBuilder()
-        .setCustomId("notes")
-        .setStyle(TextInputStyle.Paragraph)
-        .setRequired(false)),
+      field(
+        "Import URL (Komoot/Strava/Garmin)",
+        new TextInputBuilder()
+          .setCustomId("importUrl")
+          .setStyle(TextInputStyle.Short)
+          .setRequired(false)
+          .setPlaceholder("https://www.komoot.com/tour/…"),
+      ),
+      field(
+        "Date & time (DD/MM/YYYY or +HH:MM)",
+        new TextInputBuilder()
+          .setCustomId("dateTime")
+          .setStyle(TextInputStyle.Short)
+          .setRequired(true)
+          .setPlaceholder("25/05/2025 08:00"),
+      ),
+      field(
+        "Meeting point",
+        new TextInputBuilder()
+          .setCustomId("meetingPoint")
+          .setStyle(TextInputStyle.Short)
+          .setRequired(true),
+      ),
+      field(
+        "Stats: distance km / D+ m / D- m — optional",
+        new TextInputBuilder()
+          .setCustomId("stats")
+          .setStyle(TextInputStyle.Short)
+          .setRequired(false)
+          .setPlaceholder("100 / 2500 / 2000"),
+      ),
+      field(
+        "Notes — optional",
+        new TextInputBuilder()
+          .setCustomId("notes")
+          .setStyle(TextInputStyle.Paragraph)
+          .setRequired(false),
+      ),
     )
 }
 
@@ -64,7 +79,10 @@ export function registerNewRideCommand(client: Client, rideService: RideService)
   })
 }
 
-async function onNewRideInteraction(interaction: Interaction, rideService: RideService): Promise<void> {
+async function onNewRideInteraction(
+  interaction: Interaction,
+  rideService: RideService,
+): Promise<void> {
   if (interaction.isChatInputCommand() && interaction.commandName === "newride") {
     await handleNewRideCommand(interaction)
     return
@@ -102,13 +120,19 @@ async function handleModalSubmit(
 
   const parsed = parseDateAndTime(rawDateTime)
   if (parsed == null) {
-    await interaction.reply({ content: "❌ Invalid date format. Please use DD/MM/YYYY or DD/MM/YYYY HH:MM.", flags: MessageFlags.Ephemeral })
+    await interaction.reply({
+      content: "❌ Invalid date format. Please use DD/MM/YYYY or DD/MM/YYYY HH:MM.",
+      flags: MessageFlags.Ephemeral,
+    })
     return
   }
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   if (parsed.date < today) {
-    await interaction.reply({ content: "❌ The ride date must be in the future.", flags: MessageFlags.Ephemeral })
+    await interaction.reply({
+      content: "❌ The ride date must be in the future.",
+      flags: MessageFlags.Ephemeral,
+    })
     return
   }
 
@@ -118,16 +142,26 @@ async function handleModalSubmit(
 
   const notes = importedFields.notes ?? (rawNotes === "" ? undefined : rawNotes)
   const summary = formatDraftSummary({
-    date, meetingTime, meetingPoint,
+    date,
+    meetingTime,
+    meetingPoint,
     proposerName: interaction.user.displayName,
-    ...importedFields, notes,
+    ...importedFields,
+    notes,
   })
   const payload = encodePayload({
-    dateTime: rawDateTime, name: importedFields.name, meetingTime, meetingPoint,
-    distanceKm: importedFields.distanceKm, elevationGain: importedFields.elevationGain,
-    elevationLoss: importedFields.elevationLoss, level: importedFields.level,
-    externalUrl: importedFields.externalUrl, notes,
-    proposerId: interaction.user.id, proposerName: interaction.user.displayName,
+    dateTime: rawDateTime,
+    name: importedFields.name,
+    meetingTime,
+    meetingPoint,
+    distanceKm: importedFields.distanceKm,
+    elevationGain: importedFields.elevationGain,
+    elevationLoss: importedFields.elevationLoss,
+    level: importedFields.level,
+    externalUrl: importedFields.externalUrl,
+    notes,
+    proposerId: interaction.user.id,
+    proposerName: interaction.user.displayName,
   })
   await interaction.reply({
     content: `Ready to create:${importWarning}\n\n${summary}`,
@@ -153,7 +187,11 @@ async function resolveImport(
   rawUrl: string,
   manualStats: { distanceKm?: number; elevationGain?: number; elevationLoss?: number },
 ): Promise<ImportResult> {
-  const base = { distanceKm: manualStats.distanceKm, elevationGain: manualStats.elevationGain, elevationLoss: manualStats.elevationLoss }
+  const base = {
+    distanceKm: manualStats.distanceKm,
+    elevationGain: manualStats.elevationGain,
+    elevationLoss: manualStats.elevationLoss,
+  }
   if (rawUrl === "") return { importedFields: base, importWarning: "" }
 
   try {
@@ -161,16 +199,20 @@ async function resolveImport(
     const hostname = new URL(rawUrl).hostname
     let importWarning = ""
     if (hostname.includes("garmin.com"))
-      importWarning = "\n\n⚠️ Garmin courses are not publicly accessible — only the link was saved. Fill in distance and elevation manually."
+      importWarning =
+        "\n\n⚠️ Garmin courses are not publicly accessible — only the link was saved. Fill in distance and elevation manually."
     else if (hostname.includes("strava.com"))
-      importWarning = "\n\n⚠️ Strava activities require authentication — only the link was saved. Fill in distance and elevation manually."
+      importWarning =
+        "\n\n⚠️ Strava activities require authentication — only the link was saved. Fill in distance and elevation manually."
     return {
       importedFields: {
         ...base,
         distanceKm: base.distanceKm ?? imported.distanceKm,
         elevationGain: base.elevationGain ?? imported.elevationGain,
         elevationLoss: base.elevationLoss ?? imported.elevationLoss,
-        name: imported.name, level: imported.level, externalUrl: imported.externalUrl,
+        name: imported.name,
+        level: imported.level,
+        externalUrl: imported.externalUrl,
         notes: imported.notes,
       },
       importWarning,

@@ -48,7 +48,10 @@ async function handleEditButton(
   const rideId = interaction.customId.replace("edit:", "")
   const ride = await rideRepo.findById(rideId)
   if (ride == null || ride.status !== "active") {
-    await interaction.reply({ content: "❌ Ride not found or already closed.", flags: MessageFlags.Ephemeral })
+    await interaction.reply({
+      content: "❌ Ride not found or already closed.",
+      flags: MessageFlags.Ephemeral,
+    })
     return
   }
   await interaction.showModal(buildEditModal(rideId, ride))
@@ -61,11 +64,46 @@ function buildEditModal(rideId: string, ride: Ride): ModalBuilder {
     .setCustomId(`${MODAL_PREFIX}${rideId}`)
     .setTitle("Edit ride")
     .addLabelComponents(
-      field("Date & time (DD/MM/YYYY or +HH:MM)", new TextInputBuilder().setCustomId("dateTime").setStyle(TextInputStyle.Short).setRequired(true).setValue(formatDateTimeValue(ride))),
-      field("Meeting point", new TextInputBuilder().setCustomId("meetingPoint").setStyle(TextInputStyle.Short).setRequired(true).setValue(ride.meetingPoint)),
-      field("Stats: distance km / D+ m / D- m — optional", new TextInputBuilder().setCustomId("stats").setStyle(TextInputStyle.Short).setRequired(false).setValue(formatStatsValue(ride))),
-      field("Route URL — optional", new TextInputBuilder().setCustomId("externalUrl").setStyle(TextInputStyle.Short).setRequired(false).setValue(ride.externalUrl ?? "")),
-      field("Notes — optional", new TextInputBuilder().setCustomId("notes").setStyle(TextInputStyle.Paragraph).setRequired(false).setValue(ride.notes ?? "")),
+      field(
+        "Date & time (DD/MM/YYYY or +HH:MM)",
+        new TextInputBuilder()
+          .setCustomId("dateTime")
+          .setStyle(TextInputStyle.Short)
+          .setRequired(true)
+          .setValue(formatDateTimeValue(ride)),
+      ),
+      field(
+        "Meeting point",
+        new TextInputBuilder()
+          .setCustomId("meetingPoint")
+          .setStyle(TextInputStyle.Short)
+          .setRequired(true)
+          .setValue(ride.meetingPoint),
+      ),
+      field(
+        "Stats: distance km / D+ m / D- m — optional",
+        new TextInputBuilder()
+          .setCustomId("stats")
+          .setStyle(TextInputStyle.Short)
+          .setRequired(false)
+          .setValue(formatStatsValue(ride)),
+      ),
+      field(
+        "Route URL — optional",
+        new TextInputBuilder()
+          .setCustomId("externalUrl")
+          .setStyle(TextInputStyle.Short)
+          .setRequired(false)
+          .setValue(ride.externalUrl ?? ""),
+      ),
+      field(
+        "Notes — optional",
+        new TextInputBuilder()
+          .setCustomId("notes")
+          .setStyle(TextInputStyle.Paragraph)
+          .setRequired(false)
+          .setValue(ride.notes ?? ""),
+      ),
     )
 }
 
@@ -78,18 +116,26 @@ async function handleEditModalSubmit(
 
   const parsed = parseDateAndTime(fields.getTextInputValue("dateTime").trim())
   if (parsed == null) {
-    await interaction.reply({ content: "❌ Invalid date format. Please use DD/MM/YYYY or DD/MM/YYYY HH:MM.", flags: MessageFlags.Ephemeral })
+    await interaction.reply({
+      content: "❌ Invalid date format. Please use DD/MM/YYYY or DD/MM/YYYY HH:MM.",
+      flags: MessageFlags.Ephemeral,
+    })
     return
   }
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   if (parsed.date < today) {
-    await interaction.reply({ content: "❌ The ride date must be in the future.", flags: MessageFlags.Ephemeral })
+    await interaction.reply({
+      content: "❌ The ride date must be in the future.",
+      flags: MessageFlags.Ephemeral,
+    })
     return
   }
 
   const meetingPoint = fields.getTextInputValue("meetingPoint").trim()
-  const { distanceKm, elevationGain, elevationLoss } = parseStats(fields.getTextInputValue("stats").trim())
+  const { distanceKm, elevationGain, elevationLoss } = parseStats(
+    fields.getTextInputValue("stats").trim(),
+  )
   const rawExternal = fields.getTextInputValue("externalUrl").trim()
   const rawNotes = fields.getTextInputValue("notes").trim()
 

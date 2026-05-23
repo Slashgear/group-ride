@@ -14,7 +14,8 @@ export async function importFromKomoot(url: string): Promise<Partial<CreateRideI
   const parsed = new URL(url)
 
   const tourIdMatch = parsed.pathname.match(/\/tour\/(\d+)/u)
-  if (tourIdMatch?.[1] == null) throw new ExtractionFailedError("Could not extract tour ID from URL.")
+  if (tourIdMatch?.[1] == null)
+    throw new ExtractionFailedError("Could not extract tour ID from URL.")
 
   const tourId = tourIdMatch[1]
   const shareToken = parsed.searchParams.get("share_token")

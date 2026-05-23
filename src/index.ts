@@ -46,6 +46,8 @@ client.once("clientReady", () => {
   scheduler.start()
 })
 
-client.on("error", (err) => { logger.error({ err }, "Unhandled Discord client error") })
+client.on("error", (err) => {
+  logger.error({ err }, "Unhandled Discord client error")
+})
 
 await client.login(token)

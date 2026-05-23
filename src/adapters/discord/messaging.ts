@@ -20,7 +20,8 @@ export class DiscordMessaging implements MessagingPort {
 
   async announce(ride: Ride): Promise<void> {
     const channel = await this.client.channels.fetch(this.announcementChannelId)
-    if (channel?.isTextBased() !== true) throw new Error("Announcement channel is not a text channel")
+    if (channel?.isTextBased() !== true)
+      throw new Error("Announcement channel is not a text channel")
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId(`join:${ride.id}`)
@@ -89,7 +90,8 @@ export class DiscordMessaging implements MessagingPort {
 
   async notifyMainChannel(message: string): Promise<void> {
     const channel = await this.client.channels.fetch(this.announcementChannelId)
-    if (channel?.isTextBased() !== true) throw new Error("Announcement channel is not a text channel")
+    if (channel?.isTextBased() !== true)
+      throw new Error("Announcement channel is not a text channel")
     await channel.send(message)
   }
 }
