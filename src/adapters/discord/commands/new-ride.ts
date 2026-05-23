@@ -14,7 +14,7 @@ import {
 import type { RideLevel } from "../../../domain/ride"
 import type { RideService } from "../../../services/ride.service"
 import { formatDate, formatDraftSummary } from "../format"
-import { parseDateAndTime, parseStats } from "../parse"
+import { parseDateAndTime, parseStats } from "../../shared/parse"
 import { buildConfirmRow } from "./shared"
 import { NEW_RIDE_MODAL_ID, buildNewRideModal } from "./new-ride-modal"
 

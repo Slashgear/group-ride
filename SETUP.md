@@ -1,13 +1,17 @@
 # Setup Guide
 
-This guide walks you through setting up Group Ride from scratch, including the Discord configuration and local environment.
+This guide walks you through setting up Group Ride from scratch. The bot supports two platforms — **Discord** (default) and **Telegram** — configured via the `ADAPTER` environment variable.
 
 ## Prerequisites
 
 - [Bun](https://bun.sh) >= 1.1
-- A Discord account
+- A Discord **or** Telegram account (or both)
 
 ---
+
+---
+
+## Discord setup
 
 ## Step 1 — Create a Discord application and bot
 
@@ -70,6 +74,7 @@ cp .env.example .env
 ```
 
 ```env
+ADAPTER=discord                                     # "discord" or "telegram"
 DISCORD_TOKEN=your_bot_token                        # from Step 1
 DISCORD_CLIENT_ID=your_client_id                    # from Step 2
 DISCORD_GUILD_ID=your_server_id                     # from Step 4
@@ -77,6 +82,64 @@ DISCORD_ANNOUNCEMENT_CHANNEL_ID=your_channel_id     # from Step 4
 DISCORD_FORUM_CHANNEL_ID=your_forum_channel_id      # from Step 4
 DATABASE_PATH=./data/group-ride.db                  # SQLite file path
 ```
+
+---
+
+---
+
+## Telegram setup
+
+> Skip this section if you are using Discord.
+
+Telegram requires a **supergroup** with **Topics** enabled (the equivalent of Discord forum threads).
+
+### Step A — Create a Telegram bot
+
+1. Open [@BotFather](https://t.me/BotFather) and send `/newbot`
+2. Follow the prompts to choose a name and username
+3. Copy the **token** BotFather gives you — you will need it in Step E
+
+### Step B — Create the supergroup and enable Topics
+
+1. Create a new Telegram group (or use an existing one)
+2. Open **Group Info → Edit → Group Type** and make it a **Supergroup**
+3. In **Group Info → Edit**, enable **Topics**
+
+### Step C — Add the bot to the group
+
+1. In the group, go to **Add Members** and search for your bot's username
+2. Give the bot **admin rights** with at least these permissions:
+   - **Manage topics** — create and close forum topics
+   - **Pin messages** — pin the ride summary in each topic
+   - **Send messages**
+
+### Step D — Get the group chat ID
+
+Send any message in the group, then open:
+```
+https://api.telegram.org/bot<YOUR_TOKEN>/getUpdates
+```
+Find `"chat": { "id": -100XXXXXXXXX }` — that negative number is your `TELEGRAM_GROUP_CHAT_ID`.
+
+### Step E — Configure environment variables
+
+```bash
+cp .env.example .env
+```
+
+```env
+ADAPTER=telegram
+TELEGRAM_TOKEN=your_bot_token           # from Step A
+TELEGRAM_GROUP_CHAT_ID=-100XXXXXXXXX   # from Step D
+DATABASE_PATH=./data/group-ride.db
+```
+
+### Available commands (Telegram)
+
+| Command    | Description                              |
+|------------|------------------------------------------|
+| `/newride` | Start the multi-step ride creation flow  |
+| `/rides`   | List upcoming rides with a Join button   |
 
 ---
 
@@ -98,7 +161,9 @@ On startup, the bot will:
 
 ## Step 7 — Verify
 
-Type `/newride` in any channel of your server. A modal should appear with fields for: import URL, date & time, meeting point, stats (distance / D+ / D-), and notes.
+**Discord:** Type `/newride` in any channel of your server. A modal should appear with fields for: import URL, date & time, meeting point, stats (distance / D+ / D-), and notes.
+
+**Telegram:** Send `/newride` in the group. The bot will guide you step by step through the ride creation.
 
 ---
 
