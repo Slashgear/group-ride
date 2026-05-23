@@ -91,7 +91,12 @@ jobs:
     environment: production
     steps:
       - name: Deploy to production
-        run: |
-          echo "🚀 Deploying ${{ github.ref_name }}..."
-          echo "Image: ghcr.io/${{ github.repository }}:${{ github.ref_name }}"
-          echo "TODO: replace with actual deployment (SSH, webhook, etc.)"
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: root
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            cd /opt/group-ride
+            docker compose pull
+            docker compose up -d

@@ -1,20 +1,35 @@
 # Deployment Guide
 
-This guide covers deploying Group Ride on a Scaleway instance using Docker Compose.
+This guide covers deploying Group Ride on a Scaleway instance using Docker Compose, with automatic deployments triggered by a git tag.
+
+## Table of contents
+
+- [Prerequisites](#prerequisites)
+- [Step 1 — Create a Scaleway instance](#step-1--create-a-scaleway-instance)
+- [Step 2 — Authenticate to GitHub Container Registry](#step-2--authenticate-to-github-container-registry)
+- [Step 3 — Set up the deployment directory](#step-3--set-up-the-deployment-directory)
+- [Step 4 — Start the bot](#step-4--start-the-bot)
+- [Step 5 — Enable automatic deployments (CI/CD)](#step-5--enable-automatic-deployments-cicd)
+- [Releasing a new version](#releasing-a-new-version)
+- [Useful commands](#useful-commands)
+- [SQLite data](#sqlite-data)
+- [PostgreSQL data](#postgresql-data)
+
+---
 
 ## Prerequisites
 
 - A [Scaleway](https://www.scaleway.com) account
-- A GitHub Personal Access Token with `read:packages` scope (to pull the private image from GHCR)
+- A GitHub Personal Access Token with `read:packages` scope (to pull the image from GHCR)
 - Your bot configured — see [SETUP.md](SETUP.md)
 
 ---
 
 ## Step 1 — Create a Scaleway instance
 
-A **DEV1-S** (2 vCPU, 2 GB RAM) is more than sufficient for this bot.
+A **STARDUST1-S** (1 vCPU, 1 GB RAM, ~€1.80/month) is sufficient for this bot. A **DEV1-S** (2 vCPU, 2 GB RAM) gives more headroom if needed.
 
-When creating the instance, select the **Docker** InstantApp image — Docker and Docker Compose are pre-installed and ready to use, no manual setup needed.
+When creating the instance, select the **Docker** InstantApp image — Docker and Docker Compose are pre-installed and ready to use.
 
 Once the instance is created, SSH in and verify:
 
@@ -28,7 +43,7 @@ docker compose version
 
 ## Step 2 — Authenticate to GitHub Container Registry
 
-The Docker image is hosted on GHCR (private). You need a GitHub Personal Access Token (PAT) to pull it.
+The Docker image is hosted on GHCR. You need a GitHub Personal Access Token (PAT) to pull it.
 
 1. Go to **GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)**
 2. Generate a token with the **`read:packages`** scope
@@ -92,17 +107,58 @@ Group Ride bot is running
 
 ---
 
-## Updating to a new version
+## Step 5 — Enable automatic deployments (CI/CD)
 
-Each push to `main` builds and pushes a new `:latest` image to GHCR. To update the bot on the instance:
+The release workflow (`tag → test → GitHub release → Docker image → deploy`) is already set up. The `deploy` job SSHes into your instance and runs `docker compose pull && docker compose up -d`. You just need to give it the credentials.
+
+### 5a — Generate a dedicated SSH key pair
+
+On your local machine (not the instance):
 
 ```bash
-cd /opt/group-ride
-docker compose pull
-docker compose up -d
+ssh-keygen -t ed25519 -C "github-actions-deploy" -f ~/.ssh/group-ride-deploy -N ""
 ```
 
-Zero-downtime: Compose will replace the container with the new image and restart it automatically.
+This creates two files:
+- `~/.ssh/group-ride-deploy` — private key (goes to GitHub)
+- `~/.ssh/group-ride-deploy.pub` — public key (goes to the instance)
+
+### 5b — Authorise the key on the instance
+
+```bash
+ssh root@<YOUR_INSTANCE_IP> "echo '$(cat ~/.ssh/group-ride-deploy.pub)' >> ~/.ssh/authorized_keys"
+```
+
+### 5c — Add secrets to GitHub
+
+Go to **GitHub → your repo → Settings → Secrets and variables → Actions** and add:
+
+| Secret name | Value |
+|---|---|
+| `DEPLOY_HOST` | Your instance IP address |
+| `DEPLOY_SSH_KEY` | Contents of `~/.ssh/group-ride-deploy` (the private key) |
+
+### 5d — Configure the GitHub environment
+
+The deploy job uses the `production` environment, which lets you add protection rules (e.g. manual approval before each deploy).
+
+Go to **GitHub → Settings → Environments → production** and configure as needed. If you skip this, the job still runs — the environment is optional.
+
+---
+
+## Releasing a new version
+
+Once everything is set up, releasing is a single command from your local machine:
+
+```bash
+# 1. Bump the version in package.json
+#    e.g. change "version": "0.2.0" to "0.3.0"
+
+# 2. Commit, then tag and push
+bun run release
+```
+
+This triggers the full pipeline: **tests → GitHub release → Docker image → SSH deploy**.
 
 ---
 
@@ -122,6 +178,8 @@ docker compose restart
 docker compose exec bot sh
 ```
 
+---
+
 ## SQLite data
 
 The database is stored in a named Docker volume (`group-ride_data`) and persists across container restarts and image updates. To back it up:
@@ -132,6 +190,8 @@ docker run --rm \
   -v $(pwd):/backup \
   busybox tar czf /backup/group-ride-backup-$(date +%Y%m%d).tar.gz /data
 ```
+
+---
 
 ## PostgreSQL data
 
