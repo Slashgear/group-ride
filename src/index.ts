@@ -1,6 +1,7 @@
 import { createClient } from "./adapters/discord/client"
 import { deployCommands } from "./adapters/discord/deploy-commands"
 import { registerNewRideCommand } from "./adapters/discord/commands/new-ride"
+import { registerRidesCommand } from "./adapters/discord/commands/rides"
 import { registerJoinRideHandler } from "./adapters/discord/handlers/join-ride"
 import { registerMemberJoinedHandler } from "./adapters/discord/handlers/member-joined"
 import { registerMemberLeftHandler } from "./adapters/discord/handlers/member-left"
@@ -34,6 +35,7 @@ const scheduler = new SchedulerService(rideRepo, messaging)
 await deployCommands(token, clientId, guildId)
 
 registerNewRideCommand(client, rideService)
+registerRidesCommand(client, rideRepo)
 registerJoinRideHandler(client, rideService)
 registerMemberJoinedHandler(client)
 registerMemberLeftHandler(client, rideService)
