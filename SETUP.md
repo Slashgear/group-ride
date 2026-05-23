@@ -80,7 +80,8 @@ DISCORD_CLIENT_ID=your_client_id                    # from Step 2
 DISCORD_GUILD_ID=your_server_id                     # from Step 4
 DISCORD_ANNOUNCEMENT_CHANNEL_ID=your_channel_id     # from Step 4
 DISCORD_FORUM_CHANNEL_ID=your_forum_channel_id      # from Step 4
-DATABASE_PATH=./data/group-ride.db                  # SQLite file path
+DATABASE_PATH=./data/group-ride.db                  # SQLite file path (ignored if DATABASE_URL is set)
+# DATABASE_URL=postgres://user:password@localhost:5432/group_ride  # optional — enables PostgreSQL
 ```
 
 ---
@@ -131,7 +132,8 @@ cp .env.example .env
 ADAPTER=telegram
 TELEGRAM_TOKEN=your_bot_token           # from Step A
 TELEGRAM_GROUP_CHAT_ID=-100XXXXXXXXX   # from Step D
-DATABASE_PATH=./data/group-ride.db
+DATABASE_PATH=./data/group-ride.db                  # ignored if DATABASE_URL is set
+# DATABASE_URL=postgres://user:password@localhost:5432/group_ride  # optional — enables PostgreSQL
 ```
 
 ### Available commands (Telegram)
@@ -154,7 +156,7 @@ bun run start   # production
 
 On startup, the bot will:
 1. Register the `/newride` slash command on your server
-2. Create the SQLite database and apply migrations automatically
+2. Create the database and apply migrations automatically (SQLite) — for PostgreSQL, run migrations manually first (see below)
 3. Log `Group Ride bot is running` when ready
 
 ---

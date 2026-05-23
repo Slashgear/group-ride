@@ -189,7 +189,7 @@ sequenceDiagram
 - **Runtime**: [Bun](https://bun.sh)
 - **Language**: TypeScript
 - **Bot framework**: [discord.js](https://discord.js.org) v14
-- **Database**: SQLite via `bun:sqlite`
+- **Database**: SQLite via `bun:sqlite` (default) or PostgreSQL via Bun's native SQL — set `DATABASE_URL` to use PostgreSQL
 - **Architecture**: Ports & Adapters — `domain/ports` defines interfaces, `adapters/` provides implementations
 
 ---

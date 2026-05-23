@@ -56,6 +56,7 @@ DISCORD_GUILD_ID=your_server_id
 DISCORD_ANNOUNCEMENT_CHANNEL_ID=your_announcement_channel_id
 DISCORD_FORUM_CHANNEL_ID=your_forum_channel_id
 DATABASE_PATH=/app/data/group-ride.db
+# DATABASE_URL=postgres://user:password@your-db-host:5432/group_ride
 EOF
 ```
 
@@ -130,4 +131,20 @@ docker run --rm \
   -v group-ride_data:/data \
   -v $(pwd):/backup \
   busybox tar czf /backup/group-ride-backup-$(date +%Y%m%d).tar.gz /data
+```
+
+## PostgreSQL data
+
+If you set `DATABASE_URL`, the bot connects to your PostgreSQL instance instead of SQLite — no volume needed. Run the migrations once before starting the bot:
+
+```bash
+for f in src/adapters/postgres/migrations/*.sql; do
+  psql "$DATABASE_URL" -f "$f"
+done
+```
+
+For backup, use your provider's snapshot feature or `pg_dump`:
+
+```bash
+pg_dump "$DATABASE_URL" > group-ride-backup-$(date +%Y%m%d).sql
 ```

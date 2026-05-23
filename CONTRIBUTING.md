@@ -40,7 +40,8 @@ src/
 │   │   ├── deploy-commands.ts   # registers /newride slash command at startup
 │   │   ├── commands/            # slash command + modal handlers
 │   │   └── handlers/            # join, member-joined, member-left
-│   └── sqlite/                  # SQLite implementation of RideRepository
+│   ├── sqlite/                  # SQLite implementation of RideRepository
+│   └── postgres/                # PostgreSQL implementation of RideRepository (set DATABASE_URL)
 └── index.ts                     # dependency wiring + bot startup
 
 tests/
