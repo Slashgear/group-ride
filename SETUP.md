@@ -1,77 +1,67 @@
 # Setup Guide
 
-This guide walks you through setting up Group Ride from scratch, including the Telegram configuration and local environment.
+This guide walks you through setting up Group Ride from scratch, including the Discord configuration and local environment.
 
 ## Prerequisites
 
 - [Bun](https://bun.sh) >= 1.1
-- A Telegram account
+- A Discord account
 
 ---
 
-## Step 1 — Create a Telegram bot
+## Step 1 — Create a Discord application and bot
 
-1. Open Telegram and start a conversation with [@BotFather](https://t.me/BotFather)
-2. Send `/newbot` and follow the prompts (name, username)
-3. Copy the **bot token** — you will need it in step 4
+1. Go to the [Discord Developer Portal](https://discord.com/developers/applications) and click **New Application**
+2. Give it a name (e.g. "Group Ride") and confirm
+3. Go to the **Bot** tab and click **Add Bot**
+4. Under **Token**, click **Reset Token** and copy it — you will need it in step 5
+5. Still on the Bot tab, enable the following **Privileged Gateway Intents**:
+   - **Server Members Intent** — required to detect members joining/leaving
 
 ---
 
-## Step 2 — Create a supergroup with Forum Topics
+## Step 2 — Get the Client ID
 
-Group Ride requires a Telegram **supergroup** with **Topics** enabled.
+1. Go to the **OAuth2** tab
+2. Copy the **Client ID** — you will need it in step 5
 
-**Create the group and enable Topics:**
+---
 
-1. Create a new Telegram group (any name)
-2. Open the group → tap the group name at the top → **Edit**
-3. Scroll down to **Topics** and toggle it on
-4. Confirm — the group is automatically converted to a supergroup
+## Step 3 — Create the Discord server
 
-> On desktop: group info → Edit → Topics toggle.
+Group Ride requires two channels:
 
-**Add the bot and grant admin rights:**
+1. **An announcement text channel** (e.g. `#announcements`) — where ride announcements are posted
+2. **A Forum channel** (e.g. `#rides`) — where one thread is created per ride
 
-5. In the group, open **Members → Add member** and search for your bot's username
-6. Once added, go to **Members → [your bot] → Promote to admin**
-7. Enable exactly the following rights:
+To create the Forum channel:
+- Click **+** next to the channel list → **Create Channel** → select **Forum**
 
-| Permission | Required for |
+---
+
+## Step 4 — Invite the bot and collect IDs
+
+**Invite the bot to your server:**
+
+1. In the Developer Portal, go to **OAuth2 → URL Generator**
+2. Under **Scopes**, check `bot` and `applications.commands`
+3. Under **Bot Permissions**, check:
+   - **Manage Threads** — create and archive forum threads
+   - **Send Messages** — post announcements and thread messages
+   - **Read Message History** — fetch the starter message for updates
+4. Copy the generated URL, open it in your browser and invite the bot to your server
+
+**Collect the IDs you need** (enable Developer Mode in Discord settings → Advanced → Developer Mode, then right-click to copy IDs):
+
+| Value | How to get it |
 |---|---|
-| **Manage topics** (`can_manage_topics`) | Create and close Forum Topics |
-| **Pin messages** (`can_pin_messages`) | Pin the ride summary in each topic |
-| **Delete messages** | Optional — clean up bot messages |
-
-Leave all other permissions off.
+| **Guild ID** | Right-click the server name → Copy Server ID |
+| **Announcement channel ID** | Right-click the announcement channel → Copy Channel ID |
+| **Forum channel ID** | Right-click the forum channel → Copy Channel ID |
 
 ---
 
-## Step 3 — Get the group chat ID
-
-The bot needs the numeric ID of the group (a negative number like `-1002345678901`).
-
-**Recommended method — `getUpdates`:**
-
-1. Make sure your bot is in the group (done in step 2)
-2. Send any message in the group
-3. Open the following URL in your browser, replacing `<TOKEN>` with your bot token:
-   ```
-   https://api.telegram.org/bot<TOKEN>/getUpdates
-   ```
-4. In the JSON response, find `"chat"` and copy the value of `"id"`:
-   ```json
-   "chat": {
-     "id": -1002345678901,
-     "type": "supergroup",
-     ...
-   }
-   ```
-
-> Supergroup IDs always start with `-100`. If `getUpdates` returns an empty array, send another message in the group and retry.
-
----
-
-## Step 4 — Configure environment variables
+## Step 5 — Configure environment variables
 
 Copy the example file and fill in your values:
 
@@ -80,14 +70,17 @@ cp .env.example .env
 ```
 
 ```env
-BOT_TOKEN=123456789:ABCdefGHIjklMNOpqrsTUVwxyz   # from BotFather
-GROUP_CHAT_ID=-1001234567890                        # from step 3
-DATABASE_PATH=./data/group-ride.db                 # SQLite file path
+DISCORD_TOKEN=your_bot_token                        # from Step 1
+DISCORD_CLIENT_ID=your_client_id                    # from Step 2
+DISCORD_GUILD_ID=your_server_id                     # from Step 4
+DISCORD_ANNOUNCEMENT_CHANNEL_ID=your_channel_id     # from Step 4
+DISCORD_FORUM_CHANNEL_ID=your_forum_channel_id      # from Step 4
+DATABASE_PATH=./data/group-ride.db                  # SQLite file path
 ```
 
 ---
 
-## Step 5 — Install dependencies and run
+## Step 6 — Install dependencies and run
 
 ```bash
 bun install
@@ -96,23 +89,26 @@ bun run dev     # watches for file changes
 bun run start   # production
 ```
 
-The bot will create the SQLite database and apply migrations automatically on first start.
+On startup, the bot will:
+1. Register the `/newride` slash command on your server
+2. Create the SQLite database and apply migrations automatically
+3. Log `Group Ride bot is running` when ready
 
 ---
 
-## Step 6 — Verify
+## Step 7 — Verify
 
-Send `/newride` to your bot in a private chat or in the group. You should enter the ride creation flow.
+Type `/newride` in any channel of your server. A modal should appear with fields for: import URL, date & time, meeting point, stats (distance / D+ / D-), and notes.
 
 ---
 
 ## Troubleshooting
 
-**Bot doesn't respond to `chat_member` events (join/leave)**
-Make sure the bot is an admin in the group. Telegram only sends `chat_member` updates to admins.
+**The `/newride` command does not appear**
+Slash commands may take up to an hour to propagate globally, but guild-scoped commands (which this bot uses) should be available immediately. Make sure `DISCORD_GUILD_ID` matches the server where you are typing the command.
 
-**`GROUP_CHAT_ID` not working**
-The ID must include the `-100` prefix for supergroups (e.g. `-1001234567890`).
+**Bot does not respond to member join/leave events**
+The **Server Members Intent** must be enabled in the Developer Portal (Bot tab → Privileged Gateway Intents). The bot also needs the **Manage Threads** and **Send Messages** permissions in the relevant channels.
 
-**Forum Topics not available**
-The Topics toggle only appears once the group has enough history or has been manually converted. Try: group info → Edit → Topics. If the option is missing, make sure you are a group admin.
+**Import URL not working**
+The activity must be public on the source platform. Komoot tours with a `share_token` in the URL work even if the tour is private.

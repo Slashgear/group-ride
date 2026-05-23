@@ -5,10 +5,12 @@
     "module": "ESNext",
     "moduleDetection": "force",
     "allowImportingTsExtensions": true,
+    "noEmit": true,
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "noUncheckedIndexedAccess": true,
+    "types": ["bun-types"],
     "paths": {
       "@domain/*": ["./src/domain/*"],
       "@services/*": ["./src/services/*"],

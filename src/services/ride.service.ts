@@ -16,7 +16,10 @@ export class RideService {
       id: crypto.randomUUID(),
       threadId: null,
       proposerId: input.proposerId,
+      proposerName: input.proposerName,
+      name: input.name ?? null,
       date: input.date,
+      meetingTime: input.meetingTime ?? null,
       meetingPoint: input.meetingPoint,
       distanceKm: input.distanceKm ?? null,
       elevationGain: input.elevationGain ?? null,
@@ -27,14 +30,18 @@ export class RideService {
       notes: input.notes ?? null,
       status: "active",
       pinnedMessageId: null,
+      reminderDaySent: false,
+      reminderHourSent: false,
       createdAt: new Date(),
     }
 
     await this.rides.save(ride)
+    await this.rides.addMember(ride.id, ride.proposerId)
     const threadId = await this.messaging.createThread(ride)
     ride.threadId = threadId
     ride.pinnedMessageId = await this.messaging.pinSummary(threadId, ride)
     await this.rides.update(ride)
+    await this.messaging.addMemberToThread(threadId, ride.proposerId)
     await this.messaging.announce(ride)
     log.info({ rideId: ride.id, proposerId: ride.proposerId, date: ride.date }, "Ride proposed")
     return ride
@@ -42,7 +49,7 @@ export class RideService {
 
   async join(rideId: RideId, userId: UserId): Promise<void> {
     const ride = await this.rides.findById(rideId)
-    if (!ride || ride.status !== "active" || !ride.threadId) return
+    if (ride == null || ride.status !== "active" || ride.threadId == null) return
     await this.rides.addMember(rideId, userId)
     await this.messaging.addMemberToThread(ride.threadId, userId)
     log.info({ rideId, userId }, "Member joined ride")
@@ -50,7 +57,7 @@ export class RideService {
 
   async leave(rideId: RideId, userId: UserId): Promise<void> {
     const ride = await this.rides.findById(rideId)
-    if (!ride || ride.status !== "active" || !ride.threadId) return
+    if (ride == null || ride.status !== "active" || ride.threadId == null) return
     await this.rides.removeMember(rideId, userId)
     await this.messaging.removeMemberFromThread(ride.threadId, userId)
     await this.messaging.notifyThread(ride.threadId, "A member left the ride.")
@@ -59,9 +66,10 @@ export class RideService {
 
   async cancel(rideId: RideId): Promise<void> {
     const ride = await this.rides.findById(rideId)
-    if (!ride || ride.status !== "active" || !ride.threadId) return
+    if (ride == null || ride.status !== "active" || ride.threadId == null) return
     ride.status = "cancelled"
     await this.rides.update(ride)
+    await this.messaging.updatePinnedSummary(ride.threadId, ride)
     await this.messaging.notifyMainChannel(
       `The ride on ${ride.date.toDateString()} (${ride.meetingPoint}) has been cancelled.`,
     )
@@ -74,7 +82,7 @@ export class RideService {
     if (!ride || ride.status !== "active") return
     Object.assign(ride, changes)
     await this.rides.update(ride)
-    if (ride.threadId) {
+    if (ride.threadId != null) {
       await this.messaging.updatePinnedSummary(ride.threadId, ride)
       await this.messaging.notifyThread(ride.threadId, "Ride details have been updated.")
     }

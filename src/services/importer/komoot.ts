@@ -1,5 +1,5 @@
 import type { CreateRideInput, RideLevel } from "../../domain/ride"
-import { ExtractionFailedError } from "./index"
+import { ExtractionFailedError } from "./errors"
 
 interface KomootTour {
   name: string
@@ -13,14 +13,15 @@ interface KomootTour {
 export async function importFromKomoot(url: string): Promise<Partial<CreateRideInput>> {
   const parsed = new URL(url)
 
-  const tourIdMatch = parsed.pathname.match(/\/tour\/(\d+)/)
-  if (!tourIdMatch?.[1]) throw new ExtractionFailedError("Could not extract tour ID from URL.")
+  const tourIdMatch = parsed.pathname.match(/\/tour\/(\d+)/u)
+  if (tourIdMatch?.[1] == null)
+    throw new ExtractionFailedError("Could not extract tour ID from URL.")
 
   const tourId = tourIdMatch[1]
   const shareToken = parsed.searchParams.get("share_token")
 
   const apiUrl = new URL(`https://www.komoot.com/api/v007/tours/${tourId}`)
-  if (shareToken) apiUrl.searchParams.set("share_token", shareToken)
+  if (shareToken != null) apiUrl.searchParams.set("share_token", shareToken)
 
   const res = await fetch(apiUrl, {
     headers: {
@@ -40,11 +41,11 @@ export async function importFromKomoot(url: string): Promise<Partial<CreateRideI
   const tour = (await res.json()) as KomootTour
 
   return {
+    name: tour.name,
     distanceKm: Math.round((tour.distance / 1000) * 10) / 10,
     elevationGain: Math.round(tour.elevation_up),
     elevationLoss: Math.round(tour.elevation_down),
     level: mapDifficulty(tour.difficulty?.grade ?? null),
-    notes: tour.name,
     externalUrl: `https://www.komoot.com/tour/${tourId}`,
   }
 }
@@ -59,6 +60,7 @@ function mapDifficulty(difficulty: string | null): RideLevel | undefined {
     case "expert":
     case "expert+":
       return "hard"
+    case null:
     default:
       return undefined
   }

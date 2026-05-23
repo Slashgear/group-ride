@@ -21,7 +21,7 @@ function mockMessaging(): MessagingPort {
   return {
     announce: mock(async () => {}),
     createThread: mock(async () => "thread-1"),
-    pinSummary: mock(async () => {}),
+    pinSummary: mock(async () => 1),
     updatePinnedSummary: mock(async () => {}),
     closeThread: mock(async () => {}),
     addMemberToThread: mock(async () => {}),
@@ -36,7 +36,10 @@ function makeRide(overrides: Partial<Ride> = {}): Ride {
     id: "ride-1",
     threadId: "thread-1",
     proposerId: 123,
+    proposerName: "Test User",
     date: new Date("2026-06-01"),
+    name: null,
+    meetingTime: null,
     meetingPoint: "Place de la République",
     distanceKm: null,
     elevationGain: null,
@@ -47,6 +50,8 @@ function makeRide(overrides: Partial<Ride> = {}): Ride {
     notes: null,
     status: "active",
     pinnedMessageId: null,
+    reminderDaySent: false,
+    reminderHourSent: false,
     createdAt: new Date(),
     ...overrides,
   }
@@ -60,6 +65,7 @@ describe("RideService.propose", () => {
 
     const ride = await service.propose({
       proposerId: 123,
+      proposerName: "Test User",
       date: new Date("2026-06-01"),
       meetingPoint: "Place de la République",
     })
@@ -70,10 +76,87 @@ describe("RideService.propose", () => {
     expect(messaging.announce).toHaveBeenCalledTimes(1)
     expect(ride.threadId).toBe("thread-1")
   })
+
+  test("auto-joins proposer to ride and thread", async () => {
+    const repo = mockRepo()
+    const messaging = mockMessaging()
+    const service = new RideService(repo, messaging)
+
+    await service.propose({
+      proposerId: 123,
+      proposerName: "Test User",
+      date: new Date("2026-06-01"),
+      meetingPoint: "Place de la République",
+    })
+
+    expect(repo.addMember).toHaveBeenCalledWith(expect.any(String), 123)
+    expect(messaging.addMemberToThread).toHaveBeenCalledWith("thread-1", 123)
+  })
+})
+
+describe("RideService.join", () => {
+  test("adds member to repo and thread", async () => {
+    const repo = mockRepo()
+    repo.findById = mock(async () => makeRide())
+    const messaging = mockMessaging()
+    const service = new RideService(repo, messaging)
+
+    await service.join("ride-1", 42)
+
+    expect(repo.addMember).toHaveBeenCalledWith("ride-1", 42)
+    expect(messaging.addMemberToThread).toHaveBeenCalledWith("thread-1", 42)
+  })
+
+  test("does nothing if ride is not found", async () => {
+    const repo = mockRepo()
+    const messaging = mockMessaging()
+    const service = new RideService(repo, messaging)
+
+    await service.join("ride-1", 42)
+
+    expect(repo.addMember).not.toHaveBeenCalled()
+  })
+
+  test("does nothing if ride is not active", async () => {
+    const repo = mockRepo()
+    repo.findById = mock(async () => makeRide({ status: "cancelled" }))
+    const messaging = mockMessaging()
+    const service = new RideService(repo, messaging)
+
+    await service.join("ride-1", 42)
+
+    expect(repo.addMember).not.toHaveBeenCalled()
+  })
+})
+
+describe("RideService.leave", () => {
+  test("removes member from repo and thread, notifies thread", async () => {
+    const repo = mockRepo()
+    repo.findById = mock(async () => makeRide())
+    const messaging = mockMessaging()
+    const service = new RideService(repo, messaging)
+
+    await service.leave("ride-1", 42)
+
+    expect(repo.removeMember).toHaveBeenCalledWith("ride-1", 42)
+    expect(messaging.removeMemberFromThread).toHaveBeenCalledWith("thread-1", 42)
+    expect(messaging.notifyThread).toHaveBeenCalledWith("thread-1", expect.any(String))
+  })
+
+  test("does nothing if ride is not active", async () => {
+    const repo = mockRepo()
+    repo.findById = mock(async () => makeRide({ status: "cancelled" }))
+    const messaging = mockMessaging()
+    const service = new RideService(repo, messaging)
+
+    await service.leave("ride-1", 42)
+
+    expect(repo.removeMember).not.toHaveBeenCalled()
+  })
 })
 
 describe("RideService.cancel", () => {
-  test("sets status to cancelled, notifies main channel, closes thread", async () => {
+  test("sets status to cancelled, updates pinned summary, notifies main channel, closes thread", async () => {
     const repo = mockRepo()
     repo.findById = mock(async () => makeRide())
     const messaging = mockMessaging()
@@ -82,6 +165,10 @@ describe("RideService.cancel", () => {
     await service.cancel("ride-1")
 
     expect(repo.update).toHaveBeenCalledTimes(1)
+    expect(messaging.updatePinnedSummary).toHaveBeenCalledWith(
+      "thread-1",
+      expect.objectContaining({ status: "cancelled" }),
+    )
     expect(messaging.notifyMainChannel).toHaveBeenCalledTimes(1)
     expect(messaging.closeThread).toHaveBeenCalledWith("thread-1")
   })
@@ -95,6 +182,36 @@ describe("RideService.cancel", () => {
     await service.cancel("ride-1")
 
     expect(repo.update).not.toHaveBeenCalled()
+  })
+})
+
+describe("RideService.update", () => {
+  test("persists changes and refreshes pinned summary", async () => {
+    const repo = mockRepo()
+    repo.findById = mock(async () => makeRide())
+    const messaging = mockMessaging()
+    const service = new RideService(repo, messaging)
+
+    await service.update("ride-1", { meetingPoint: "Gare du Nord" })
+
+    expect(repo.update).toHaveBeenCalledTimes(1)
+    expect(messaging.updatePinnedSummary).toHaveBeenCalledWith(
+      "thread-1",
+      expect.objectContaining({ meetingPoint: "Gare du Nord" }),
+    )
+    expect(messaging.notifyThread).toHaveBeenCalledWith("thread-1", expect.any(String))
+  })
+
+  test("does nothing if ride is not active", async () => {
+    const repo = mockRepo()
+    repo.findById = mock(async () => makeRide({ status: "cancelled" }))
+    const messaging = mockMessaging()
+    const service = new RideService(repo, messaging)
+
+    await service.update("ride-1", { meetingPoint: "Gare du Nord" })
+
+    expect(repo.update).not.toHaveBeenCalled()
+    expect(messaging.updatePinnedSummary).not.toHaveBeenCalled()
   })
 })
 
@@ -113,5 +230,6 @@ describe("RideService.removeMemberFromAllActiveRides", () => {
     await service.removeMemberFromAllActiveRides(99)
 
     expect(messaging.removeMemberFromThread).toHaveBeenCalledTimes(2)
+    expect(messaging.notifyThread).toHaveBeenCalledTimes(2)
   })
 })

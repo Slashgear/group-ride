@@ -4,10 +4,10 @@ import { importFromGarmin } from "./garmin"
 import { importFromKomoot } from "./komoot"
 import { importFromStrava } from "./strava"
 
-const log = logger.child({ module: "importer" })
+import { UnsupportedPlatformError } from "./errors"
+export { ExtractionFailedError, UnsupportedPlatformError } from "./errors"
 
-export class UnsupportedPlatformError extends Error {}
-export class ExtractionFailedError extends Error {}
+const log = logger.child({ module: "importer" })
 
 export async function importFromUrl(url: string): Promise<Partial<CreateRideInput>> {
   const { hostname } = new URL(url)

@@ -3,7 +3,12 @@
 .env
 data/
 node_modules
-tests/
+Dockerfile*
+docker-compose*
+.dockerignore
+.vscode
+.idea
+coverage*
 *.md
 .oxfmtrc.json
 .oxlintrc.json
