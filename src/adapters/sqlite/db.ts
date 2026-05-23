@@ -18,6 +18,7 @@ const MIGRATIONS = [
   "003_add_proposer_name.sql",
   "004_add_meeting_time.sql",
   "005_add_ride_name.sql",
+  "006_add_reminder_flags.sql",
 ]
 
 const { user_version: currentVersion } = db.query("PRAGMA user_version").get() as {
@@ -25,7 +26,8 @@ const { user_version: currentVersion } = db.query("PRAGMA user_version").get() a
 }
 
 for (let i = currentVersion; i < MIGRATIONS.length; i++) {
-  const name = MIGRATIONS[i]!
+  const name = MIGRATIONS[i]
+  if (name == null) continue
   db.exec(readFileSync(join(import.meta.dir, "migrations", name), "utf-8"))
   db.exec(`PRAGMA user_version = ${i + 1}`)
   log.info({ migration: name, version: i + 1 }, "Migration applied")

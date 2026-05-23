@@ -1,9 +1,11 @@
 import {
-  ActionRowBuilder,
   type ButtonInteraction,
   type ChatInputCommandInteraction,
   type Client,
+  type Interaction,
+  LabelBuilder,
   MessageFlags,
+  type ModalSubmitInteraction,
   ModalBuilder,
   TextInputBuilder,
   TextInputStyle,
@@ -15,6 +17,7 @@ import {
 } from "../../../services/importer/index"
 import type { RideService } from "../../../services/ride.service"
 import { formatDate, formatDraftSummary } from "../format"
+import { parseDateAndTime, parseStats } from "../parse"
 import { buildConfirmRow } from "./shared"
 
 const MODAL_ID = "create-ride-modal"
@@ -22,73 +25,64 @@ const MODAL_ID = "create-ride-modal"
 const pendingRides = new Map<string, RidePayload>()
 
 export function buildNewRideModal(): ModalBuilder {
-  const importUrl = new TextInputBuilder()
-    .setCustomId("importUrl")
-    .setLabel("Import URL (Komoot/Strava/Garmin)")
-    .setStyle(TextInputStyle.Short)
-    .setRequired(false)
-    .setPlaceholder("https://www.komoot.com/tour/…")
-
-  const date = new TextInputBuilder()
-    .setCustomId("date")
-    .setLabel("Date (DD/MM/YYYY)")
-    .setStyle(TextInputStyle.Short)
-    .setRequired(true)
-    .setPlaceholder("25/05/2025")
-
-  const meetingPoint = new TextInputBuilder()
-    .setCustomId("meetingPoint")
-    .setLabel("Meeting point")
-    .setStyle(TextInputStyle.Short)
-    .setRequired(true)
-
-  const meetingTime = new TextInputBuilder()
-    .setCustomId("meetingTime")
-    .setLabel("Meeting time — optional")
-    .setStyle(TextInputStyle.Short)
-    .setRequired(false)
-    .setPlaceholder("08:00")
-
-  const notes = new TextInputBuilder()
-    .setCustomId("notes")
-    .setLabel("Notes — optional")
-    .setStyle(TextInputStyle.Paragraph)
-    .setRequired(false)
+  const field = (labelText: string, input: TextInputBuilder) =>
+    new LabelBuilder().setLabel(labelText).setTextInputComponent(input)
 
   return new ModalBuilder()
     .setCustomId(MODAL_ID)
     .setTitle("Propose a ride")
-    .addComponents(
-      new ActionRowBuilder<TextInputBuilder>().addComponents(importUrl),
-      new ActionRowBuilder<TextInputBuilder>().addComponents(date),
-      new ActionRowBuilder<TextInputBuilder>().addComponents(meetingTime),
-      new ActionRowBuilder<TextInputBuilder>().addComponents(meetingPoint),
-      new ActionRowBuilder<TextInputBuilder>().addComponents(notes),
+    .addLabelComponents(
+      field("Import URL (Komoot/Strava/Garmin)", new TextInputBuilder()
+        .setCustomId("importUrl")
+        .setStyle(TextInputStyle.Short)
+        .setRequired(false)
+        .setPlaceholder("https://www.komoot.com/tour/…")),
+      field("Date & time (DD/MM/YYYY or +HH:MM)", new TextInputBuilder()
+        .setCustomId("dateTime")
+        .setStyle(TextInputStyle.Short)
+        .setRequired(true)
+        .setPlaceholder("25/05/2025 08:00")),
+      field("Meeting point", new TextInputBuilder()
+        .setCustomId("meetingPoint")
+        .setStyle(TextInputStyle.Short)
+        .setRequired(true)),
+      field("Stats: distance km / D+ m / D- m — optional", new TextInputBuilder()
+        .setCustomId("stats")
+        .setStyle(TextInputStyle.Short)
+        .setRequired(false)
+        .setPlaceholder("100 / 2500 / 2000")),
+      field("Notes — optional", new TextInputBuilder()
+        .setCustomId("notes")
+        .setStyle(TextInputStyle.Paragraph)
+        .setRequired(false)),
     )
 }
 
 export function registerNewRideCommand(client: Client, rideService: RideService): void {
-  client.on("interactionCreate", async (interaction) => {
-    if (interaction.isChatInputCommand() && interaction.commandName === "newride") {
-      await handleNewRideCommand(interaction)
-      return
-    }
-
-    if (interaction.isModalSubmit() && interaction.customId === MODAL_ID) {
-      await handleModalSubmit(interaction, rideService)
-      return
-    }
-
-    if (interaction.isButton() && interaction.customId.startsWith("ride-confirm:")) {
-      await handleConfirm(interaction as ButtonInteraction, rideService)
-      return
-    }
-
-    if (interaction.isButton() && interaction.customId === "ride-cancel") {
-      await interaction.update({ content: "Ride creation cancelled.", components: [] })
-      return
-    }
+  client.on("interactionCreate", (interaction) => {
+    void onNewRideInteraction(interaction, rideService)
   })
+}
+
+async function onNewRideInteraction(interaction: Interaction, rideService: RideService): Promise<void> {
+  if (interaction.isChatInputCommand() && interaction.commandName === "newride") {
+    await handleNewRideCommand(interaction)
+    return
+  }
+
+  if (interaction.isModalSubmit() && interaction.customId === MODAL_ID) {
+    await handleModalSubmit(interaction, rideService)
+    return
+  }
+
+  if (interaction.isButton() && interaction.customId.startsWith("ride-confirm:")) {
+    await handleConfirm(interaction, rideService)
+    return
+  }
+
+  if (interaction.isButton() && interaction.customId === "ride-cancel") {
+    await interaction.update({ content: "Ride creation cancelled.", components: [] })
+  }
 }
 
 async function handleNewRideCommand(interaction: ChatInputCommandInteraction): Promise<void> {
@@ -96,108 +90,100 @@ async function handleNewRideCommand(interaction: ChatInputCommandInteraction): P
 }
 
 async function handleModalSubmit(
-  interaction: Parameters<typeof handleNewRideCommand>[0] & { isModalSubmit(): true },
+  interaction: ModalSubmitInteraction,
   _rideService: RideService,
 ): Promise<void> {
-  // @ts-expect-error — interaction type narrowed above
   const fields = interaction.fields
-
-  const rawDate = fields.getTextInputValue("date").trim()
-  const rawMeetingTime = fields.getTextInputValue("meetingTime").trim()
+  const rawDateTime = fields.getTextInputValue("dateTime").trim()
   const meetingPoint = fields.getTextInputValue("meetingPoint").trim()
+  const rawStats = fields.getTextInputValue("stats").trim()
   const rawNotes = fields.getTextInputValue("notes").trim()
   const rawUrl = fields.getTextInputValue("importUrl").trim()
 
-  const date = parseDate(rawDate)
-  if (!date) {
-    await interaction.reply({
-      content: "❌ Invalid date format. Please use DD/MM/YYYY.",
-      flags: MessageFlags.Ephemeral,
-    })
+  const parsed = parseDateAndTime(rawDateTime)
+  if (parsed == null) {
+    await interaction.reply({ content: "❌ Invalid date format. Please use DD/MM/YYYY or DD/MM/YYYY HH:MM.", flags: MessageFlags.Ephemeral })
     return
   }
-
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-  if (date < today) {
-    await interaction.reply({
-      content: "❌ The ride date must be in the future.",
-      flags: MessageFlags.Ephemeral,
-    })
+  if (parsed.date < today) {
+    await interaction.reply({ content: "❌ The ride date must be in the future.", flags: MessageFlags.Ephemeral })
     return
   }
 
-  const meetingTime = rawMeetingTime || undefined
-  let distanceKm: number | undefined
-  let elevationGain: number | undefined
-  let elevationLoss: number | undefined
-  let level: string | undefined
-  let externalUrl: string | undefined
-  let notes: string | undefined = rawNotes || undefined
-  let rideName: string | undefined
-  let importWarning = ""
+  const { date, meetingTime } = parsed
+  const manualStats = parseStats(rawStats)
+  const { importedFields, importWarning } = await resolveImport(rawUrl, manualStats)
 
-  if (rawUrl) {
-    try {
-      const imported = await importFromUrl(rawUrl)
-      rideName = imported.name
-      distanceKm ??= imported.distanceKm
-      elevationGain = imported.elevationGain
-      elevationLoss = imported.elevationLoss
-      level = imported.level
-      externalUrl = imported.externalUrl
-      notes ??= imported.notes
-      const hostname = new URL(rawUrl).hostname
-      if (hostname.includes("garmin.com")) {
-        importWarning =
-          "\n\n⚠️ Garmin courses are not publicly accessible — only the link was saved. Fill in distance and elevation manually."
-      } else if (hostname.includes("strava.com")) {
-        importWarning =
-          "\n\n⚠️ Strava activities require authentication — only the link was saved. Fill in distance and elevation manually."
-      }
-    } catch (err) {
-      if (err instanceof UnsupportedPlatformError) {
-        importWarning = "\n\n⚠️ Import URL not supported — continuing with manual data."
-      } else if (err instanceof ExtractionFailedError) {
-        importWarning =
-          "\n\n⚠️ Could not extract details (activity may be private) — continuing with manual data."
-      }
-    }
-  }
-
+  const notes = importedFields.notes ?? (rawNotes === "" ? undefined : rawNotes)
   const summary = formatDraftSummary({
-    date,
-    meetingTime,
-    meetingPoint,
+    date, meetingTime, meetingPoint,
     proposerName: interaction.user.displayName,
-    distanceKm,
-    elevationGain,
-    elevationLoss,
-    level: level as never,
-    externalUrl,
-    notes,
+    ...importedFields, notes,
   })
-
   const payload = encodePayload({
-    date: rawDate,
-    name: rideName,
-    meetingTime,
-    meetingPoint,
-    distanceKm,
-    elevationGain,
-    elevationLoss,
-    level,
-    externalUrl,
-    notes,
-    proposerId: interaction.user.id,
-    proposerName: interaction.user.displayName,
+    dateTime: rawDateTime, name: importedFields.name, meetingTime, meetingPoint,
+    distanceKm: importedFields.distanceKm, elevationGain: importedFields.elevationGain,
+    elevationLoss: importedFields.elevationLoss, level: importedFields.level,
+    externalUrl: importedFields.externalUrl, notes,
+    proposerId: interaction.user.id, proposerName: interaction.user.displayName,
   })
-
   await interaction.reply({
     content: `Ready to create:${importWarning}\n\n${summary}`,
     components: [buildConfirmRow(payload)],
     flags: MessageFlags.Ephemeral,
   })
+}
+
+interface ImportResult {
+  importedFields: {
+    name?: string
+    distanceKm?: number
+    elevationGain?: number
+    elevationLoss?: number
+    level?: string
+    externalUrl?: string
+    notes?: string
+  }
+  importWarning: string
+}
+
+async function resolveImport(
+  rawUrl: string,
+  manualStats: { distanceKm?: number; elevationGain?: number; elevationLoss?: number },
+): Promise<ImportResult> {
+  const base = { distanceKm: manualStats.distanceKm, elevationGain: manualStats.elevationGain, elevationLoss: manualStats.elevationLoss }
+  if (rawUrl === "") return { importedFields: base, importWarning: "" }
+
+  try {
+    const imported = await importFromUrl(rawUrl)
+    const hostname = new URL(rawUrl).hostname
+    let importWarning = ""
+    if (hostname.includes("garmin.com"))
+      importWarning = "\n\n⚠️ Garmin courses are not publicly accessible — only the link was saved. Fill in distance and elevation manually."
+    else if (hostname.includes("strava.com"))
+      importWarning = "\n\n⚠️ Strava activities require authentication — only the link was saved. Fill in distance and elevation manually."
+    return {
+      importedFields: {
+        ...base,
+        distanceKm: base.distanceKm ?? imported.distanceKm,
+        elevationGain: base.elevationGain ?? imported.elevationGain,
+        elevationLoss: base.elevationLoss ?? imported.elevationLoss,
+        name: imported.name, level: imported.level, externalUrl: imported.externalUrl,
+        notes: imported.notes,
+      },
+      importWarning,
+    }
+  } catch (err) {
+    const importWarning =
+      err instanceof UnsupportedPlatformError
+        ? "\n\n⚠️ Import URL not supported — continuing with manual data."
+        : err instanceof ExtractionFailedError
+          ? "\n\n⚠️ Could not extract details (activity may be private) — continuing with manual data."
+          : ""
+    return { importedFields: base, importWarning }
+  }
 }
 
 async function handleConfirm(
@@ -215,11 +201,12 @@ async function handleConfirm(
     return
   }
 
-  const date = parseDate(data.date)
-  if (!date) {
+  const parsed = parseDateAndTime(data.dateTime)
+  if (!parsed) {
     await interaction.update({ content: "❌ Invalid date in payload.", components: [] })
     return
   }
+  const { date, meetingTime: payloadMeetingTime } = parsed
 
   await interaction.deferUpdate()
 
@@ -228,7 +215,7 @@ async function handleConfirm(
     proposerName: data.proposerName,
     name: data.name,
     date,
-    meetingTime: data.meetingTime,
+    meetingTime: data.meetingTime ?? payloadMeetingTime,
     meetingPoint: data.meetingPoint,
     distanceKm: data.distanceKm,
     elevationGain: data.elevationGain,
@@ -244,16 +231,8 @@ async function handleConfirm(
   })
 }
 
-function parseDate(text: string): Date | null {
-  const parts = text.split("/").map(Number)
-  if (parts.length !== 3) return null
-  const [day, month, year] = parts as [number, number, number]
-  const date = new Date(year, month - 1, day)
-  return isNaN(date.getTime()) ? null : date
-}
-
 interface RidePayload {
-  date: string
+  dateTime: string
   name?: string
   meetingTime?: string
   meetingPoint: string

@@ -23,6 +23,8 @@ export interface Ride {
   notes: string | null
   status: RideStatus
   pinnedMessageId: number | null
+  reminderDaySent: boolean
+  reminderHourSent: boolean
   createdAt: Date
 }
 

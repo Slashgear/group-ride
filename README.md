@@ -58,10 +58,10 @@ Any member can propose a ride. The organiser is not a fixed role — it is simpl
 Each ride is described by:
 
 - 📅 Date
+- 🕐 Meeting time (optional)
 - 📍 Meeting point
-- 📏 Distance / D+ / D-
-- 💪 Estimated level
-- 🗺️ GPX track
+- 📏 Distance / D+ / D- (optional, set manually or auto-filled from import)
+- 💪 Estimated level (auto-filled from Komoot import)
 - 🔗 Link to the source platform (Komoot, Strava, Garmin)
 - 📝 Free notes
 
@@ -73,9 +73,9 @@ The form is displayed as the **starter message** of the ride thread and updated 
 
 The ride creation modal accepts an optional URL that pre-fills the form automatically:
 
-- **Komoot** — public access, direct extraction
-- **Strava** — may require the activity to be public on the profile
-- **Garmin Connect** — same
+- **Komoot** — public access; extracts name, distance, D+/D-, level, and link
+- **Strava** — requires OAuth; only the link is saved, a warning is shown
+- **Garmin Connect** — courses are not publicly accessible; only the link is saved, a warning is shown
 
 If extraction fails (private activity or unavailable), the bot warns the proposer and falls back to the data entered manually in the modal.
 
@@ -134,6 +134,30 @@ sequenceDiagram
     Bot->>Ride: Adds member to thread
     Bot-->>Member: Confirmation (ephemeral)
 
+    alt Member joins from thread
+        Member->>Ride: Clicks 🚴 Join
+        Bot-->>Member: Confirmation (ephemeral)
+    else Member leaves
+        Member->>Ride: Clicks 🚪 Leave
+        Bot->>Ride: Removes member, notifies thread
+    else Edit ride
+        Proposer->>Ride: Clicks ✏️ Edit
+        Bot-->>Proposer: Pre-filled modal
+        Proposer->>Bot: Submits changes
+        Bot->>Ride: Updates pinned message
+    else Cancel
+        Proposer->>Ride: Clicks ❌ Cancel
+        Bot->>Channel: Cancellation notice
+        Bot->>Ride: Closes thread
+    else View participants
+        Member->>Ride: Clicks 👥 Participants
+        Bot-->>Member: List of members (ephemeral)
+    end
+
+    Note over Proposer,Ride: Reminders (if meeting time is set)
+    Bot->>Ride: Day-before reminder notification
+    Bot->>Ride: 1-hour-before reminder notification
+
     Note over Proposer,Ride: After the ride (if not cancelled)
     Bot->>Ride: Closes (archives) the thread
 ```
@@ -149,7 +173,8 @@ sequenceDiagram
 ### Ride thread
 - Created automatically by the bot for each proposal.
 - The starter message is the source of truth for the ride details.
-- Any registered member can cancel the ride.
+- Any registered member can join, leave, edit, or cancel the ride via the action buttons.
+- If a meeting time is set, the bot sends a reminder the day before and 1 hour before.
 - The thread closes immediately on cancellation.
 - The thread becomes read-only 24 hours after the ride.
 
@@ -171,6 +196,5 @@ sequenceDiagram
 
 ## Open questions
 
-- **Joining after the initial announcement** — can a member register for a ride at any time, or only within a time window?
 - **Member removal** — are other members registered for that member's active rides notified?
-- **OAuth for Strava / Garmin** — should an authentication flow be modelled for private activities on these platforms?
+- **OAuth for Strava / Garmin** — should an authentication flow be modelled to enable full data extraction for private activities?

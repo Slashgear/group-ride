@@ -1,4 +1,4 @@
-import type { Client } from "discord.js"
+import { type Client, type GuildMember } from "discord.js"
 
 const WELCOME_MESSAGE = (name: string) => `Hey ${name}! 👋 Welcome to **Group Ride** 🚴
 
@@ -19,15 +19,19 @@ Inside the thread, use the **Leave** button to drop out, or **Cancel ride** to c
 See you on the road! 🚵`
 
 export function registerMemberJoinedHandler(client: Client): void {
-  client.on("guildMemberAdd", async (member) => {
-    try {
-      await member.send(WELCOME_MESSAGE(member.displayName))
-    } catch {
-      const channel = member.guild.systemChannel
-      if (channel)
-        await channel.send(
-          `Welcome to Group Ride, ${member.displayName}! 🚴 Check your DMs for info on how to use the bot.`,
-        )
-    }
+  client.on("guildMemberAdd", (member) => {
+    void onMemberJoined(member)
   })
+}
+
+async function onMemberJoined(member: GuildMember): Promise<void> {
+  try {
+    await member.send(WELCOME_MESSAGE(member.displayName))
+  } catch {
+    const channel = member.guild.systemChannel
+    if (channel)
+      await channel.send(
+        `Welcome to Group Ride, ${member.displayName}! 🚴 Check your DMs for info on how to use the bot.`,
+      )
+  }
 }

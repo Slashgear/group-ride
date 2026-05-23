@@ -26,37 +26,38 @@ function buildSummaryLines(fields: SummaryFields): string[] {
     "",
     `📍 **Meeting point:** ${fields.meetingPoint}`,
   ]
-  if (fields.meetingTime) lines.splice(2, 0, `🕐 **Time:** ${fields.meetingTime}`)
+  if (fields.meetingTime != null) lines.splice(2, 0, `🕐 **Time:** ${fields.meetingTime}`)
   if (fields.distanceKm != null) lines.push(`📏 **Distance:** ${fields.distanceKm} km`)
   if (fields.elevationGain != null) lines.push(`⬆️ **D+:** ${fields.elevationGain} m`)
   if (fields.elevationLoss != null) lines.push(`⬇️ **D-:** ${fields.elevationLoss} m`)
-  if (fields.level) lines.push(`💪 **Level:** ${LEVEL_LABEL[fields.level]}`)
-  if (fields.gpxUrl) lines.push(`🗺️ [GPX track](${fields.gpxUrl})`)
-  if (fields.externalUrl) lines.push(`🔗 [View on platform](${fields.externalUrl})`)
-  if (fields.notes) lines.push("", `📝 ${fields.notes}`)
-  if (fields.proposerName) lines.push("", `👤 **Organised by:** ${fields.proposerName}`)
+  if (fields.level != null) lines.push(`💪 **Level:** ${LEVEL_LABEL[fields.level]}`)
+  if (fields.gpxUrl != null) lines.push(`🗺️ [GPX track](${fields.gpxUrl})`)
+  if (fields.externalUrl != null) lines.push(`🔗 [View on platform](${fields.externalUrl})`)
+  if (fields.notes != null) lines.push("", `📝 ${fields.notes}`)
+  if (fields.proposerName != null) lines.push("", `👤 **Organised by:** ${fields.proposerName}`)
   return lines
 }
 
 export function formatThreadTitle(ride: Ride): string {
   const base = `Ride – ${formatDate(ride.date)}`
-  if (!ride.name) return base
+  if (ride.name == null) return base
   const full = `${base} – ${ride.name}`
   return full.length <= 100 ? full : full.slice(0, 97) + "…"
 }
 
 export function formatAnnouncement(ride: Ride): string {
-  const title = ride.name
-    ? `🚴 **${ride.proposerName}** is organising a ride for **${formatDate(ride.date)}** — ${ride.name}`
-    : `🚴 **${ride.proposerName}** is organising a ride for **${formatDate(ride.date)}**`
+  const title =
+    ride.name == null
+      ? `🚴 **${ride.proposerName}** is organising a ride for **${formatDate(ride.date)}**`
+      : `🚴 **${ride.proposerName}** is organising a ride for **${formatDate(ride.date)}** — ${ride.name}`
   const lines = [title, ""]
-  if (ride.meetingTime) lines.push(`🕐 **Time:** ${ride.meetingTime}`)
+  if (ride.meetingTime != null) lines.push(`🕐 **Time:** ${ride.meetingTime}`)
   lines.push(`📍 **Meeting point:** ${ride.meetingPoint}`)
   if (ride.distanceKm != null) lines.push(`📏 **Distance:** ${ride.distanceKm} km`)
   if (ride.elevationGain != null) lines.push(`⬆️ **D+:** ${ride.elevationGain} m`)
   if (ride.elevationLoss != null) lines.push(`⬇️ **D-:** ${ride.elevationLoss} m`)
-  if (ride.level) lines.push(`💪 **Level:** ${LEVEL_LABEL[ride.level]}`)
-  if (ride.externalUrl) lines.push(`🔗 [View route](${ride.externalUrl})`)
+  if (ride.level != null) lines.push(`💪 **Level:** ${LEVEL_LABEL[ride.level]}`)
+  if (ride.externalUrl != null) lines.push(`🔗 [View route](${ride.externalUrl})`)
   return lines.join("\n")
 }
 

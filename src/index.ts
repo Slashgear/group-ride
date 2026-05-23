@@ -6,6 +6,7 @@ import { registerMemberJoinedHandler } from "./adapters/discord/handlers/member-
 import { registerMemberLeftHandler } from "./adapters/discord/handlers/member-left"
 import { registerLeaveCancelHandler } from "./adapters/discord/handlers/leave-cancel"
 import { registerEditRideHandler } from "./adapters/discord/handlers/edit-ride"
+import { registerParticipantsHandler } from "./adapters/discord/handlers/participants"
 import { DiscordMessaging } from "./adapters/discord/messaging"
 import { SqliteRideRepository } from "./adapters/sqlite/ride.repo"
 import { RideService } from "./services/ride.service"
@@ -18,11 +19,11 @@ const guildId = process.env.DISCORD_GUILD_ID
 const announcementChannelId = process.env.DISCORD_ANNOUNCEMENT_CHANNEL_ID
 const forumChannelId = process.env.DISCORD_FORUM_CHANNEL_ID
 
-if (!token) throw new Error("DISCORD_TOKEN is required")
-if (!clientId) throw new Error("DISCORD_CLIENT_ID is required")
-if (!guildId) throw new Error("DISCORD_GUILD_ID is required")
-if (!announcementChannelId) throw new Error("DISCORD_ANNOUNCEMENT_CHANNEL_ID is required")
-if (!forumChannelId) throw new Error("DISCORD_FORUM_CHANNEL_ID is required")
+if (token == null) throw new Error("DISCORD_TOKEN is required")
+if (clientId == null) throw new Error("DISCORD_CLIENT_ID is required")
+if (guildId == null) throw new Error("DISCORD_GUILD_ID is required")
+if (announcementChannelId == null) throw new Error("DISCORD_ANNOUNCEMENT_CHANNEL_ID is required")
+if (forumChannelId == null) throw new Error("DISCORD_FORUM_CHANNEL_ID is required")
 
 const client = createClient()
 const messaging = new DiscordMessaging(client, guildId, announcementChannelId, forumChannelId)
@@ -38,12 +39,13 @@ registerMemberJoinedHandler(client)
 registerMemberLeftHandler(client, rideService)
 registerLeaveCancelHandler(client, rideService)
 registerEditRideHandler(client, rideRepo, rideService)
+registerParticipantsHandler(client, rideRepo)
 
 client.once("clientReady", () => {
   logger.info({ username: client.user?.tag }, "Group Ride bot is running")
   scheduler.start()
 })
 
-client.on("error", (err) => logger.error({ err }, "Unhandled Discord client error"))
+client.on("error", (err) => { logger.error({ err }, "Unhandled Discord client error") })
 
 await client.login(token)

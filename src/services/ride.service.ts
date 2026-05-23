@@ -30,6 +30,8 @@ export class RideService {
       notes: input.notes ?? null,
       status: "active",
       pinnedMessageId: null,
+      reminderDaySent: false,
+      reminderHourSent: false,
       createdAt: new Date(),
     }
 
@@ -47,7 +49,7 @@ export class RideService {
 
   async join(rideId: RideId, userId: UserId): Promise<void> {
     const ride = await this.rides.findById(rideId)
-    if (!ride || ride.status !== "active" || !ride.threadId) return
+    if (ride == null || ride.status !== "active" || ride.threadId == null) return
     await this.rides.addMember(rideId, userId)
     await this.messaging.addMemberToThread(ride.threadId, userId)
     log.info({ rideId, userId }, "Member joined ride")
@@ -55,7 +57,7 @@ export class RideService {
 
   async leave(rideId: RideId, userId: UserId): Promise<void> {
     const ride = await this.rides.findById(rideId)
-    if (!ride || ride.status !== "active" || !ride.threadId) return
+    if (ride == null || ride.status !== "active" || ride.threadId == null) return
     await this.rides.removeMember(rideId, userId)
     await this.messaging.removeMemberFromThread(ride.threadId, userId)
     await this.messaging.notifyThread(ride.threadId, "A member left the ride.")
@@ -64,7 +66,7 @@ export class RideService {
 
   async cancel(rideId: RideId): Promise<void> {
     const ride = await this.rides.findById(rideId)
-    if (!ride || ride.status !== "active" || !ride.threadId) return
+    if (ride == null || ride.status !== "active" || ride.threadId == null) return
     ride.status = "cancelled"
     await this.rides.update(ride)
     await this.messaging.updatePinnedSummary(ride.threadId, ride)
@@ -80,7 +82,7 @@ export class RideService {
     if (!ride || ride.status !== "active") return
     Object.assign(ride, changes)
     await this.rides.update(ride)
-    if (ride.threadId) {
+    if (ride.threadId != null) {
       await this.messaging.updatePinnedSummary(ride.threadId, ride)
       await this.messaging.notifyThread(ride.threadId, "Ride details have been updated.")
     }

@@ -98,7 +98,7 @@ On startup, the bot will:
 
 ## Step 7 — Verify
 
-Type `/newride` in any channel of your server. A modal should appear with fields for date, meeting point, import URL, distance, and notes.
+Type `/newride` in any channel of your server. A modal should appear with fields for: import URL, date & time, meeting point, stats (distance / D+ / D-), and notes.
 
 ---
 

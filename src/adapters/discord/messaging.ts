@@ -20,7 +20,7 @@ export class DiscordMessaging implements MessagingPort {
 
   async announce(ride: Ride): Promise<void> {
     const channel = await this.client.channels.fetch(this.announcementChannelId)
-    if (!channel?.isTextBased()) throw new Error("Announcement channel is not a text channel")
+    if (channel?.isTextBased() !== true) throw new Error("Announcement channel is not a text channel")
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId(`join:${ride.id}`)
@@ -34,7 +34,7 @@ export class DiscordMessaging implements MessagingPort {
     const channel = await this.client.channels.fetch(this.forumChannelId)
     if (channel?.type !== ChannelType.GuildForum)
       throw new Error("Forum channel is not a GUILD_FORUM channel")
-    const forum = channel as ForumChannel
+    const forum = channel as unknown as ForumChannel
     const thread = await forum.threads.create({
       name: formatThreadTitle(ride),
       message: { content: formatSummary(ride), components: [buildRideActionsRow(ride.id)] },
@@ -44,19 +44,19 @@ export class DiscordMessaging implements MessagingPort {
 
   async pinSummary(threadId: ThreadId, _ride: Ride): Promise<number> {
     const thread = await this.client.channels.fetch(threadId)
-    if (!thread?.isThread()) throw new Error(`Channel ${threadId} is not a thread`)
+    if (thread?.isThread() !== true) throw new Error(`Channel ${threadId} is not a thread`)
     // In a forum thread the starter message is already pinned by Discord.
     // We fetch it and return its numeric ID for updatePinnedSummary.
     const messages = await thread.messages.fetch({ limit: 1, after: "0" })
     const starter = messages.first()
-    if (!starter) throw new Error("Could not fetch starter message")
+    if (starter == null) throw new Error("Could not fetch starter message")
     return Number(starter.id)
   }
 
   async updatePinnedSummary(threadId: ThreadId, ride: Ride): Promise<void> {
-    if (!ride.pinnedMessageId) return
+    if (ride.pinnedMessageId == null) return
     const thread = await this.client.channels.fetch(threadId)
-    if (!thread?.isThread()) throw new Error(`Channel ${threadId} is not a thread`)
+    if (thread?.isThread() !== true) throw new Error(`Channel ${threadId} is not a thread`)
     const msg = await thread.messages.fetch(String(ride.pinnedMessageId))
     const components = ride.status === "active" ? [buildRideActionsRow(ride.id)] : []
     await msg.edit({ content: formatSummary(ride), components })
@@ -64,32 +64,32 @@ export class DiscordMessaging implements MessagingPort {
 
   async closeThread(threadId: ThreadId): Promise<void> {
     const thread = await this.client.channels.fetch(threadId)
-    if (!thread?.isThread()) throw new Error(`Channel ${threadId} is not a thread`)
+    if (thread?.isThread() !== true) throw new Error(`Channel ${threadId} is not a thread`)
     await thread.setArchived(true)
   }
 
   async addMemberToThread(threadId: ThreadId, userId: UserId): Promise<void> {
     const thread = await this.client.channels.fetch(threadId)
-    if (!thread?.isThread()) throw new Error(`Channel ${threadId} is not a thread`)
+    if (thread?.isThread() !== true) throw new Error(`Channel ${threadId} is not a thread`)
     await thread.members.add(String(userId))
     await thread.send(`<@${userId}> You're in! Welcome to the ride. 🚴`)
   }
 
   async removeMemberFromThread(threadId: ThreadId, userId: UserId): Promise<void> {
     const thread = await this.client.channels.fetch(threadId)
-    if (!thread?.isThread()) throw new Error(`Channel ${threadId} is not a thread`)
+    if (thread?.isThread() !== true) throw new Error(`Channel ${threadId} is not a thread`)
     await thread.members.remove(String(userId))
   }
 
   async notifyThread(threadId: ThreadId, message: string): Promise<void> {
     const thread = await this.client.channels.fetch(threadId)
-    if (!thread?.isThread()) throw new Error(`Channel ${threadId} is not a thread`)
+    if (thread?.isThread() !== true) throw new Error(`Channel ${threadId} is not a thread`)
     await thread.send(message)
   }
 
   async notifyMainChannel(message: string): Promise<void> {
     const channel = await this.client.channels.fetch(this.announcementChannelId)
-    if (!channel?.isTextBased()) throw new Error("Announcement channel is not a text channel")
+    if (channel?.isTextBased() !== true) throw new Error("Announcement channel is not a text channel")
     await channel.send(message)
   }
 }
@@ -100,6 +100,10 @@ function buildRideActionsRow(rideId: string): ActionRowBuilder<ButtonBuilder> {
       .setCustomId(`join:${rideId}`)
       .setLabel("🚴 Join")
       .setStyle(ButtonStyle.Success),
+    new ButtonBuilder()
+      .setCustomId(`participants:${rideId}`)
+      .setLabel("👥 Participants")
+      .setStyle(ButtonStyle.Secondary),
     new ButtonBuilder()
       .setCustomId(`edit:${rideId}`)
       .setLabel("✏️ Edit")
