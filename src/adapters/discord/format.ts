@@ -61,8 +61,15 @@ export function formatAnnouncement(ride: Ride): string {
   return lines.join("\n")
 }
 
-export function formatSummary(ride: Ride): string {
-  return buildSummaryLines(ride).join("\n")
+export function formatSummary(ride: Ride, participants: number[] = []): string {
+  const lines = buildSummaryLines(ride)
+  lines.push("")
+  if (participants.length > 0) {
+    lines.push(`👥 **Participants (${participants.length}):** ${participants.map((id) => `<@${id}>`).join(", ")}`)
+  } else {
+    lines.push("👥 *No participants yet*")
+  }
+  return lines.join("\n")
 }
 
 export function formatDraftSummary(fields: SummaryFields): string {

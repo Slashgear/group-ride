@@ -168,6 +168,7 @@ describe("RideService.cancel", () => {
     expect(messaging.updatePinnedSummary).toHaveBeenCalledWith(
       "thread-1",
       expect.objectContaining({ status: "cancelled" }),
+      expect.any(Array),
     )
     expect(messaging.notifyMainChannel).toHaveBeenCalledTimes(1)
     expect(messaging.closeThread).toHaveBeenCalledWith("thread-1")
@@ -198,6 +199,7 @@ describe("RideService.update", () => {
     expect(messaging.updatePinnedSummary).toHaveBeenCalledWith(
       "thread-1",
       expect.objectContaining({ meetingPoint: "Gare du Nord" }),
+      expect.any(Array),
     )
     expect(messaging.notifyThread).toHaveBeenCalledWith("thread-1", expect.any(String))
   })

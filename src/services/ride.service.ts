@@ -41,6 +41,8 @@ export class RideService {
     ride.threadId = threadId
     ride.pinnedMessageId = await this.messaging.pinSummary(threadId, ride)
     await this.rides.update(ride)
+    const initialMembers = await this.rides.getMembers(ride.id)
+    await this.messaging.updatePinnedSummary(threadId, ride, initialMembers)
     await this.messaging.addMemberToThread(threadId, ride.proposerId)
     await this.messaging.announce(ride)
     log.info({ rideId: ride.id, proposerId: ride.proposerId, date: ride.date }, "Ride proposed")
@@ -52,6 +54,8 @@ export class RideService {
     if (ride == null || ride.status !== "active" || ride.threadId == null) return
     await this.rides.addMember(rideId, userId)
     await this.messaging.addMemberToThread(ride.threadId, userId)
+    const members = await this.rides.getMembers(rideId)
+    await this.messaging.updatePinnedSummary(ride.threadId, ride, members)
     log.info({ rideId, userId }, "Member joined ride")
   }
 
@@ -61,6 +65,8 @@ export class RideService {
     await this.rides.removeMember(rideId, userId)
     await this.messaging.removeMemberFromThread(ride.threadId, userId)
     await this.messaging.notifyThread(ride.threadId, "A member left the ride.")
+    const members = await this.rides.getMembers(rideId)
+    await this.messaging.updatePinnedSummary(ride.threadId, ride, members)
     log.info({ rideId, userId }, "Member left ride")
   }
 
@@ -69,7 +75,8 @@ export class RideService {
     if (ride == null || ride.status !== "active" || ride.threadId == null) return
     ride.status = "cancelled"
     await this.rides.update(ride)
-    await this.messaging.updatePinnedSummary(ride.threadId, ride)
+    const members = await this.rides.getMembers(rideId)
+    await this.messaging.updatePinnedSummary(ride.threadId, ride, members)
     await this.messaging.notifyMainChannel(
       `The ride on ${ride.date.toDateString()} (${ride.meetingPoint}) has been cancelled.`,
     )
@@ -83,7 +90,8 @@ export class RideService {
     Object.assign(ride, changes)
     await this.rides.update(ride)
     if (ride.threadId != null) {
-      await this.messaging.updatePinnedSummary(ride.threadId, ride)
+      const members = await this.rides.getMembers(rideId)
+      await this.messaging.updatePinnedSummary(ride.threadId, ride, members)
       await this.messaging.notifyThread(ride.threadId, "Ride details have been updated.")
     }
     log.info({ rideId, changes: Object.keys(changes) }, "Ride updated")

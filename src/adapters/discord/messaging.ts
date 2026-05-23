@@ -58,13 +58,13 @@ export class DiscordMessaging implements MessagingPort {
     return Number(starter.id)
   }
 
-  async updatePinnedSummary(threadId: ThreadId, ride: Ride): Promise<void> {
+  async updatePinnedSummary(threadId: ThreadId, ride: Ride, participants: UserId[]): Promise<void> {
     if (ride.pinnedMessageId == null) return
     const thread = await this.client.channels.fetch(threadId)
     if (thread?.isThread() !== true) throw new Error(`Channel ${threadId} is not a thread`)
     const msg = await thread.messages.fetch(String(ride.pinnedMessageId))
     const components = ride.status === "active" ? [buildRideActionsRow(ride.id)] : []
-    await msg.edit({ content: formatSummary(ride), components })
+    await msg.edit({ content: formatSummary(ride, participants), components })
   }
 
   async closeThread(threadId: ThreadId): Promise<void> {
