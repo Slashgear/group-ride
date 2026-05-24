@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS rides (
   id TEXT PRIMARY KEY,
   thread_id TEXT,
-  proposer_id BIGINT NOT NULL,
+  proposer_id TEXT NOT NULL,
   date TIMESTAMPTZ NOT NULL,
   meeting_point TEXT NOT NULL,
   distance_km REAL,
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS rides (
 
 CREATE TABLE IF NOT EXISTS ride_members (
   ride_id TEXT NOT NULL,
-  user_id BIGINT NOT NULL,
+  user_id TEXT NOT NULL,
   joined_at TIMESTAMPTZ NOT NULL,
   PRIMARY KEY (ride_id, user_id),
   FOREIGN KEY (ride_id) REFERENCES rides(id)

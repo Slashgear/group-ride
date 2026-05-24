@@ -35,7 +35,7 @@ function makeRide(overrides: Partial<Ride> = {}): Ride {
   return {
     id: "ride-1",
     threadId: "thread-1",
-    proposerId: 123,
+    proposerId: "123",
     proposerName: "Test User",
     date: new Date("2026-06-01"),
     name: null,
@@ -64,7 +64,7 @@ describe("RideService.propose", () => {
     const service = new RideService(repo, messaging)
 
     const ride = await service.propose({
-      proposerId: 123,
+      proposerId: "123",
       proposerName: "Test User",
       date: new Date("2026-06-01"),
       meetingPoint: "Place de la République",
@@ -83,14 +83,14 @@ describe("RideService.propose", () => {
     const service = new RideService(repo, messaging)
 
     await service.propose({
-      proposerId: 123,
+      proposerId: "123",
       proposerName: "Test User",
       date: new Date("2026-06-01"),
       meetingPoint: "Place de la République",
     })
 
-    expect(repo.addMember).toHaveBeenCalledWith(expect.any(String), 123)
-    expect(messaging.addMemberToThread).toHaveBeenCalledWith("thread-1", 123)
+    expect(repo.addMember).toHaveBeenCalledWith(expect.any(String), "123")
+    expect(messaging.addMemberToThread).toHaveBeenCalledWith("thread-1", "123")
   })
 })
 
@@ -101,10 +101,10 @@ describe("RideService.join", () => {
     const messaging = mockMessaging()
     const service = new RideService(repo, messaging)
 
-    await service.join("ride-1", 42)
+    await service.join("ride-1", "42")
 
-    expect(repo.addMember).toHaveBeenCalledWith("ride-1", 42)
-    expect(messaging.addMemberToThread).toHaveBeenCalledWith("thread-1", 42)
+    expect(repo.addMember).toHaveBeenCalledWith("ride-1", "42")
+    expect(messaging.addMemberToThread).toHaveBeenCalledWith("thread-1", "42")
   })
 
   test("does nothing if ride is not found", async () => {
@@ -112,7 +112,7 @@ describe("RideService.join", () => {
     const messaging = mockMessaging()
     const service = new RideService(repo, messaging)
 
-    await service.join("ride-1", 42)
+    await service.join("ride-1", "42")
 
     expect(repo.addMember).not.toHaveBeenCalled()
   })
@@ -123,7 +123,7 @@ describe("RideService.join", () => {
     const messaging = mockMessaging()
     const service = new RideService(repo, messaging)
 
-    await service.join("ride-1", 42)
+    await service.join("ride-1", "42")
 
     expect(repo.addMember).not.toHaveBeenCalled()
   })
@@ -136,10 +136,10 @@ describe("RideService.leave", () => {
     const messaging = mockMessaging()
     const service = new RideService(repo, messaging)
 
-    await service.leave("ride-1", 42)
+    await service.leave("ride-1", "42")
 
-    expect(repo.removeMember).toHaveBeenCalledWith("ride-1", 42)
-    expect(messaging.removeMemberFromThread).toHaveBeenCalledWith("thread-1", 42)
+    expect(repo.removeMember).toHaveBeenCalledWith("ride-1", "42")
+    expect(messaging.removeMemberFromThread).toHaveBeenCalledWith("thread-1", "42")
     expect(messaging.notifyThread).toHaveBeenCalledWith("thread-1", expect.any(String))
   })
 
@@ -149,7 +149,7 @@ describe("RideService.leave", () => {
     const messaging = mockMessaging()
     const service = new RideService(repo, messaging)
 
-    await service.leave("ride-1", 42)
+    await service.leave("ride-1", "42")
 
     expect(repo.removeMember).not.toHaveBeenCalled()
   })
@@ -229,7 +229,7 @@ describe("RideService.removeMemberFromAllActiveRides", () => {
     const messaging = mockMessaging()
     const service = new RideService(repo, messaging)
 
-    await service.removeMemberFromAllActiveRides(99)
+    await service.removeMemberFromAllActiveRides("99")
 
     expect(messaging.removeMemberFromThread).toHaveBeenCalledTimes(2)
     expect(messaging.notifyThread).toHaveBeenCalledTimes(2)

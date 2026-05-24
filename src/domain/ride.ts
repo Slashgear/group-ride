@@ -1,6 +1,8 @@
 export type RideId = string
 export type ThreadId = string
-export type UserId = number
+// UserId is kept as string to avoid precision loss with 64-bit Discord/Telegram snowflake IDs
+// (which exceed Number.MAX_SAFE_INTEGER). Adapters must convert to string at their boundary.
+export type UserId = string
 
 export type RideLevel = "easy" | "moderate" | "hard"
 export type RideStatus = "active" | "cancelled" | "closed"

@@ -29,7 +29,7 @@ function rowToRide(row: RideRow): Ride {
   return {
     id: row.id,
     threadId: row.thread_id,
-    proposerId: row.proposer_id,
+    proposerId: String(row.proposer_id),
     proposerName: row.proposer_name,
     name: row.name,
     date: new Date(row.date),
@@ -90,7 +90,9 @@ export class SqliteRideRepository implements RideRepository {
   }
 
   findActive(): Promise<Ride[]> {
-    const rows = db.query("SELECT * FROM rides WHERE status = 'active'").all() as RideRow[]
+    const rows = db
+      .query("SELECT * FROM rides WHERE status = 'active' ORDER BY date ASC")
+      .all() as RideRow[]
     return Promise.resolve(rows.map(rowToRide))
   }
 
@@ -154,6 +156,6 @@ export class SqliteRideRepository implements RideRepository {
     const rows = db.query("SELECT user_id FROM ride_members WHERE ride_id = ?").all(rideId) as {
       user_id: number
     }[]
-    return Promise.resolve(rows.map((r) => r.user_id))
+    return Promise.resolve(rows.map((r) => String(r.user_id)))
   }
 }

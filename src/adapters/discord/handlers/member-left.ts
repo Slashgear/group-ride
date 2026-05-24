@@ -11,5 +11,5 @@ async function onMemberLeft(
   member: GuildMember | PartialGuildMember,
   rideService: RideService,
 ): Promise<void> {
-  await rideService.removeMemberFromAllActiveRides(Number(member.id))
+  await rideService.removeMemberFromAllActiveRides(member.id)
 }

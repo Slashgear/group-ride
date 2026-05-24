@@ -69,7 +69,10 @@ export class SchedulerService {
 
   private async maybeSendHourBeforeReminder(ride: Ride, now: number): Promise<void> {
     if (ride.reminderHourSent || ride.threadId == null || ride.meetingTime == null) return
-    const [h, m] = ride.meetingTime.split(":").map(Number) as [number, number]
+    const parts = ride.meetingTime.split(":")
+    const h = Number(parts[0])
+    const m = Number(parts[1])
+    if (!Number.isFinite(h) || !Number.isFinite(m)) return
     const rideDateTime = new Date(ride.date)
     rideDateTime.setHours(h, m, 0, 0)
     const timeUntil = rideDateTime.getTime() - now

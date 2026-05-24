@@ -13,7 +13,7 @@ async function onJoinRide(interaction: Interaction, rideService: RideService): P
   if (match?.[1] == null) return
 
   const rideId = match[1]
-  const userId = Number(interaction.user.id)
+  const userId = interaction.user.id
   await interaction.deferReply({ flags: MessageFlags.Ephemeral })
   await rideService.join(rideId, userId)
   await interaction.editReply({ content: "You're in! Check the ride thread. 🚴" })

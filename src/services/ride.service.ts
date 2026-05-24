@@ -87,7 +87,9 @@ export class RideService {
   async update(rideId: RideId, changes: Partial<CreateRideInput>): Promise<void> {
     const ride = await this.rides.findById(rideId)
     if (!ride || ride.status !== "active") return
-    Object.assign(ride, changes)
+    // Exclude identity fields — proposer should never change via an update
+    const { proposerId: _pid, proposerName: _pname, ...safeChanges } = changes
+    Object.assign(ride, safeChanges)
     await this.rides.update(ride)
     if (ride.threadId != null) {
       const members = await this.rides.getMembers(rideId)

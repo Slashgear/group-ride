@@ -29,7 +29,7 @@ function rowToRide(row: RideRow): Ride {
   return {
     id: row.id,
     threadId: row.thread_id,
-    proposerId: Number(row.proposer_id),
+    proposerId: row.proposer_id,
     proposerName: row.proposer_name,
     name: row.name,
     date: row.date,
@@ -80,7 +80,8 @@ export class PostgresRideRepository implements RideRepository {
   }
 
   async findActive(): Promise<Ride[]> {
-    const rows = await this.sql<RideRow[]>`SELECT * FROM rides WHERE status = 'active'`
+    const rows =
+      await this.sql<RideRow[]>`SELECT * FROM rides WHERE status = 'active' ORDER BY date ASC`
     return rows.map(rowToRide)
   }
 
@@ -132,6 +133,10 @@ export class PostgresRideRepository implements RideRepository {
     const rows = await this.sql<{ user_id: string }[]>`
       SELECT user_id FROM ride_members WHERE ride_id = ${rideId}
     `
-    return rows.map((r) => Number(r.user_id))
+    return rows.map((r) => r.user_id)
+  }
+
+  async end(): Promise<void> {
+    await this.sql.end()
   }
 }

@@ -33,7 +33,7 @@ export function buildCreateRideConversation(rideService: RideService) {
   return async (conversation: Conv, ctx: Ctx): Promise<void> => {
     const from = ctx.from
     if (from == null) return
-    const proposerId = from.id
+    const proposerId = String(from.id)
     const proposerName =
       from.last_name != null ? `${from.first_name} ${from.last_name}` : from.first_name
 

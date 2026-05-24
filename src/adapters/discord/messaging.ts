@@ -76,14 +76,14 @@ export class DiscordMessaging implements MessagingPort {
   async addMemberToThread(threadId: ThreadId, userId: UserId): Promise<void> {
     const thread = await this.client.channels.fetch(threadId)
     if (thread?.isThread() !== true) throw new Error(`Channel ${threadId} is not a thread`)
-    await thread.members.add(String(userId))
+    await thread.members.add(userId)
     await thread.send(`<@${userId}> You're in! Welcome to the ride. 🚴`)
   }
 
   async removeMemberFromThread(threadId: ThreadId, userId: UserId): Promise<void> {
     const thread = await this.client.channels.fetch(threadId)
     if (thread?.isThread() !== true) throw new Error(`Channel ${threadId} is not a thread`)
-    await thread.members.remove(String(userId))
+    await thread.members.remove(userId)
   }
 
   async notifyThread(threadId: ThreadId, message: string): Promise<void> {

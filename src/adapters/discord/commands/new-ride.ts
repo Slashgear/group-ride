@@ -210,7 +210,7 @@ async function handleConfirm(
   await interaction.deferUpdate()
 
   await rideService.propose({
-    proposerId: Number(data.proposerId),
+    proposerId: data.proposerId,
     proposerName: data.proposerName,
     name: data.name,
     date,

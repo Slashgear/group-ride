@@ -1,4 +1,4 @@
-import type { Ride, RideLevel } from "../../domain/ride"
+import type { Ride, RideLevel, UserId } from "../../domain/ride"
 
 const LEVEL_LABEL: Record<string, string> = {
   easy: "Easy",
@@ -61,7 +61,7 @@ export function formatAnnouncement(ride: Ride): string {
   return lines.join("\n")
 }
 
-export function formatSummary(ride: Ride, participants: number[] = []): string {
+export function formatSummary(ride: Ride, participants: UserId[] = []): string {
   const lines = buildSummaryLines(ride)
   lines.push("")
   if (participants.length > 0) {

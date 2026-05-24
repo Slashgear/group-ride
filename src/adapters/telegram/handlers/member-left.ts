@@ -6,7 +6,7 @@ export function registerMemberLeftHandler(bot: Bot<BotContext>, rideService: Rid
   bot.on("chat_member", async (ctx) => {
     const { new_chat_member } = ctx.chatMember
     if (new_chat_member.status === "left" || new_chat_member.status === "kicked") {
-      await rideService.removeMemberFromAllActiveRides(new_chat_member.user.id)
+      await rideService.removeMemberFromAllActiveRides(String(new_chat_member.user.id))
     }
   })
 }
