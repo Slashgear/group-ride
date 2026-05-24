@@ -80,8 +80,9 @@ export class PostgresRideRepository implements RideRepository {
   }
 
   async findActive(): Promise<Ride[]> {
-    const rows =
-      await this.sql<RideRow[]>`SELECT * FROM rides WHERE status = 'active' ORDER BY date ASC`
+    const rows = await this.sql<
+      RideRow[]
+    >`SELECT * FROM rides WHERE status = 'active' ORDER BY date ASC`
     return rows.map(rowToRide)
   }
 
