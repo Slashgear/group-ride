@@ -4,7 +4,7 @@ services:
     restart: unless-stopped
     env_file: .env
     volumes:
-      - data:/app/data
+      - data:/usr/src/app/data
 
 volumes:
   data:

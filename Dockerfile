@@ -27,5 +27,8 @@ COPY --from=install /temp/prod/node_modules node_modules
 COPY --from=prerelease /usr/src/app/src ./src
 COPY --from=prerelease /usr/src/app/package.json .
 
+# Pre-create the data directory so the unprivileged bun user can write to it
+RUN mkdir -p /usr/src/app/data && chown bun:bun /usr/src/app/data
+
 USER bun
 ENTRYPOINT ["bun", "run", "start"]
