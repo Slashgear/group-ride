@@ -8,7 +8,9 @@ import { createBot } from "./bot"
 import { TelegramMessaging } from "./messaging"
 import { formatDate } from "./format"
 import { CREATE_RIDE_CONVERSATION, buildCreateRideConversation } from "./conversations/create-ride"
+import { EDIT_RIDE_CONVERSATION, buildEditRideConversation } from "./conversations/edit-ride"
 import { registerJoinRideHandler } from "./handlers/join-ride"
+import { registerCancelRideHandler } from "./handlers/cancel-ride"
 import { registerMemberJoinedHandler } from "./handlers/member-joined"
 import { registerMemberLeftHandler } from "./handlers/member-left"
 
@@ -27,6 +29,13 @@ export async function startTelegram(rideRepo: RideRepository): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   bot.use(
     createConversation(buildCreateRideConversation(rideService) as any, CREATE_RIDE_CONVERSATION),
+  )
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  bot.use(
+    createConversation(
+      buildEditRideConversation(rideService, rideRepo) as any,
+      EDIT_RIDE_CONVERSATION,
+    ),
   )
 
   bot.command("newride", async (ctx) => {
@@ -60,7 +69,28 @@ export async function startTelegram(rideRepo: RideRepository): Promise<void> {
     await ctx.reply(lines.join("\n"), { parse_mode: "HTML", reply_markup: kb })
   })
 
+  bot.command("edit", async (ctx) => {
+    const active = await rideRepo.findActive()
+    if (active.length === 0) {
+      await ctx.reply("No active rides to edit.")
+      return
+    }
+    const kb = new InlineKeyboard()
+    for (const ride of active) {
+      kb.text(`✏️ ${formatDate(ride.date)} — ${ride.meetingPoint}`, `edit-ride:${ride.id}`).row()
+    }
+    await ctx.reply("Which ride do you want to edit?", { reply_markup: kb })
+  })
+
+  bot.callbackQuery(/^edit-ride:(.+)$/u, async (ctx) => {
+    ctx.session.editRideId = ctx.match[1] ?? ""
+    await ctx.answerCallbackQuery()
+    await ctx.editMessageReplyMarkup({ reply_markup: undefined })
+    await ctx.conversation.enter(EDIT_RIDE_CONVERSATION)
+  })
+
   registerJoinRideHandler(bot, rideService)
+  registerCancelRideHandler(bot, rideRepo, rideService)
   registerMemberJoinedHandler(bot)
   registerMemberLeftHandler(bot, rideService)
 
@@ -70,5 +100,5 @@ export async function startTelegram(rideRepo: RideRepository): Promise<void> {
 
   logger.info({ adapter: "telegram" }, "Group Ride bot is running")
   scheduler.start()
-  await bot.start({ allowed_updates: ["message", "callback_query", "chat_member"] })
+  await bot.start({ allowed_updates: ["message", "callback_query", "chat_member", "inline_query"] })
 }

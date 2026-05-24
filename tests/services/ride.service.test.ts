@@ -90,7 +90,8 @@ describe("RideService.propose", () => {
     })
 
     expect(repo.addMember).toHaveBeenCalledWith(expect.any(String), "123")
-    expect(messaging.addMemberToThread).toHaveBeenCalledWith("thread-1", "123")
+    // silent = true: proposer auto-joins without a "You're in!" notification
+    expect(messaging.addMemberToThread).toHaveBeenCalledWith("thread-1", "123", true)
   })
 })
 

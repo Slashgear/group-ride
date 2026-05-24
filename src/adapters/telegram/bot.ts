@@ -1,8 +1,10 @@
 import { Bot, type Context, type SessionFlavor, session } from "grammy"
 import { type ConversationFlavor, conversations } from "@grammyjs/conversations"
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-interface SessionData {}
+interface SessionData {
+  /** rideId selected in /edit before entering the edit conversation */
+  editRideId?: string
+}
 export type BotContext = Context &
   SessionFlavor<SessionData> &
   ConversationFlavor<Context & SessionFlavor<SessionData>>

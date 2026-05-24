@@ -47,14 +47,18 @@ export class DiscordMessaging implements MessagingPort {
     return thread.id
   }
 
-  async pinSummary(threadId: ThreadId, _ride: Ride): Promise<number> {
+  async pinSummary(threadId: ThreadId, ride: Ride, participants: UserId[]): Promise<number> {
     const thread = await this.client.channels.fetch(threadId)
     if (thread?.isThread() !== true) throw new Error(`Channel ${threadId} is not a thread`)
-    // In a forum thread the starter message is already pinned by Discord.
-    // We fetch it and return its numeric ID for updatePinnedSummary.
+    // The forum thread starter message is already pinned by Discord.
+    // Edit it immediately with the full participant list so no extra updatePinnedSummary is needed.
     const messages = await thread.messages.fetch({ limit: 1, after: "0" })
     const starter = messages.first()
     if (starter == null) throw new Error("Could not fetch starter message")
+    await starter.edit({
+      content: formatSummary(ride, participants),
+      components: [buildRideActionsRow(ride.id)],
+    })
     return Number(starter.id)
   }
 
@@ -73,11 +77,11 @@ export class DiscordMessaging implements MessagingPort {
     await thread.setArchived(true)
   }
 
-  async addMemberToThread(threadId: ThreadId, userId: UserId): Promise<void> {
+  async addMemberToThread(threadId: ThreadId, userId: UserId, silent = false): Promise<void> {
     const thread = await this.client.channels.fetch(threadId)
     if (thread?.isThread() !== true) throw new Error(`Channel ${threadId} is not a thread`)
     await thread.members.add(userId)
-    await thread.send(`<@${userId}> You're in! Welcome to the ride. 🚴`)
+    if (!silent) await thread.send(`<@${userId}> You're in! Welcome to the ride. 🚴`)
   }
 
   async removeMemberFromThread(threadId: ThreadId, userId: UserId): Promise<void> {

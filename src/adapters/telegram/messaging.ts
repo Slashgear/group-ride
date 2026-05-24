@@ -22,8 +22,8 @@ export class TelegramMessaging implements MessagingPort {
     return String(topic.message_thread_id)
   }
 
-  async pinSummary(threadId: ThreadId, ride: Ride): Promise<number> {
-    const msg = await this.api.sendMessage(this.groupChatId, formatSummary(ride), {
+  async pinSummary(threadId: ThreadId, ride: Ride, participants: UserId[]): Promise<number> {
+    const msg = await this.api.sendMessage(this.groupChatId, formatSummary(ride, participants), {
       message_thread_id: Number(threadId),
       parse_mode: "HTML",
     })
@@ -51,7 +51,10 @@ export class TelegramMessaging implements MessagingPort {
     await this.api.closeForumTopic(this.groupChatId, Number(threadId))
   }
 
-  async addMemberToThread(threadId: ThreadId, userId: UserId): Promise<void> {
+  async addMemberToThread(threadId: ThreadId, userId: UserId, silent = false): Promise<void> {
+    // Telegram topics are visible to all group members — no access grant needed.
+    // Only send the "You're in!" notification for explicit joins, not for the proposer on creation.
+    if (silent) return
     const link = topicLink(this.groupChatId, threadId)
     await this.api.sendMessage(
       this.groupChatId,

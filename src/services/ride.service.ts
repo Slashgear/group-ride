@@ -39,11 +39,13 @@ export class RideService {
     await this.rides.addMember(ride.id, ride.proposerId)
     const threadId = await this.messaging.createThread(ride)
     ride.threadId = threadId
-    ride.pinnedMessageId = await this.messaging.pinSummary(threadId, ride)
-    await this.rides.update(ride)
+    // Pass initial members to pinSummary so the pinned message is correct from the start
+    // (avoids an immediate redundant updatePinnedSummary call).
     const initialMembers = await this.rides.getMembers(ride.id)
-    await this.messaging.updatePinnedSummary(threadId, ride, initialMembers)
-    await this.messaging.addMemberToThread(threadId, ride.proposerId)
+    ride.pinnedMessageId = await this.messaging.pinSummary(threadId, ride, initialMembers)
+    await this.rides.update(ride)
+    // silent = true: proposer auto-joins but doesn't need a "You're in!" notification
+    await this.messaging.addMemberToThread(threadId, ride.proposerId, true)
     await this.messaging.announce(ride)
     log.info({ rideId: ride.id, proposerId: ride.proposerId, date: ride.date }, "Ride proposed")
     return ride
