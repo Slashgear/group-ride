@@ -1,5 +1,6 @@
 import { InlineKeyboard, type Bot } from "grammy"
 import type { RideRepository } from "../../../domain/ports/ride.repository"
+import { RideNotActiveError, RideNotFoundError } from "../../../domain/errors"
 import type { RideService } from "../../../services/ride.service"
 import type { BotContext } from "../bot"
 import { formatDate } from "../format"
@@ -44,8 +45,19 @@ export function registerCancelRideHandler(
 
   bot.callbackQuery(/^cancel-confirm:(.+)$/u, async (ctx) => {
     const rideId = ctx.match[1] ?? ""
-    await rideService.cancel(rideId)
-    await ctx.editMessageText("✅ Ride has been cancelled and the group notified.")
+    try {
+      await rideService.cancel(rideId)
+      await ctx.editMessageText("✅ Ride has been cancelled and the group notified.")
+    } catch (err) {
+      const text =
+        err instanceof RideNotActiveError
+          ? "This ride has already been cancelled."
+          : err instanceof RideNotFoundError
+            ? "This ride no longer exists."
+            : "Something went wrong. Please try again."
+      await ctx.editMessageText(`❌ ${text}`)
+      if (!(err instanceof RideNotActiveError || err instanceof RideNotFoundError)) throw err
+    }
     await ctx.answerCallbackQuery()
   })
 

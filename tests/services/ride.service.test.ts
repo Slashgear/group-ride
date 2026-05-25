@@ -2,6 +2,7 @@ import { describe, expect, mock, test } from "bun:test"
 import type { MessagingPort } from "../../src/domain/ports/messaging.port"
 import type { RideRepository } from "../../src/domain/ports/ride.repository"
 import type { Ride } from "../../src/domain/ride"
+import { AlreadyMemberError, RideNotActiveError, RideNotFoundError } from "../../src/domain/errors"
 import { RideService } from "../../src/services/ride.service"
 
 function mockRepo(): RideRepository {
@@ -109,38 +110,28 @@ describe("RideService.join", () => {
     expect(messaging.addMemberToThread).toHaveBeenCalledWith("thread-1", "42")
   })
 
-  test("does nothing if user is already a member", async () => {
+  test("throws AlreadyMemberError if user is already a member", async () => {
     const repo = mockRepo()
     repo.findById = mock(async () => makeRide())
     repo.hasMember = mock(async () => true)
-    const messaging = mockMessaging()
-    const service = new RideService(repo, messaging)
+    const service = new RideService(repo, mockMessaging())
 
-    await service.join("ride-1", "42")
-
-    expect(repo.addMember).not.toHaveBeenCalled()
-    expect(messaging.addMemberToThread).not.toHaveBeenCalled()
+    await expect(service.join("ride-1", "42")).rejects.toThrow(AlreadyMemberError)
   })
 
-  test("does nothing if ride is not found", async () => {
+  test("throws RideNotFoundError if ride is not found", async () => {
     const repo = mockRepo()
-    const messaging = mockMessaging()
-    const service = new RideService(repo, messaging)
+    const service = new RideService(repo, mockMessaging())
 
-    await service.join("ride-1", "42")
-
-    expect(repo.addMember).not.toHaveBeenCalled()
+    await expect(service.join("ride-1", "42")).rejects.toThrow(RideNotFoundError)
   })
 
-  test("does nothing if ride is not active", async () => {
+  test("throws RideNotActiveError if ride is cancelled", async () => {
     const repo = mockRepo()
     repo.findById = mock(async () => makeRide({ status: "cancelled" }))
-    const messaging = mockMessaging()
-    const service = new RideService(repo, messaging)
+    const service = new RideService(repo, mockMessaging())
 
-    await service.join("ride-1", "42")
-
-    expect(repo.addMember).not.toHaveBeenCalled()
+    await expect(service.join("ride-1", "42")).rejects.toThrow(RideNotActiveError)
   })
 })
 
@@ -158,15 +149,12 @@ describe("RideService.leave", () => {
     expect(messaging.notifyThread).toHaveBeenCalledWith("thread-1", expect.any(String))
   })
 
-  test("does nothing if ride is not active", async () => {
+  test("throws RideNotActiveError if ride is cancelled", async () => {
     const repo = mockRepo()
     repo.findById = mock(async () => makeRide({ status: "cancelled" }))
-    const messaging = mockMessaging()
-    const service = new RideService(repo, messaging)
+    const service = new RideService(repo, mockMessaging())
 
-    await service.leave("ride-1", "42")
-
-    expect(repo.removeMember).not.toHaveBeenCalled()
+    await expect(service.leave("ride-1", "42")).rejects.toThrow(RideNotActiveError)
   })
 })
 
@@ -189,15 +177,12 @@ describe("RideService.cancel", () => {
     expect(messaging.closeThread).toHaveBeenCalledWith("thread-1")
   })
 
-  test("does nothing if ride is not active", async () => {
+  test("throws RideNotActiveError if ride is already cancelled", async () => {
     const repo = mockRepo()
     repo.findById = mock(async () => makeRide({ status: "cancelled" }))
-    const messaging = mockMessaging()
-    const service = new RideService(repo, messaging)
+    const service = new RideService(repo, mockMessaging())
 
-    await service.cancel("ride-1")
-
-    expect(repo.update).not.toHaveBeenCalled()
+    await expect(service.cancel("ride-1")).rejects.toThrow(RideNotActiveError)
   })
 })
 
@@ -219,16 +204,14 @@ describe("RideService.update", () => {
     expect(messaging.notifyThread).toHaveBeenCalledWith("thread-1", expect.any(String))
   })
 
-  test("does nothing if ride is not active", async () => {
+  test("throws RideNotActiveError if ride is cancelled", async () => {
     const repo = mockRepo()
     repo.findById = mock(async () => makeRide({ status: "cancelled" }))
-    const messaging = mockMessaging()
-    const service = new RideService(repo, messaging)
+    const service = new RideService(repo, mockMessaging())
 
-    await service.update("ride-1", { meetingPoint: "Gare du Nord" })
-
-    expect(repo.update).not.toHaveBeenCalled()
-    expect(messaging.updatePinnedSummary).not.toHaveBeenCalled()
+    await expect(service.update("ride-1", { meetingPoint: "Gare du Nord" })).rejects.toThrow(
+      RideNotActiveError,
+    )
   })
 })
 

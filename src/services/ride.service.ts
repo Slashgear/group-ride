@@ -1,6 +1,7 @@
 import type { MessagingPort } from "../domain/ports/messaging.port"
 import type { RideRepository } from "../domain/ports/ride.repository"
 import type { CreateRideInput, Ride, RideId, UserId } from "../domain/ride"
+import { AlreadyMemberError, RideNotActiveError, RideNotFoundError } from "../domain/errors"
 import { logger } from "../logger"
 
 const log = logger.child({ module: "ride-service" })
@@ -53,8 +54,9 @@ export class RideService {
 
   async join(rideId: RideId, userId: UserId): Promise<void> {
     const ride = await this.rides.findById(rideId)
-    if (ride == null || ride.status !== "active" || ride.threadId == null) return
-    if (await this.rides.hasMember(rideId, userId)) return
+    if (ride == null || ride.threadId == null) throw new RideNotFoundError()
+    if (ride.status !== "active") throw new RideNotActiveError()
+    if (await this.rides.hasMember(rideId, userId)) throw new AlreadyMemberError()
     await this.rides.addMember(rideId, userId)
     await this.messaging.addMemberToThread(ride.threadId, userId)
     const members = await this.rides.getMembers(rideId)
@@ -64,7 +66,8 @@ export class RideService {
 
   async leave(rideId: RideId, userId: UserId): Promise<void> {
     const ride = await this.rides.findById(rideId)
-    if (ride == null || ride.status !== "active" || ride.threadId == null) return
+    if (ride == null || ride.threadId == null) throw new RideNotFoundError()
+    if (ride.status !== "active") throw new RideNotActiveError()
     await this.rides.removeMember(rideId, userId)
     await this.messaging.removeMemberFromThread(ride.threadId, userId)
     await this.messaging.notifyThread(ride.threadId, "A member left the ride.")
@@ -75,7 +78,8 @@ export class RideService {
 
   async cancel(rideId: RideId): Promise<void> {
     const ride = await this.rides.findById(rideId)
-    if (ride == null || ride.status !== "active" || ride.threadId == null) return
+    if (ride == null || ride.threadId == null) throw new RideNotFoundError()
+    if (ride.status !== "active") throw new RideNotActiveError()
     ride.status = "cancelled"
     await this.rides.update(ride)
     const members = await this.rides.getMembers(rideId)
@@ -89,7 +93,8 @@ export class RideService {
 
   async update(rideId: RideId, changes: Partial<CreateRideInput>): Promise<void> {
     const ride = await this.rides.findById(rideId)
-    if (!ride || ride.status !== "active") return
+    if (ride == null) throw new RideNotFoundError()
+    if (ride.status !== "active") throw new RideNotActiveError()
     // Exclude identity fields — proposer should never change via an update
     const { proposerId: _pid, proposerName: _pname, ...safeChanges } = changes
     Object.assign(ride, safeChanges)

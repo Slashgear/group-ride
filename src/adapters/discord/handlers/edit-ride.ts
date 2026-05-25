@@ -11,6 +11,7 @@ import {
 } from "discord.js"
 import type { RideRepository } from "../../../domain/ports/ride.repository"
 import type { Ride } from "../../../domain/ride"
+import { RideNotActiveError, RideNotFoundError } from "../../../domain/errors"
 import type { RideService } from "../../../services/ride.service"
 import { formatDate } from "../format"
 import {
@@ -145,15 +146,26 @@ async function handleEditModalSubmit(
   const rawNotes = fields.getTextInputValue("notes").trim()
 
   await interaction.deferReply({ flags: MessageFlags.Ephemeral })
-  await rideService.update(rideId, {
-    date: parsed.date,
-    meetingTime: parsed.meetingTime,
-    meetingPoint,
-    distanceKm,
-    elevationGain,
-    elevationLoss,
-    externalUrl: rawExternal === "" ? undefined : rawExternal,
-    notes: rawNotes === "" ? undefined : rawNotes,
-  })
-  await interaction.editReply({ content: `✅ Ride updated for ${formatDate(parsed.date)}!` })
+  try {
+    await rideService.update(rideId, {
+      date: parsed.date,
+      meetingTime: parsed.meetingTime,
+      meetingPoint,
+      distanceKm,
+      elevationGain,
+      elevationLoss,
+      externalUrl: rawExternal === "" ? undefined : rawExternal,
+      notes: rawNotes === "" ? undefined : rawNotes,
+    })
+    await interaction.editReply({ content: `✅ Ride updated for ${formatDate(parsed.date)}!` })
+  } catch (err) {
+    const message =
+      err instanceof RideNotActiveError
+        ? "This ride has already been cancelled."
+        : err instanceof RideNotFoundError
+          ? "This ride no longer exists."
+          : "Something went wrong. Please try again."
+    await interaction.editReply({ content: `❌ ${message}` })
+    if (!(err instanceof RideNotActiveError || err instanceof RideNotFoundError)) throw err
+  }
 }
