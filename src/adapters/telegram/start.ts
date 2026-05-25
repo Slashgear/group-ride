@@ -38,6 +38,27 @@ export async function startTelegram(rideRepo: RideRepository): Promise<void> {
     ),
   )
 
+  bot.command("help", async (ctx) => {
+    await ctx.reply(
+      [
+        "<b>🚴 Group Ride — How it works</b>",
+        "",
+        "<b>Propose a ride</b>",
+        "Use /newride and follow the prompts. Paste a Komoot/Strava/Garmin link to auto-fill distance and elevation.",
+        "",
+        "<b>Join a ride</b>",
+        "When a ride is announced, tap the <b>Join</b> button. You can also use /rides to browse upcoming rides.",
+        "",
+        "<b>Edit a ride</b>",
+        "Use /edit to update a ride you proposed.",
+        "",
+        "<b>Leave or cancel</b>",
+        "Use the <b>Leave</b> or <b>Cancel ride</b> buttons on the ride message.",
+      ].join("\n"),
+      { parse_mode: "HTML" },
+    )
+  })
+
   bot.command("newride", async (ctx) => {
     await ctx.conversation.enter(CREATE_RIDE_CONVERSATION)
   })
@@ -97,6 +118,13 @@ export async function startTelegram(rideRepo: RideRepository): Promise<void> {
   bot.catch((err) => {
     logger.error({ err: err.error }, "Unhandled Telegram bot error")
   })
+
+  await bot.api.setMyCommands([
+    { command: "help", description: "How to use the Group Ride bot" },
+    { command: "newride", description: "Propose a new group ride" },
+    { command: "rides", description: "List upcoming rides" },
+    { command: "edit", description: "Edit a ride you proposed" },
+  ])
 
   logger.info({ adapter: "telegram" }, "Group Ride bot is running")
   scheduler.start()
