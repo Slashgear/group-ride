@@ -117,7 +117,11 @@ describe("RideService.join", () => {
     const service = new RideService(repo, mockMessaging())
 
     let error: unknown
-    try { await service.join("ride-1", "42") } catch (err) { error = err }
+    try {
+      await service.join("ride-1", "42")
+    } catch (err) {
+      error = err
+    }
     expect(error).toBeInstanceOf(AlreadyMemberError)
   })
 
@@ -126,7 +130,11 @@ describe("RideService.join", () => {
     const service = new RideService(repo, mockMessaging())
 
     let error: unknown
-    try { await service.join("ride-1", "42") } catch (err) { error = err }
+    try {
+      await service.join("ride-1", "42")
+    } catch (err) {
+      error = err
+    }
     expect(error).toBeInstanceOf(RideNotFoundError)
   })
 
@@ -136,7 +144,11 @@ describe("RideService.join", () => {
     const service = new RideService(repo, mockMessaging())
 
     let error: unknown
-    try { await service.join("ride-1", "42") } catch (err) { error = err }
+    try {
+      await service.join("ride-1", "42")
+    } catch (err) {
+      error = err
+    }
     expect(error).toBeInstanceOf(RideNotActiveError)
   })
 })
@@ -161,7 +173,11 @@ describe("RideService.leave", () => {
     const service = new RideService(repo, mockMessaging())
 
     let error: unknown
-    try { await service.leave("ride-1", "42") } catch (err) { error = err }
+    try {
+      await service.leave("ride-1", "42")
+    } catch (err) {
+      error = err
+    }
     expect(error).toBeInstanceOf(RideNotActiveError)
   })
 })

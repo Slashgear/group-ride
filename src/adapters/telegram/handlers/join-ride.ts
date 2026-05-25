@@ -20,7 +20,14 @@ export function registerJoinRideHandler(bot: Bot<BotContext>, rideService: RideS
               ? "This ride no longer exists."
               : "Something went wrong. Please try again."
       await ctx.answerCallbackQuery({ text, show_alert: true })
-      if (!(err instanceof AlreadyMemberError || err instanceof RideNotActiveError || err instanceof RideNotFoundError)) throw err
+      if (
+        !(
+          err instanceof AlreadyMemberError ||
+          err instanceof RideNotActiveError ||
+          err instanceof RideNotFoundError
+        )
+      )
+        throw err
     }
   })
 }

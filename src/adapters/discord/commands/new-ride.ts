@@ -248,7 +248,9 @@ interface RidePayload {
 function encodePayload(data: RidePayload): string {
   const id = Math.random().toString(36).slice(2, 10)
   pendingRides.set(id, data)
-  setTimeout(() => { pendingRides.delete(id) }, PENDING_TTL_MS)
+  setTimeout(() => {
+    pendingRides.delete(id)
+  }, PENDING_TTL_MS)
   return id
 }
 

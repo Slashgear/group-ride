@@ -29,6 +29,13 @@ async function onJoinRide(interaction: Interaction, rideService: RideService): P
             ? "This ride no longer exists."
             : "Something went wrong. Please try again."
     await interaction.editReply({ content: `❌ ${message}` })
-    if (!(err instanceof AlreadyMemberError || err instanceof RideNotActiveError || err instanceof RideNotFoundError)) throw err
+    if (
+      !(
+        err instanceof AlreadyMemberError ||
+        err instanceof RideNotActiveError ||
+        err instanceof RideNotFoundError
+      )
+    )
+      throw err
   }
 }
