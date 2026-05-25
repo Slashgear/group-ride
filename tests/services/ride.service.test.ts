@@ -12,6 +12,7 @@ function mockRepo(): RideRepository {
     findActiveByMember: mock(async () => []),
     update: mock(async () => {}),
     addMember: mock(async () => {}),
+    hasMember: mock(async () => false),
     removeMember: mock(async () => {}),
     getMembers: mock(async () => []),
   }
@@ -106,6 +107,19 @@ describe("RideService.join", () => {
 
     expect(repo.addMember).toHaveBeenCalledWith("ride-1", "42")
     expect(messaging.addMemberToThread).toHaveBeenCalledWith("thread-1", "42")
+  })
+
+  test("does nothing if user is already a member", async () => {
+    const repo = mockRepo()
+    repo.findById = mock(async () => makeRide())
+    repo.hasMember = mock(async () => true)
+    const messaging = mockMessaging()
+    const service = new RideService(repo, messaging)
+
+    await service.join("ride-1", "42")
+
+    expect(repo.addMember).not.toHaveBeenCalled()
+    expect(messaging.addMemberToThread).not.toHaveBeenCalled()
   })
 
   test("does nothing if ride is not found", async () => {

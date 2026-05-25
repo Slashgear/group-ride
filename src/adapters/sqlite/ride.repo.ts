@@ -147,6 +147,13 @@ export class SqliteRideRepository implements RideRepository {
     return Promise.resolve()
   }
 
+  hasMember(rideId: RideId, userId: UserId): Promise<boolean> {
+    const row = db
+      .query("SELECT 1 FROM ride_members WHERE ride_id = ? AND user_id = ?")
+      .get(rideId, userId)
+    return Promise.resolve(row != null)
+  }
+
   removeMember(rideId: RideId, userId: UserId): Promise<void> {
     db.run("DELETE FROM ride_members WHERE ride_id = ? AND user_id = ?", [rideId, userId])
     return Promise.resolve()

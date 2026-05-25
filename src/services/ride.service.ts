@@ -54,6 +54,7 @@ export class RideService {
   async join(rideId: RideId, userId: UserId): Promise<void> {
     const ride = await this.rides.findById(rideId)
     if (ride == null || ride.status !== "active" || ride.threadId == null) return
+    if (await this.rides.hasMember(rideId, userId)) return
     await this.rides.addMember(rideId, userId)
     await this.messaging.addMemberToThread(ride.threadId, userId)
     const members = await this.rides.getMembers(rideId)

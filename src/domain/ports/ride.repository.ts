@@ -7,6 +7,7 @@ export interface RideRepository {
   findActiveByMember(userId: UserId): Promise<Ride[]>
   update(ride: Ride): Promise<void>
   addMember(rideId: RideId, userId: UserId): Promise<void>
+  hasMember(rideId: RideId, userId: UserId): Promise<boolean>
   removeMember(rideId: RideId, userId: UserId): Promise<void>
   getMembers(rideId: RideId): Promise<UserId[]>
 }

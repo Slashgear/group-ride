@@ -126,6 +126,13 @@ export class PostgresRideRepository implements RideRepository {
     `
   }
 
+  async hasMember(rideId: RideId, userId: UserId): Promise<boolean> {
+    const rows = await this.sql`
+      SELECT 1 FROM ride_members WHERE ride_id = ${rideId} AND user_id = ${userId}
+    `
+    return rows.length > 0
+  }
+
   async removeMember(rideId: RideId, userId: UserId): Promise<void> {
     await this.sql`DELETE FROM ride_members WHERE ride_id = ${rideId} AND user_id = ${userId}`
   }
