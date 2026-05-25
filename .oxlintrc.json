@@ -17,6 +17,8 @@
     "no-console": "warn",
     "eqeqeq": ["error", "always", { "null": "ignore" }],
     "no-unused-vars": "off",
+    "max-lines-per-function": ["warn", { "max": 150 }],
+    "max-classes-per-file": ["warn", { "max": 3 }],
     "@typescript-eslint/no-unused-vars": "warn",
     "@typescript-eslint/no-explicit-any": "warn",
     "@typescript-eslint/no-non-null-assertion": "warn",
@@ -30,5 +32,15 @@
     "@typescript-eslint/no-unsafe-assignment": "off",
     "@typescript-eslint/no-unsafe-argument": "off",
     "@typescript-eslint/no-unsafe-type-assertion": "off"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["tests/**"],
+      "rules": {
+        "require-await": "off",
+        "@typescript-eslint/require-await": "off",
+        "@typescript-eslint/unbound-method": "off"
+      }
+    }
+  ]
 }

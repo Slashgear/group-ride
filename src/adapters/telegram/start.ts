@@ -26,13 +26,13 @@ export async function startTelegram(rideRepo: RideRepository): Promise<void> {
   const rideService = new RideService(rideRepo, messaging)
   const scheduler = new SchedulerService(rideRepo, messaging)
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   bot.use(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     createConversation(buildCreateRideConversation(rideService) as any, CREATE_RIDE_CONVERSATION),
   )
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   bot.use(
     createConversation(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       buildEditRideConversation(rideService, rideRepo) as any,
       EDIT_RIDE_CONVERSATION,
     ),

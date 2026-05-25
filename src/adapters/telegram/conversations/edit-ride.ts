@@ -36,9 +36,9 @@ export function buildEditRideConversation(rideService: RideService, rideRepo: Ri
 
     // ── Date & time ────────────────────────────────────────────────────────────
     const currentDateTime =
-      ride.meetingTime != null
-        ? `${formatDate(ride.date)} ${ride.meetingTime}`
-        : formatDate(ride.date)
+      ride.meetingTime == null
+        ? formatDate(ride.date)
+        : `${formatDate(ride.date)} ${ride.meetingTime}`
     await ctx.reply(`📅 Date & time? (current: <code>${currentDateTime}</code> — /skip)`, {
       parse_mode: "HTML",
     })
@@ -72,9 +72,9 @@ export function buildEditRideConversation(rideService: RideService, rideRepo: Ri
     const currentStats =
       ride.distanceKm != null || ride.elevationGain != null
         ? [
-            ride.distanceKm != null ? `${ride.distanceKm} km` : null,
-            ride.elevationGain != null ? `D+ ${ride.elevationGain} m` : null,
-            ride.elevationLoss != null ? `D- ${ride.elevationLoss} m` : null,
+            ride.distanceKm == null ? null : `${ride.distanceKm} km`,
+            ride.elevationGain == null ? null : `D+ ${ride.elevationGain} m`,
+            ride.elevationLoss == null ? null : `D- ${ride.elevationLoss} m`,
           ]
             .filter(Boolean)
             .join(" / ")

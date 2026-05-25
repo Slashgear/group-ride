@@ -35,7 +35,7 @@ export function buildCreateRideConversation(rideService: RideService) {
     if (from == null) return
     const proposerId = String(from.id)
     const proposerName =
-      from.last_name != null ? `${from.first_name} ${from.last_name}` : from.first_name
+      from.last_name == null ? from.first_name : `${from.first_name} ${from.last_name}`
 
     const prefill = await stepImport(conversation, ctx)
     const dateResult = await stepDate(conversation, ctx)
