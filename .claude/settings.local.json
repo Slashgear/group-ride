@@ -1,7 +1,5 @@
 {
   "permissions": {
-    "allow": [
-      "WebFetch(domain:oxc.rs)"
-    ]
+    "allow": ["WebFetch(domain:oxc.rs)"]
   }
 }

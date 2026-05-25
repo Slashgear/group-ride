@@ -1,6 +1,6 @@
 # Architecture
 
-Group Ride follows a **Ports & Adapters** (hexagonal) architecture. The domain and business logic live at the centre and depend on nothing external. The outside world (databases, messaging platforms) plugs in through interfaces called *ports*.
+Group Ride follows a **Ports & Adapters** (hexagonal) architecture. The domain and business logic live at the centre and depend on nothing external. The outside world (databases, messaging platforms) plugs in through interfaces called _ports_.
 
 **Dependency rule: adapters depend on the domain, never the other way around.**
 
@@ -45,11 +45,11 @@ graph TD
     TELEGRAM -.->|implements| MP
 ```
 
-| Layer | Role | May import from |
-|---|---|---|
-| **Domain** | Core types and port interfaces | Nothing outside `domain/` |
-| **Services** | Business logic | `domain/` only |
-| **Adapters** | I/O implementations | `domain/`, `services/`, each other's `shared/` |
+| Layer        | Role                           | May import from                                |
+| ------------ | ------------------------------ | ---------------------------------------------- |
+| **Domain**   | Core types and port interfaces | Nothing outside `domain/`                      |
+| **Services** | Business logic                 | `domain/` only                                 |
+| **Adapters** | I/O implementations            | `domain/`, `services/`, each other's `shared/` |
 
 ---
 

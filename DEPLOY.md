@@ -120,6 +120,7 @@ ssh-keygen -t ed25519 -C "github-actions-deploy" -f ~/.ssh/group-ride-deploy -N 
 ```
 
 This creates two files:
+
 - `~/.ssh/group-ride-deploy` — private key (goes to GitHub)
 - `~/.ssh/group-ride-deploy.pub` — public key (goes to the instance)
 
@@ -133,9 +134,9 @@ ssh root@<YOUR_INSTANCE_IP> "echo '$(cat ~/.ssh/group-ride-deploy.pub)' >> ~/.ss
 
 Go to **GitHub → your repo → Settings → Secrets and variables → Actions** and add:
 
-| Secret name | Value |
-|---|---|
-| `DEPLOY_HOST` | Your instance IP address |
+| Secret name      | Value                                                    |
+| ---------------- | -------------------------------------------------------- |
+| `DEPLOY_HOST`    | Your instance IP address                                 |
 | `DEPLOY_SSH_KEY` | Contents of `~/.ssh/group-ride-deploy` (the private key) |
 
 ### 5d — Configure the GitHub environment

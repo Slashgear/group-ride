@@ -88,7 +88,7 @@ Importers live in `src/services/importer/`. To add support for a new platform:
 1. Branch off `main` — use a descriptive name (`feat/strava-importer`, `fix/scheduler-close`)
 2. Keep PRs focused — one concern per PR
 3. Make sure `bun test`, `bun run fmt:check` and `bun run lint` all pass
-4. Write a clear PR description explaining *why*, not just *what*
+4. Write a clear PR description explaining _why_, not just _what_
 
 ## Open questions
 

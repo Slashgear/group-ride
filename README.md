@@ -5,6 +5,7 @@
 A group of cycling friends communicates via a shared channel (WhatsApp, Signal…). When someone proposes a ride, everyone gets notified — including those who are not interested. The discussion that follows spams the entire group, and the relevant information ends up buried in the feed.
 
 **Group Ride** is a Discord bot that solves this problem:
+
 - a single notification in the announcement channel for each proposed ride
 - an isolated thread per ride in a Forum channel, visible to registered participants
 - the thread closes automatically 24 hours after the ride
@@ -13,13 +14,13 @@ A group of cycling friends communicates via a shared channel (WhatsApp, Signal�
 
 ## Platform: Discord
 
-| Criteria | Discord | Telegram | WhatsApp |
-|---|---|---|---|
-| Official bot API | ✅ Free | ✅ Free | ⚠️ Paid + business badge |
-| Threads per ride | ✅ Native (Forum Channels) | ✅ Native (Forum Topics) | ❌ |
-| Native form (modal) | ✅ Yes | ❌ Conversation only | ❌ |
-| Participant limit | ✅ None | ✅ None | ⚠️ 8 via API |
-| Integration effort | Low | Low | High |
+| Criteria            | Discord                    | Telegram                 | WhatsApp                 |
+| ------------------- | -------------------------- | ------------------------ | ------------------------ |
+| Official bot API    | ✅ Free                    | ✅ Free                  | ⚠️ Paid + business badge |
+| Threads per ride    | ✅ Native (Forum Channels) | ✅ Native (Forum Topics) | ❌                       |
+| Native form (modal) | ✅ Yes                     | ❌ Conversation only     | ❌                       |
+| Participant limit   | ✅ None                    | ✅ None                  | ⚠️ 8 via API             |
+| Integration effort  | Low                        | Low                      | High                     |
 
 Discord offers native **modals** for structured input, which gives a much cleaner ride creation experience than a step-by-step conversation.
 
@@ -44,9 +45,9 @@ The bot automatically creates a forum thread per ride and manages its full lifec
 
 ## Roles
 
-| Role | Permissions |
-|---|---|
-| **Admin** | Manage server members (add, remove, promote) |
+| Role       | Permissions                                      |
+| ---------- | ------------------------------------------------ |
+| **Admin**  | Manage server members (add, remove, promote)     |
 | **Member** | Propose a ride, join/leave a ride, cancel a ride |
 
 Any member can propose a ride. The organiser is not a fixed role — it is simply the member who proposes.
@@ -167,10 +168,12 @@ sequenceDiagram
 ## Business rules
 
 ### Announcement channel
+
 - Reserved for ride announcements. No discussion takes place here.
 - On cancellation, the bot posts a notification there (justified exception: non-registered members also need to know).
 
 ### Ride thread
+
 - Created automatically by the bot for each proposal.
 - The starter message is the source of truth for the ride details.
 - Any registered member can join, leave, edit, or cancel the ride via the action buttons.
@@ -179,6 +182,7 @@ sequenceDiagram
 - The thread becomes read-only 24 hours after the ride.
 
 ### Member management
+
 - Only admins can add or remove members from the server.
 - If a member leaves or is removed, the bot automatically removes them from all active rides.
 

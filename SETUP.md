@@ -39,6 +39,7 @@ Group Ride requires two channels:
 2. **A Forum channel** (e.g. `#rides`) — where one thread is created per ride
 
 To create the Forum channel:
+
 - Click **+** next to the channel list → **Create Channel** → select **Forum**
 
 ---
@@ -57,11 +58,11 @@ To create the Forum channel:
 
 **Collect the IDs you need** (enable Developer Mode in Discord settings → Advanced → Developer Mode, then right-click to copy IDs):
 
-| Value | How to get it |
-|---|---|
-| **Guild ID** | Right-click the server name → Copy Server ID |
+| Value                       | How to get it                                          |
+| --------------------------- | ------------------------------------------------------ |
+| **Guild ID**                | Right-click the server name → Copy Server ID           |
 | **Announcement channel ID** | Right-click the announcement channel → Copy Channel ID |
-| **Forum channel ID** | Right-click the forum channel → Copy Channel ID |
+| **Forum channel ID**        | Right-click the forum channel → Copy Channel ID        |
 
 ---
 
@@ -117,9 +118,11 @@ Telegram requires a **supergroup** with **Topics** enabled (the equivalent of Di
 ### Step D — Get the group chat ID
 
 Send any message in the group, then open:
+
 ```
 https://api.telegram.org/bot<YOUR_TOKEN>/getUpdates
 ```
+
 Find `"chat": { "id": -100XXXXXXXXX }` — that negative number is your `TELEGRAM_GROUP_CHAT_ID`.
 
 ### Step E — Configure environment variables
@@ -138,10 +141,10 @@ DATABASE_PATH=./data/group-ride.db                  # ignored if DATABASE_URL is
 
 ### Available commands (Telegram)
 
-| Command    | Description                              |
-|------------|------------------------------------------|
-| `/newride` | Start the multi-step ride creation flow  |
-| `/rides`   | List upcoming rides with a Join button   |
+| Command    | Description                             |
+| ---------- | --------------------------------------- |
+| `/newride` | Start the multi-step ride creation flow |
+| `/rides`   | List upcoming rides with a Join button  |
 
 ---
 
@@ -155,6 +158,7 @@ bun run start   # production
 ```
 
 On startup, the bot will:
+
 1. Register the `/newride` slash command on your server
 2. Create the database and apply migrations automatically (SQLite) — for PostgreSQL, run migrations manually first (see below)
 3. Log `Group Ride bot is running` when ready
