@@ -116,14 +116,18 @@ describe("RideService.join", () => {
     repo.hasMember = mock(async () => true)
     const service = new RideService(repo, mockMessaging())
 
-    await expect(service.join("ride-1", "42")).rejects.toThrow(AlreadyMemberError)
+    let error: unknown
+    try { await service.join("ride-1", "42") } catch (err) { error = err }
+    expect(error).toBeInstanceOf(AlreadyMemberError)
   })
 
   test("throws RideNotFoundError if ride is not found", async () => {
     const repo = mockRepo()
     const service = new RideService(repo, mockMessaging())
 
-    await expect(service.join("ride-1", "42")).rejects.toThrow(RideNotFoundError)
+    let error: unknown
+    try { await service.join("ride-1", "42") } catch (err) { error = err }
+    expect(error).toBeInstanceOf(RideNotFoundError)
   })
 
   test("throws RideNotActiveError if ride is cancelled", async () => {
@@ -131,7 +135,9 @@ describe("RideService.join", () => {
     repo.findById = mock(async () => makeRide({ status: "cancelled" }))
     const service = new RideService(repo, mockMessaging())
 
-    await expect(service.join("ride-1", "42")).rejects.toThrow(RideNotActiveError)
+    let error: unknown
+    try { await service.join("ride-1", "42") } catch (err) { error = err }
+    expect(error).toBeInstanceOf(RideNotActiveError)
   })
 })
 
@@ -154,7 +160,9 @@ describe("RideService.leave", () => {
     repo.findById = mock(async () => makeRide({ status: "cancelled" }))
     const service = new RideService(repo, mockMessaging())
 
-    await expect(service.leave("ride-1", "42")).rejects.toThrow(RideNotActiveError)
+    let error: unknown
+    try { await service.leave("ride-1", "42") } catch (err) { error = err }
+    expect(error).toBeInstanceOf(RideNotActiveError)
   })
 })
 
@@ -182,7 +190,13 @@ describe("RideService.cancel", () => {
     repo.findById = mock(async () => makeRide({ status: "cancelled" }))
     const service = new RideService(repo, mockMessaging())
 
-    await expect(service.cancel("ride-1")).rejects.toThrow(RideNotActiveError)
+    let error: unknown
+    try {
+      await service.cancel("ride-1")
+    } catch (err) {
+      error = err
+    }
+    expect(error).toBeInstanceOf(RideNotActiveError)
   })
 })
 
@@ -209,9 +223,13 @@ describe("RideService.update", () => {
     repo.findById = mock(async () => makeRide({ status: "cancelled" }))
     const service = new RideService(repo, mockMessaging())
 
-    await expect(service.update("ride-1", { meetingPoint: "Gare du Nord" })).rejects.toThrow(
-      RideNotActiveError,
-    )
+    let error: unknown
+    try {
+      await service.update("ride-1", { meetingPoint: "Gare du Nord" })
+    } catch (err) {
+      error = err
+    }
+    expect(error).toBeInstanceOf(RideNotActiveError)
   })
 })
 
