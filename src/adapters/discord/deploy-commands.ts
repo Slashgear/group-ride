@@ -6,6 +6,7 @@ const log = logger.child({ module: "discord-deploy" })
 const commands = [
   new SlashCommandBuilder().setName("newride").setDescription("Propose a new group ride").toJSON(),
   new SlashCommandBuilder().setName("rides").setDescription("List upcoming rides").toJSON(),
+  new SlashCommandBuilder().setName("help").setDescription("How to use the Group Ride bot").toJSON(),
 ]
 
 export async function deployCommands(

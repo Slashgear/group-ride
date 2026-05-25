@@ -1,5 +1,6 @@
 import { createClient } from "./client"
 import { deployCommands } from "./deploy-commands"
+import { registerHelpCommand } from "./commands/help"
 import { registerNewRideCommand } from "./commands/new-ride"
 import { registerRidesCommand } from "./commands/rides"
 import { registerJoinRideHandler } from "./handlers/join-ride"
@@ -34,6 +35,7 @@ export async function startDiscord(rideRepo: RideRepository): Promise<void> {
 
   await deployCommands(token, clientId, guildId)
 
+  registerHelpCommand(client)
   registerNewRideCommand(client, rideService)
   registerRidesCommand(client, rideRepo)
   registerJoinRideHandler(client, rideService)
