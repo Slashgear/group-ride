@@ -4,12 +4,14 @@ WORKDIR /usr/src/app
 
 # install dependencies into temp directories for layer caching
 FROM base AS install
-RUN mkdir -p /temp/dev
+RUN mkdir -p /temp/dev/website
 COPY package.json bun.lockb /temp/dev/
+COPY website/package.json /temp/dev/website/
 RUN cd /temp/dev && bun install --frozen-lockfile
 
-RUN mkdir -p /temp/prod
+RUN mkdir -p /temp/prod/website
 COPY package.json bun.lockb /temp/prod/
+COPY website/package.json /temp/prod/website/
 RUN cd /temp/prod && bun install --frozen-lockfile --production
 
 # run tests against dev dependencies
