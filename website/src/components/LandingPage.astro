@@ -1,0 +1,1327 @@
+---
+import type { Translation } from '../i18n/translations';
+import Icon from './Icon.astro';
+import {
+  siDiscord, siTelegram, siWhatsapp, siSignal,
+  siStrava, siKomoot, siGarmin,
+  siGithub, siBluesky,
+} from 'simple-icons';
+
+interface Props { t: Translation }
+const { t } = Astro.props;
+
+const compatIcons: Record<string, typeof siDiscord> = {
+  Discord: siDiscord,
+  Telegram: siTelegram,
+  WhatsApp: siWhatsapp,
+  Signal: siSignal,
+};
+
+const isMention = (text: string) =>
+  text.startsWith('@tous') || text.startsWith('@everyone');
+
+const siteBase = Astro.site?.toString().replace(/\/$/u, '') ?? '';
+const canonicalUrl = `${siteBase}/${t.canonicalPath}`;
+const altUrl      = `${siteBase}/${t.altLangUrl.replace(/^\//u, '')}`;
+const defaultUrl  = `${siteBase}/`;
+const ogImage     = `${siteBase}/og.svg`;
+const pageTitle   = `group-ride — ${t.heroTitle} ${t.heroEm} ${t.heroRest}`;
+
+const threadConvo = t.lang === 'fr' ? [
+  { color: '#3BA55C', initial: 'M', author: 'Marc',       textColor: '#57f287', text: "C'est quoi le dénivelé exact ?",     isBot: false },
+  { color: '#5865F2', initial: '🤖', author: 'group-ride', textColor: '#a8b3f8', text: '900 m D+ selon Komoot 🗺️',           isBot: true  },
+  { color: '#ED4245', initial: 'K', author: 'Kevin',      textColor: '#ed4245', text: 'On fait des pauses café ?',           isBot: false },
+  { color: '#5865F2', initial: 'P', author: 'Pierre',     textColor: '#a8b3f8', text: 'Forcément 😄',                        isBot: false },
+] : [
+  { color: '#3BA55C', initial: 'M', author: 'Marc',       textColor: '#57f287', text: "What's the exact elevation?",         isBot: false },
+  { color: '#5865F2', initial: '🤖', author: 'group-ride', textColor: '#a8b3f8', text: '900m D+ according to Komoot 🗺️',     isBot: true  },
+  { color: '#ED4245', initial: 'K', author: 'Kevin',      textColor: '#ed4245', text: 'Are we stopping for coffee?',          isBot: false },
+  { color: '#5865F2', initial: 'P', author: 'Pierre',     textColor: '#a8b3f8', text: 'Obviously 😄',                        isBot: false },
+];
+
+const avatarMap: Record<string, string> = {
+  Pierre: '/avatars/pierre.jpeg',
+  Marc:   '/avatars/marc.jpeg',
+  Thomas: '/avatars/thomas.jpeg',
+  Kevin:  '/avatars/kevin.jpeg',
+  Julie:  '/avatars/julie.jpeg',
+  Sophie: '/avatars/sophie.jpeg',
+};
+---
+
+<html lang={t.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>{pageTitle}</title>
+    <meta name="description" content={t.heroSub} />
+
+    <!-- Canonical & hreflang -->
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="alternate" hreflang={t.lang}    href={canonicalUrl} />
+    <link rel="alternate" hreflang={t.altLang} href={altUrl} />
+    <link rel="alternate" hreflang="x-default" href={defaultUrl} />
+
+    <!-- OpenGraph -->
+    <meta property="og:type"        content="website" />
+    <meta property="og:url"         content={canonicalUrl} />
+    <meta property="og:title"       content={pageTitle} />
+    <meta property="og:description" content={t.heroSub} />
+    <meta property="og:image"       content={ogImage} />
+    <meta property="og:image:width"  content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale"      content={t.lang === 'fr' ? 'fr_FR' : 'en_US'} />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:title"       content={pageTitle} />
+    <meta name="twitter:description" content={t.heroSub} />
+    <meta name="twitter:image"       content={ogImage} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" sizes="any"          href="/favicon.ico" />
+    <style is:global>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      :root {
+        --dc-bg:      #313338;
+        --dc-card:    #2b2d31;
+        --dc-text:    #DCDDDE;
+        --dc-muted:   #A3A6AA;
+        --dc-blurple: #5865F2;
+        --dc-green:   #3BA55C;
+        --dc-red:     #ED4245;
+        --dc-border:  rgba(255,255,255,.07);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        color: var(--dc-text);
+      }
+
+      body { background: #0f0f0f; overflow-x: hidden; }
+
+      /* ── Lang switcher ───────────────────────────────────── */
+      .lang-bar {
+        position: fixed;
+        top: 1rem;
+        right: 1.25rem;
+        z-index: 100;
+      }
+
+      .lang-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.3rem 0.75rem;
+        background: rgba(255,255,255,.07);
+        border: 1px solid rgba(255,255,255,.12);
+        border-radius: 999px;
+        color: var(--dc-muted);
+        font-size: 0.78rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: background .15s, color .15s;
+        backdrop-filter: blur(8px);
+      }
+      .lang-btn:hover { background: rgba(255,255,255,.13); color: #fff; }
+
+      /* ── Hero ────────────────────────────────────────────── */
+      .hero {
+        min-height: 100svh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 2rem;
+        background: radial-gradient(ellipse at 50% 0%, #1a1f3c 0%, #0f0f0f 65%);
+      }
+
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.35rem 1rem;
+        border: 1px solid rgba(88,101,242,.35);
+        border-radius: 999px;
+        font-size: 0.8rem;
+        color: #a8b3f8;
+        margin-bottom: 1.75rem;
+        letter-spacing: 0.05em;
+      }
+
+      .hero h1 {
+        font-size: clamp(2.5rem, 9vw, 5.5rem);
+        font-weight: 800;
+        color: #fff;
+        letter-spacing: -0.03em;
+        line-height: 1.05;
+        margin-bottom: 1.25rem;
+      }
+
+      .hero h1 em { font-style: normal; color: var(--dc-blurple); }
+
+      .hero p {
+        font-size: clamp(1rem, 2.5vw, 1.2rem);
+        color: #7c7f85;
+        max-width: 500px;
+        line-height: 1.65;
+        margin-bottom: 3.5rem;
+      }
+
+      .scroll-hint {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.4rem;
+        color: #3d4047;
+        font-size: 0.75rem;
+        animation: bob 2s ease-in-out infinite;
+      }
+      @keyframes bob {
+        0%,100% { transform: translateY(0);   }
+        50%      { transform: translateY(7px); }
+      }
+
+      /* ── Audience ───────────────────────────────────────── */
+      .audience {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        padding: 0 1rem 3rem;
+      }
+      .audience-title {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #8b8f96;
+      }
+      .audience-pills {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.6rem;
+      }
+      .audience-pill {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.45rem 1.1rem;
+        background: rgba(255,255,255,.04);
+        border: 1px solid rgba(255,255,255,.09);
+        border-radius: 999px;
+        font-size: 0.88rem;
+        color: #c4c9d4;
+        font-weight: 500;
+      }
+
+      /* ── Section ─────────────────────────────────────────── */
+      .section {
+        padding: 4rem 1rem 5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+      }
+
+      .section-label {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+      .section-label::before,
+      .section-label::after {
+        content: '';
+        display: block;
+        width: 36px;
+        height: 1px;
+        background: currentColor;
+        opacity: 0.35;
+      }
+      .section-label.chaos { color: var(--dc-red);   }
+      .section-label.clean { color: var(--dc-green); }
+
+      /* ── Chat card ───────────────────────────────────────── */
+      .chat-card {
+        width: 100%;
+        max-width: 580px;
+        background: var(--dc-bg);
+        border-radius: 10px;
+        border: 1px solid var(--dc-border);
+        box-shadow: 0 20px 60px rgba(0,0,0,.5);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .chat-header {
+        height: 44px;
+        padding: 0 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        border-bottom: 1px solid rgba(0,0,0,.3);
+        background: #2b2d31;
+        flex-shrink: 0;
+      }
+
+      .chat-header .hash { color: var(--dc-muted); font-size: 1.2rem; font-weight: 300; }
+      .chat-header .ch-name { font-weight: 600; font-size: 0.92rem; color: #fff; }
+
+      .notif-pill {
+        margin-left: auto;
+        background: var(--dc-red);
+        color: #fff;
+        font-size: 0.62rem;
+        font-weight: 700;
+        padding: 0 6px;
+        border-radius: 999px;
+        min-width: 20px;
+        height: 20px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .chat-feed {
+        padding: 0.5rem 0 1rem;
+      }
+
+      /* ── Messages ────────────────────────────────────────── */
+      .msg {
+        display: flex;
+        gap: 0.85rem;
+        padding: 0.1rem 1rem;
+        opacity: 0;
+        transform: translateY(5px);
+        transition: opacity .25s ease, transform .25s ease;
+      }
+      .msg.visible   { opacity: 1; transform: translateY(0); }
+      .msg.with-head { padding-top: 0.8rem; }
+
+      .av {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        overflow: hidden;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.78rem;
+        color: #fff;
+        margin-top: 2px;
+      }
+      .av img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+      .msg-body { flex: 1; min-width: 0; }
+      .msg-meta { display: flex; align-items: baseline; gap: 0.45rem; margin-bottom: 0.12rem; }
+      .author   { font-weight: 600; font-size: 0.9rem; }
+      .ts       { font-size: 0.67rem; color: var(--dc-muted); }
+      .msg-text { font-size: 0.9rem; line-height: 1.45; color: var(--dc-text); word-break: break-word; }
+
+      .bot-tag {
+        background: var(--dc-blurple);
+        color: #fff;
+        font-size: 0.56rem;
+        font-weight: 700;
+        padding: 1px 4px;
+        border-radius: 3px;
+        letter-spacing: 0.03em;
+        vertical-align: middle;
+        margin-left: 2px;
+      }
+
+      .mention {
+        color: #bac8ff;
+        background: rgba(88,101,242,.15);
+        border-radius: 3px;
+        padding: 0 2px;
+      }
+
+      .slash-cmd {
+        color: #5865F2;
+        font-family: monospace;
+        font-size: 0.92rem;
+      }
+
+      /* day separator */
+      .day-sep {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1.1rem 1rem 0.4rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--dc-muted);
+        opacity: 0;
+        transition: opacity .4s;
+      }
+      .day-sep::before, .day-sep::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--dc-border);
+      }
+      .day-sep.visible { opacity: 1; }
+
+      /* typing */
+      .typing {
+        padding: 0.2rem 1rem 0 3.8rem;
+        font-size: 0.7rem;
+        color: var(--dc-muted);
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        opacity: 0;
+        transition: opacity .3s;
+        min-height: 22px;
+      }
+      .typing.visible { opacity: 1; }
+
+      .dots { display: flex; gap: 2px; align-items: center; }
+      .dots span {
+        width: 4px; height: 4px;
+        border-radius: 50%;
+        background: var(--dc-muted);
+        animation: dot 1.2s infinite;
+      }
+      .dots span:nth-child(2) { animation-delay: .2s; }
+      .dots span:nth-child(3) { animation-delay: .4s; }
+      @keyframes dot {
+        0%,60%,100% { transform: translateY(0);    opacity: .4; }
+        30%          { transform: translateY(-3px); opacity: 1;  }
+      }
+
+      /* ── Bot embed ───────────────────────────────────────── */
+      .embed {
+        margin-top: 0.4rem;
+        background: #2b2d31;
+        border-left: 4px solid var(--dc-blurple);
+        border-radius: 0 4px 4px 0;
+        padding: 0.8rem 0.9rem;
+        max-width: 400px;
+      }
+
+      .embed-eyebrow { font-size: 0.7rem; color: var(--dc-muted); margin-bottom: 0.35rem; }
+      .embed-title   { font-size: 0.97rem; font-weight: 700; color: #a8b3f8; margin-bottom: 0.6rem; }
+
+      .embed-fields {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.45rem 0.85rem;
+        margin-bottom: 0.75rem;
+      }
+      .embed-field-name {
+        font-size: 0.64rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--dc-muted);
+        margin-bottom: 0.08rem;
+      }
+      .embed-field-val      { font-size: 0.82rem; color: var(--dc-text); }
+      .embed-field-val.link { color: #a8b3f8; cursor: pointer; }
+      .embed-field-val.link:hover { text-decoration: underline; }
+
+      .embed-sep { height: 1px; background: var(--dc-border); margin: 0.6rem 0; }
+
+      .embed-part-label {
+        font-size: 0.64rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--dc-muted);
+        margin-bottom: 0.4rem;
+      }
+
+      .chips { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+
+      .chip {
+        display: flex;
+        align-items: center;
+        gap: 0.28rem;
+        padding: 0.16rem 0.5rem 0.16rem 0.22rem;
+        background: rgba(255,255,255,.07);
+        border-radius: 999px;
+        font-size: 0.76rem;
+        color: var(--dc-text);
+      }
+
+      .chip-av {
+        width: 18px; height: 18px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.56rem;
+        font-weight: 700;
+        color: #fff;
+      }
+
+      .embed-footer { font-size: 0.68rem; color: var(--dc-muted); margin-top: 0.6rem; }
+
+      .dc-btns { display: flex; gap: 0.4rem; margin-top: 0.5rem; flex-wrap: wrap; }
+      .dc-btn {
+        padding: 0.35rem 0.9rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        transition: filter .15s;
+      }
+      .dc-btn:hover    { filter: brightness(1.1); }
+      .dc-btn.primary  { background: var(--dc-blurple); color: #fff; }
+      .dc-btn.secondary{ background: #4E5058;           color: #fff; }
+
+      /* ── Thread block ────────────────────────────────────── */
+      .thread-reveal {
+        opacity: 0;
+        transform: translateY(6px);
+        transition: opacity .35s ease, transform .35s ease;
+        padding: 0 1rem 0 3.7rem;
+        margin-top: 0.5rem;
+      }
+      .thread-reveal.visible { opacity: 1; transform: translateY(0); }
+
+      .thread-block {
+        background: #232428;
+        border: 1px solid rgba(88,101,242,.3);
+        border-radius: 6px;
+        overflow: hidden;
+        max-width: 400px;
+      }
+
+      .thread-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        background: rgba(88,101,242,.1);
+        border-bottom: 1px solid rgba(88,101,242,.2);
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #a8b3f8;
+      }
+
+
+      /* ── Bridge ──────────────────────────────────────────── */
+      .bridge { padding: 5rem 1rem; text-align: center; }
+      .bridge h2 {
+        font-size: clamp(1.6rem, 5vw, 2.8rem);
+        font-weight: 800;
+        color: #fff;
+        letter-spacing: -0.025em;
+        margin-bottom: 0.75rem;
+      }
+      .bridge p { color: #8b8f96; font-size: 1.05rem; }
+
+      /* ── CTA ─────────────────────────────────────────────── */
+      .cta {
+        padding: 6rem 1rem 7rem;
+        text-align: center;
+        background: radial-gradient(ellipse at 50% 100%, #1a1f3c 0%, transparent 65%);
+      }
+      .cta h2 {
+        font-size: clamp(1.5rem, 4vw, 2.5rem);
+        font-weight: 800;
+        color: #fff;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.65rem;
+      }
+      .cta p { color: #8b8f96; font-size: 0.95rem; margin-bottom: 2.25rem; }
+
+      .cta-actions { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+
+      .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.9rem 2rem;
+        background: var(--dc-blurple);
+        color: #fff;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        transition: background .2s, transform .2s;
+      }
+      .btn-primary:hover { background: #4752c4; transform: translateY(-2px); }
+
+      .btn-ghost {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.9rem 2rem;
+        color: var(--dc-muted);
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        border: 1px solid rgba(255,255,255,.1);
+        transition: color .2s, border-color .2s;
+      }
+      .btn-ghost:hover { color: #fff; border-color: rgba(255,255,255,.25); }
+
+      /* ── Author footer ───────────────────────────────────── */
+      .author-footer {
+        border-top: 1px solid var(--dc-border);
+        padding: 2.5rem 1rem;
+        display: flex;
+        justify-content: center;
+      }
+      .author-card {
+        display: flex;
+        align-items: center;
+        gap: 1.1rem;
+        max-width: 540px;
+        width: 100%;
+      }
+      .author-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        border: 2px solid var(--dc-border);
+      }
+      .author-name {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 0.2rem;
+      }
+      .author-bio {
+        font-size: 0.78rem;
+        color: var(--dc-muted);
+        line-height: 1.5;
+        margin-bottom: 0.55rem;
+      }
+      .author-links {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+      }
+      .author-links a {
+        display: flex;
+        align-items: center;
+        opacity: 0.6;
+        transition: opacity .15s;
+      }
+      .author-links a:hover { opacity: 1; }
+      .author-blog {
+        font-size: 0.75rem;
+        color: #8b8f96;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(255,255,255,.15);
+      }
+      .author-blog:hover { color: #fff; border-color: rgba(255,255,255,.4); }
+      @media (max-width: 480px) {
+        .author-card { flex-direction: column; align-items: flex-start; }
+      }
+
+      /* ── Problems ────────────────────────────────────────── */
+      .problems, .benefits {
+        padding: 2rem 1rem 4rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2.5rem;
+      }
+
+      .section-title {
+        font-size: clamp(1.4rem, 3.5vw, 2rem);
+        font-weight: 800;
+        color: #fff;
+        letter-spacing: -0.02em;
+        text-align: center;
+      }
+
+      .grid-2 {
+        width: 100%;
+        max-width: 760px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+
+      .card {
+        border-radius: 10px;
+        padding: 1.25rem 1.35rem;
+        background: #141417;
+      }
+
+      .card.problem { border: 1px solid rgba(237,66,69,.18); }
+      .card.benefit { border: 1px solid rgba(59,165,92,.18); }
+
+      .card-emoji { font-size: 1.5rem; margin-bottom: 0.6rem; display: block; line-height: 1; }
+      .card-title { font-weight: 700; font-size: 0.92rem; color: #fff; margin-bottom: 0.35rem; }
+      .card-text  { font-size: 0.83rem; color: #8b8f96; line-height: 1.58; }
+
+      .card-brands {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 0.6rem;
+        align-items: center;
+      }
+
+      /* ── Roadmap ─────────────────────────────────────────── */
+      .roadmap {
+        padding: 2rem 1rem 4rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2.5rem;
+      }
+
+      .roadmap-sub {
+        color: #8b8f96;
+        font-size: 0.95rem;
+        text-align: center;
+      }
+
+      .roadmap-grid {
+        width: 100%;
+        max-width: 760px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+
+      .roadmap-card {
+        background: #141417;
+        border: 1px solid rgba(255,255,255,.07);
+        border-radius: 10px;
+        padding: 1.25rem 1.35rem;
+        position: relative;
+      }
+
+      .soon-badge {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        font-size: 0.6rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        padding: 0.2rem 0.55rem;
+        border-radius: 999px;
+        background: rgba(88,101,242,.15);
+        color: #a8b3f8;
+        border: 1px solid rgba(88,101,242,.25);
+      }
+
+      @media (max-width: 580px) {
+        .roadmap-grid { grid-template-columns: 1fr; }
+      }
+
+      /* ── Club banner ────────────────────────────────────── */
+      .club-banner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1rem 1.5rem;
+        margin: 0 auto 2rem;
+        max-width: 760px;
+        padding: 1.1rem 1.5rem;
+        background: rgba(88,101,242,.08);
+        border: 1px solid rgba(88,101,242,.25);
+        border-radius: 10px;
+      }
+      .club-banner-text {
+        font-size: 0.92rem;
+        color: #c4c9d4;
+      }
+      .club-banner-cta {
+        white-space: nowrap;
+        padding: 0.45rem 1.1rem;
+        background: var(--dc-blurple);
+        color: #fff;
+        text-decoration: none;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: filter .15s;
+      }
+      .club-banner-cta:hover { filter: brightness(1.12); }
+
+      /* ── Split demo ──────────────────────────────────────── */
+      .split-demo {
+        width: 100%;
+        max-width: 980px;
+        display: flex;
+        gap: 0.85rem;
+        align-items: flex-start;
+      }
+
+      .split-demo .chat-card { flex: 1; min-width: 0; }
+
+      .thread-panel {
+        flex: 1;
+        min-width: 0;
+        opacity: 0;
+        transform: translateX(14px);
+        transition: opacity .45s ease, transform .45s ease;
+        display: flex;
+        flex-direction: column;
+      }
+      .thread-panel.visible { opacity: 1; transform: translateX(0); }
+
+      .thread-panel .chat-card {
+        border-color: rgba(88,101,242,.25);
+      }
+
+      .thread-sys-msg {
+        text-align: center;
+        font-size: 0.68rem;
+        color: var(--dc-muted);
+        padding: 0.85rem 1rem 0.6rem;
+        opacity: 0;
+        transition: opacity .4s ease;
+      }
+      .thread-sys-msg.visible { opacity: 1; }
+
+      .thread-panel .chat-header {
+        background: rgba(88,101,242,.1);
+        border-bottom-color: rgba(88,101,242,.2);
+      }
+
+      .thread-panel .hash, .thread-panel .ch-name { color: #a8b3f8; }
+
+      @media (max-width: 760px) {
+        .split-demo { flex-direction: column; }
+        .grid-2 { grid-template-columns: 1fr; }
+      }
+
+      /* ── Compat ──────────────────────────────────────────── */
+      .compat {
+        padding: 2rem 1rem 4rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+      }
+
+      .compat-sub {
+        color: #8b8f96;
+        font-size: 0.95rem;
+        text-align: center;
+        max-width: 540px;
+      }
+
+      .compat-grid {
+        width: 100%;
+        max-width: 760px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+
+      .compat-group-label {
+        grid-column: span 2;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--dc-muted);
+      }
+
+      .compat-group-label::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--dc-border);
+      }
+
+      .compat-group-label.yes { color: var(--dc-green); }
+      .compat-group-label.no  { color: var(--dc-red);   }
+
+      .compat-card {
+        background: #141417;
+        border-radius: 10px;
+        padding: 1.1rem 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+      }
+
+      .compat-card.yes { border: 1px solid rgba(59,165,92,.2); }
+      .compat-card.no  { border: 1px solid rgba(237,66,69,.12); }
+
+      .compat-name {
+        font-weight: 700;
+        font-size: 0.92rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+
+      .compat-card.yes .compat-name { color: #57f287; }
+      .compat-card.no  .compat-name { color: var(--dc-muted); }
+
+      .compat-reason { font-size: 0.82rem; color: #8b8f96; line-height: 1.55; }
+
+      @media (max-width: 580px) {
+        .compat-grid { grid-template-columns: 1fr; }
+        .compat-group-label { grid-column: 1; }
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <div class="lang-bar">
+      <a href={t.altLangUrl} class="lang-btn">🌐 {t.altLangLabel}</a>
+    </div>
+
+    <main>
+
+    <!-- ── Hero ──────────────────────────────────────────────── -->
+    <section class="hero">
+      <div class="hero-badge">🚴 {t.badge}</div>
+      <h1>{t.heroTitle} <em>{t.heroEm}</em><br/>{t.heroRest}</h1>
+      <p>{t.heroSub}</p>
+      <div class="scroll-hint">
+        <span>{t.scrollHint}</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <path d="M7 10l5 5 5-5"/>
+        </svg>
+      </div>
+    </section>
+
+    <!-- ── Audience ─────────────────────────────────────────────── -->
+    <section class="audience">
+      <p class="audience-title">{t.audienceTitle}</p>
+      <div class="audience-pills">
+        {t.audience.map((a) => (
+          <div class="audience-pill">
+            <span>{a.emoji}</span>
+            <span>{a.label}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- ── Problems ─────────────────────────────────────────────── -->
+    <section class="problems">
+      <h2 class="section-title">{t.problemsTitle}</h2>
+      <div class="grid-2">
+        {t.problems.map((p) => (
+          <div class="card problem">
+            <span class="card-emoji">{p.emoji}</span>
+            <div class="card-title">{p.title}</div>
+            <div class="card-text">{p.text}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- ── Chaos ──────────────────────────────────────────────── -->
+    <section class="section">
+      <div class="section-label chaos">{t.labelChaos}</div>
+
+      <div class="chat-card" id="chaos-card">
+        <div class="chat-header">
+          <span class="hash">#</span>
+          <span class="ch-name">{t.channelName}</span>
+          <span class="notif-pill" id="notif">0</span>
+        </div>
+        <div class="chat-feed" id="chaos-feed">
+          <div class="day-sep visible">{t.dayMonday}</div>
+
+          {t.chaosMessages.slice(0, -1).map((m) => (
+            <div class="msg with-head" data-chaos>
+              <div class="av" style={`background:${m.color}`}>
+                {avatarMap[m.author] ? <img src={avatarMap[m.author]} alt={m.author} /> : m.initial}
+              </div>
+              <div class="msg-body">
+                <div class="msg-meta">
+                  <span class="author" style={`color:${m.textColor}`}>{m.author}</span>
+                  <span class="ts">{t.dayMonday} à {m.time}</span>
+                </div>
+                <div class="msg-text">
+                  {isMention(m.text)
+                    ? <><span class="mention">{m.text.split(' ')[0]}</span>{' ' + m.text.split(' ').slice(1).join(' ')}</>
+                    : m.text}
+                </div>
+              </div>
+            </div>
+          ))}
+
+          <div class="day-sep" id="chaos-day2">{t.dayTuesday}</div>
+
+          <div class="msg with-head" data-chaos>
+            <div class="av" style={`background:${t.chaosMessages[t.chaosMessages.length - 1].color}`}>
+              {(() => { const m = t.chaosMessages[t.chaosMessages.length - 1]; return avatarMap[m.author] ? <img src={avatarMap[m.author]} alt={m.author} /> : m.initial; })()}
+            </div>
+            <div class="msg-body">
+              <div class="msg-meta">
+                <span class="author" style={`color:${t.chaosMessages[t.chaosMessages.length - 1].textColor}`}>
+                  {t.chaosMessages[t.chaosMessages.length - 1].author}
+                </span>
+                <span class="ts">{t.dayTuesday} à {t.chaosMessages[t.chaosMessages.length - 1].time}</span>
+              </div>
+              <div class="msg-text">
+                <span class="mention">{t.chaosMessages[t.chaosMessages.length - 1].text.split(' ')[0]}</span>
+                {' ' + t.chaosMessages[t.chaosMessages.length - 1].text.split(' ').slice(1).join(' ')}
+              </div>
+            </div>
+          </div>
+
+          <div class="typing" id="chaos-typing">
+            <div class="dots"><span></span><span></span><span></span></div>
+            <span>{t.typingChaos}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Bridge ─────────────────────────────────────────────── -->
+    <div class="bridge">
+      <h2>{t.bridgeTitle}</h2>
+      <p>{t.bridgeSub}</p>
+    </div>
+
+    <!-- ── Clean ──────────────────────────────────────────────── -->
+    <section class="section" style="max-width:100%;padding-inline:1rem">
+      <div class="section-label clean">{t.labelClean}</div>
+
+      <div class="split-demo" id="clean-card">
+
+        <!-- Left: main channel -->
+        <div class="chat-card" id="main-channel">
+          <div class="chat-header">
+            <span class="hash">#</span>
+            <span class="ch-name">{t.channelName}</span>
+          </div>
+          <div class="chat-feed" id="clean-feed">
+            <div class="day-sep visible">{t.dayMonday}</div>
+
+            {t.cleanMessages.map((m) => (
+              m.text === '__embed__' ? (
+                <div class="msg with-head" data-clean>
+                  <div class="av" style={`background:${m.color}; font-size:1.1rem; line-height:1`}>🤖</div>
+                  <div class="msg-body">
+                    <div class="msg-meta">
+                      <span class="author" style={`color:${m.textColor}`}>{m.author}</span>
+                      <span class="bot-tag">BOT</span>
+                      <span class="ts">{t.dayMonday} à {m.time}</span>
+                    </div>
+                    <div class="embed">
+                      <div class="embed-eyebrow">{t.embedEyebrow}</div>
+                      <div class="embed-title">{t.embedTitle}</div>
+                      <div class="embed-fields">
+                        {t.embedFields.slice(0, 4).map((f) => (
+                          <div>
+                            <div class="embed-field-name">{f.name}</div>
+                            <div class="embed-field-val">{f.value}</div>
+                          </div>
+                        ))}
+                        <div style="grid-column: span 2">
+                          <div class="embed-field-name">{t.embedFields[4].name}</div>
+                          <div class="embed-field-val link">{t.embedFields[4].value}</div>
+                        </div>
+                      </div>
+                      <div class="embed-sep"></div>
+                      <div class="embed-part-label">{t.embedParticipants} (<span id="count">1</span>)</div>
+                      <div class="chips" id="chips">
+                        <div class="chip">
+                          <div class="chip-av" style="background:#5865F2">P</div>
+                          Pierre
+                        </div>
+                      </div>
+                      <div class="embed-footer">{t.embedFooter}</div>
+                    </div>
+                    <div class="dc-btns">
+                      <button class="dc-btn primary">{t.btnJoin}</button>
+                      <button class="dc-btn secondary">{t.btnLeave}</button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  class="msg with-head"
+                  data-clean
+                  data-adds-chip={m.addsChip ? JSON.stringify(m.addsChip) : undefined}
+                >
+                  <div class="av" style={`background:${m.color}${m.author === 'group-ride' ? '; font-size:1.1rem; line-height:1' : ''}`}>
+                    {m.author === 'group-ride' ? '🤖' : avatarMap[m.author] ? <img src={avatarMap[m.author]} alt={m.author} /> : m.initial}
+                  </div>
+                  <div class="msg-body">
+                    <div class="msg-meta">
+                      <span class="author" style={`color:${m.textColor}`}>{m.author}</span>
+                      {m.author === 'group-ride' && <span class="bot-tag">BOT</span>}
+                      <span class="ts">{t.dayMonday} à {m.time}</span>
+                    </div>
+                    <div class="msg-text">
+                      {m.text === t.commandMsg
+                        ? <span class="slash-cmd">{m.text}</span>
+                        : m.text}
+                    </div>
+                  </div>
+                </div>
+              )
+            ))}
+
+            <div class="typing" id="clean-typing">
+              <div class="dots"><span></span><span></span><span></span></div>
+              <span>{t.typingClean}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: dedicated thread (revealed by JS) -->
+        <div class="thread-panel" id="thread-panel">
+          <div class="chat-card">
+            <div class="chat-header">
+              <span class="hash">💬</span>
+              <span class="ch-name" style="font-size:.82rem">{t.embedTitle}</span>
+            </div>
+            <div class="chat-feed" id="thread-feed">
+              <div class="thread-sys-msg" id="thread-label">
+                {t.lang === 'fr' ? 'Thread créé automatiquement par group-ride' : 'Thread automatically created by group-ride'}
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── Benefits ─────────────────────────────────────────────── -->
+    <section class="benefits">
+      <h2 class="section-title">{t.benefitsTitle}</h2>
+      <div class="grid-2">
+        {t.benefits.map((b) => (
+          <div class="card benefit">
+            {b.brands ? (
+              <div class="card-brands">
+                {b.brands.includes('komoot')  && <Icon icon={siKomoot}  size={22} />}
+                {b.brands.includes('strava')  && <Icon icon={siStrava}  size={22} />}
+                {b.brands.includes('garmin')  && <Icon icon={siGarmin}  size={22} color="#ffffff" />}
+              </div>
+            ) : (
+              <span class="card-emoji">{b.emoji}</span>
+            )}
+            <div class="card-title">{b.title}</div>
+            <div class="card-text">{b.text}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- ── Compat ─────────────────────────────────────────────── -->
+    <section class="compat">
+      <h2 class="section-title">{t.compatTitle}</h2>
+      <p class="compat-sub">{t.compatSub}</p>
+      <div class="compat-grid">
+        <div class="compat-group-label yes">✅ {t.lang === 'fr' ? 'Supporté' : 'Supported'}</div>
+        {t.compatYes.map((p) => (
+          <div class="compat-card yes">
+            <div class="compat-name">
+              {compatIcons[p.name] && (
+                <Icon icon={compatIcons[p.name]} size={18} />
+              )}
+              {p.name}
+            </div>
+            <div class="compat-reason">{p.reason}</div>
+          </div>
+        ))}
+        <div class="compat-group-label no">✗ {t.lang === 'fr' ? 'Non supporté' : 'Not supported'}</div>
+        {t.compatNo.map((p) => (
+          <div class="compat-card no">
+            <div class="compat-name">
+              {compatIcons[p.name] && (
+                <Icon icon={compatIcons[p.name]} size={18} color="#4a4d55" />
+              )}
+              {p.name}
+            </div>
+            <div class="compat-reason">{p.reason}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- ── Roadmap ───────────────────────────────────────────────── -->
+    <section class="roadmap">
+      <h2 class="section-title">{t.roadmapTitle}</h2>
+      <p class="roadmap-sub">{t.roadmapSub}</p>
+      <div class="roadmap-grid">
+        {t.roadmapItems.map((item) => (
+          <div class="roadmap-card">
+            {item.soon && <span class="soon-badge">{t.lang === 'fr' ? 'Bientôt' : 'Soon'}</span>}
+            <span class="card-emoji">{item.emoji}</span>
+            <div class="card-title">{item.title}</div>
+            <div class="card-text">{item.text}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- ── Club banner ──────────────────────────────────────── -->
+    <div class="club-banner">
+      <span class="club-banner-text">🏅 {t.clubBannerText}</span>
+      <a href="https://www.linkedin.com/in/antoine-caron-slash/" target="_blank" rel="noopener" class="club-banner-cta">
+        {t.clubBannerCta} →
+      </a>
+    </div>
+
+    <!-- ── CTA ───────────────────────────────────────────────── -->
+    <section class="cta">
+      <h2>{t.ctaTitle}</h2>
+      <p>{t.ctaSub}</p>
+      <div class="cta-actions">
+        <a href="https://github.com/Slashgear/group-ride/blob/main/SETUP.md" class="btn-primary">
+          📖 {t.ctaInstall}
+        </a>
+        <a href="https://github.com/Slashgear/group-ride" class="btn-ghost">
+          {t.ctaGithub} →
+        </a>
+      </div>
+    </section>
+
+    <!-- ── Author ────────────────────────────────────────────── -->
+    <footer class="author-footer">
+      <div class="author-card">
+        <img src="https://github.com/Slashgear.png" alt="Antoine Caron" class="author-avatar" />
+        <div class="author-info">
+          <div class="author-name">Antoine Caron</div>
+          <div class="author-bio">
+            {t.lang === 'fr'
+              ? 'Développeur basé à Lyon 🇫🇷 — group-ride est un projet open-source construit dans mon temps libre.'
+              : 'Developer based in Lyon 🇫🇷 — group-ride is an open-source side project built in my spare time.'}
+          </div>
+          <div class="author-links">
+            <a href="https://github.com/Slashgear" target="_blank" rel="noopener" aria-label="GitHub">
+              <Icon icon={siGithub} size={18} color="#e6e6e6" />
+            </a>
+            <a href="https://bsky.app/profile/slashgear.dev" target="_blank" rel="noopener" aria-label="Bluesky">
+              <Icon icon={siBluesky} size={18} color="#e6e6e6" />
+            </a>
+            <a href="https://www.linkedin.com/in/antoine-caron-slash/" target="_blank" rel="noopener" class="author-blog">
+              LinkedIn
+            </a>
+            <a href="https://blog.slashgear.dev" target="_blank" rel="noopener" class="author-blog">
+              blog.slashgear.dev
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    </main>
+
+  </body>
+
+  <script define:vars={{ threadConvo, avatarMap }} is:inline>
+    // ── Chaos ─────────────────────────────────────────────────
+    const chaosCard   = document.getElementById('chaos-card');
+    const chaosMsgs   = [...document.querySelectorAll('[data-chaos]')];
+    const notifEl     = document.getElementById('notif');
+    const chaosDay2   = document.getElementById('chaos-day2');
+    const chaosTyping = document.getElementById('chaos-typing');
+    let chaosRan = false;
+
+    function playChaos() {
+      notifEl.style.display = 'flex';
+      let count = 0;
+      chaosMsgs.forEach((msg, i) => {
+        if (i === chaosMsgs.length - 1) {
+          setTimeout(() => chaosDay2.classList.add('visible'), i * 340 - 400);
+        }
+        setTimeout(() => {
+          msg.classList.add('visible');
+          notifEl.textContent = String(++count);
+        }, i * 340);
+      });
+      setTimeout(() => {
+        chaosTyping.classList.add('visible');
+      }, chaosMsgs.length * 340 + 300);
+    }
+
+    new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && !chaosRan) { chaosRan = true; playChaos(); }
+    }, { threshold: 0, rootMargin: '0px 0px -80px 0px' }).observe(chaosCard);
+
+    // ── Clean ──────────────────────────────────────────────────
+    const cleanCard   = document.getElementById('clean-card');
+    const cleanMsgs   = [...document.querySelectorAll('[data-clean]')];
+    const chipsEl     = document.getElementById('chips');
+    const countEl     = document.getElementById('count');
+    const cleanTyping = document.getElementById('clean-typing');
+    const threadPanel = document.getElementById('thread-panel');
+    const threadLabel = document.getElementById('thread-label');
+    const threadFeed  = document.getElementById('thread-feed');
+    let cleanRan = false;
+
+    function playClean() {
+      cleanMsgs.forEach((msg, i) => {
+        setTimeout(() => {
+          msg.classList.add('visible');
+
+          const raw = msg.dataset.addsChip;
+          if (raw) {
+            const { color, initial, name } = JSON.parse(raw);
+            const chip = document.createElement('div');
+            chip.className = 'chip';
+            chip.style.cssText = 'opacity:0;transition:opacity .3s';
+            chip.innerHTML = '<div class="chip-av" style="background:' + color + '">' + initial + '</div>' + name;
+            chipsEl.appendChild(chip);
+            requestAnimationFrame(() => { chip.style.opacity = '1'; });
+            countEl.textContent = String(chipsEl.children.length);
+          }
+        }, i * 560);
+      });
+
+      const afterClean = cleanMsgs.length * 560 + 300;
+
+      // Reveal the thread panel (right column)
+      setTimeout(() => {
+        threadLabel.classList.add('visible');
+        threadPanel.classList.add('visible');
+
+        threadConvo.forEach((m, i) => {
+          setTimeout(() => {
+            const el = document.createElement('div');
+            el.className = 'msg with-head';
+            el.style.cssText = 'opacity:0;transform:translateY(5px);transition:opacity .25s ease,transform .25s ease';
+            const avContent = m.isBot
+              ? m.initial
+              : (avatarMap[m.author] ? '<img src="' + avatarMap[m.author] + '" alt="' + m.author + '" style="width:100%;height:100%;object-fit:cover;display:block">' : m.initial);
+            el.innerHTML =
+              '<div class="av" style="background:' + m.color + (m.isBot ? ';font-size:1rem;line-height:1' : '') + '">' + avContent + '</div>' +
+              '<div class="msg-body">' +
+                '<div class="msg-meta">' +
+                  '<span class="author" style="color:' + m.textColor + '">' + m.author + '</span>' +
+                  (m.isBot ? '<span class="bot-tag">BOT</span>' : '') +
+                  '<span class="ts">14:4' + i + '</span>' +
+                '</div>' +
+                '<div class="msg-text">' + m.text + '</div>' +
+              '</div>';
+            threadFeed.appendChild(el);
+            requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; });
+          }, i * 500);
+        });
+      }, afterClean);
+
+      setTimeout(() => {
+        cleanTyping.classList.add('visible');
+      }, afterClean + threadConvo.length * 500 + 400);
+    }
+
+    new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && !cleanRan) { cleanRan = true; playClean(); }
+    }, { threshold: 0, rootMargin: '0px 0px -80px 0px' }).observe(cleanCard);
+  </script>
+</html>
