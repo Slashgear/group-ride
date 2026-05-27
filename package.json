@@ -2,6 +2,9 @@
   "name": "group-ride",
   "version": "1.0.0",
   "description": "Discord bot to organise group cycling rides",
+  "workspaces": [
+    "website"
+  ],
   "type": "module",
   "module": "src/index.ts",
   "scripts": {
@@ -13,6 +16,7 @@
     "lint": "oxlint src tests",
     "lint:fix": "oxlint --fix src tests",
     "typecheck": "tsc --noEmit",
+    "website": "bun run --cwd website dev",
     "release": "git tag -a \"v$(node -p \"require('./package.json').version\")\" -m \"Release v$(node -p \"require('./package.json').version\")\" && git push --tags"
   },
   "dependencies": {
