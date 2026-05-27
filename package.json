@@ -1,8 +1,10 @@
 {
   "name": "group-ride",
   "version": "1.0.0",
-  "workspaces": ["website"],
   "description": "Discord bot to organise group cycling rides",
+  "workspaces": [
+    "website"
+  ],
   "type": "module",
   "module": "src/index.ts",
   "scripts": {
