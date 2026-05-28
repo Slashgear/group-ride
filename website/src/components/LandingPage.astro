@@ -574,16 +574,29 @@ const avatarMap: Record<string, string> = {
       /* ── Author footer ───────────────────────────────────── */
       .author-footer {
         border-top: 1px solid var(--dc-border);
-        padding: 2.5rem 1rem;
+        padding: 2.5rem 1rem 3rem;
         display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+      }
+      .author-footer-label {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #8b8f96;
+      }
+      .author-cards {
+        display: flex;
+        gap: 2.5rem;
+        flex-wrap: wrap;
         justify-content: center;
       }
       .author-card {
         display: flex;
         align-items: center;
         gap: 1.1rem;
-        max-width: 540px;
-        width: 100%;
+        max-width: 420px;
       }
       .author-avatar {
         width: 56px;
@@ -591,6 +604,7 @@ const avatarMap: Record<string, string> = {
         border-radius: 50%;
         flex-shrink: 0;
         border: 2px solid var(--dc-border);
+        object-fit: cover;
       }
       .author-name {
         font-size: 0.95rem;
@@ -623,7 +637,8 @@ const avatarMap: Record<string, string> = {
         border-bottom: 1px solid rgba(255,255,255,.15);
       }
       .author-blog:hover { color: #fff; border-color: rgba(255,255,255,.4); }
-      @media (max-width: 480px) {
+      @media (max-width: 600px) {
+        .author-cards { flex-direction: column; gap: 1.75rem; }
         .author-card { flex-direction: column; align-items: flex-start; }
       }
 
@@ -1193,28 +1208,50 @@ const avatarMap: Record<string, string> = {
 
     <!-- ── Author ────────────────────────────────────────────── -->
     <footer class="author-footer">
-      <div class="author-card">
-        <img src="https://github.com/Slashgear.png" alt="Antoine Caron" class="author-avatar" />
-        <div class="author-info">
-          <div class="author-name">Antoine Caron</div>
-          <div class="author-bio">
-            {t.lang === 'fr'
-              ? 'Développeur basé à Lyon 🇫🇷 — group-ride est un projet open-source construit dans mon temps libre.'
-              : 'Developer based in Lyon 🇫🇷 — group-ride is an open-source side project built in my spare time.'}
+      <p class="author-footer-label">
+        {t.lang === 'fr' ? 'Créé par' : 'Created by'}
+      </p>
+      <div class="author-cards">
+        <div class="author-card">
+          <img src="https://github.com/Slashgear.png" alt="Antoine Caron" class="author-avatar" />
+          <div class="author-info">
+            <div class="author-name">Antoine Caron</div>
+            <div class="author-bio">
+              {t.lang === 'fr'
+                ? 'Développeur basé à Lyon 🇫🇷 — group-ride est un projet open-source construit dans mon temps libre.'
+                : 'Developer based in Lyon 🇫🇷 — group-ride is an open-source side project built in my spare time.'}
+            </div>
+            <div class="author-links">
+              <a href="https://github.com/Slashgear" target="_blank" rel="noopener" aria-label="GitHub">
+                <Icon icon={siGithub} size={18} color="#e6e6e6" />
+              </a>
+              <a href="https://bsky.app/profile/slashgear.dev" target="_blank" rel="noopener" aria-label="Bluesky">
+                <Icon icon={siBluesky} size={18} color="#e6e6e6" />
+              </a>
+              <a href="https://www.linkedin.com/in/antoine-caron-slash/" target="_blank" rel="noopener" class="author-blog">
+                LinkedIn
+              </a>
+              <a href="https://blog.slashgear.dev" target="_blank" rel="noopener" class="author-blog">
+                blog.slashgear.dev
+              </a>
+            </div>
           </div>
-          <div class="author-links">
-            <a href="https://github.com/Slashgear" target="_blank" rel="noopener" aria-label="GitHub">
-              <Icon icon={siGithub} size={18} color="#e6e6e6" />
-            </a>
-            <a href="https://bsky.app/profile/slashgear.dev" target="_blank" rel="noopener" aria-label="Bluesky">
-              <Icon icon={siBluesky} size={18} color="#e6e6e6" />
-            </a>
-            <a href="https://www.linkedin.com/in/antoine-caron-slash/" target="_blank" rel="noopener" class="author-blog">
-              LinkedIn
-            </a>
-            <a href="https://blog.slashgear.dev" target="_blank" rel="noopener" class="author-blog">
-              blog.slashgear.dev
-            </a>
+        </div>
+
+        <div class="author-card">
+          <img src="/avatars/pierre-reynaud.jpeg" alt="Pierre Reynaud" class="author-avatar" />
+          <div class="author-info">
+            <div class="author-name">Pierre Reynaud</div>
+            <div class="author-bio">
+              {t.lang === 'fr'
+                ? "Co-concepteur de l'idée originale — merci à lui pour les réflexions qui ont donné naissance au projet."
+                : 'Co-designer of the original concept — thanks to him for the discussions that sparked this project.'}
+            </div>
+            <div class="author-links">
+              <a href="https://www.linkedin.com/in/pierre-reynaud-04035490/" target="_blank" rel="noopener" class="author-blog">
+                LinkedIn
+              </a>
+            </div>
           </div>
         </div>
       </div>
