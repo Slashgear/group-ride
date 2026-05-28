@@ -24,7 +24,7 @@ const siteBase = Astro.site?.toString().replace(/\/$/u, '') ?? '';
 const canonicalUrl = `${siteBase}/${t.canonicalPath}`;
 const altUrl      = `${siteBase}/${t.altLangUrl.replace(/^\//u, '')}`;
 const defaultUrl  = `${siteBase}/`;
-const ogImage     = `${siteBase}/og.svg`;
+const ogImage     = `${siteBase}/og.jpeg`;
 const pageTitle   = `group-ride — ${t.heroTitle} ${t.heroEm} ${t.heroRest}`;
 
 const threadConvo = t.lang === 'fr' ? [
