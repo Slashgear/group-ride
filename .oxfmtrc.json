@@ -4,5 +4,6 @@
   "useTabs": false,
   "semi": false,
   "singleQuote": false,
-  "trailingComma": "all"
+  "trailingComma": "all",
+  "ignorePatterns": ["CHANGELOG.md", "cliff.toml"]
 }
