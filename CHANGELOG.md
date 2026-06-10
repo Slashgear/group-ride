@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.2.0 — 2026-06-10
+
+### Features
+
+- Log startup config summary (version, adapter, database, timezone)
+
 ## v1.1.0 — 2026-06-10
 
 ### Bug Fixes
