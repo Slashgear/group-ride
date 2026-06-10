@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.1.0 — 2026-06-10
 
 ### Bug Fixes
 
@@ -22,6 +22,7 @@
 - Surface domain errors to users instead of silent failures
 - **website**: Add landing page deployed to group-ride.slashgear.dev
 - **website**: Add Pierre Reynaud as co-creator in footer
+- Add git-cliff for changelog generation
 
 ### Refactoring
 
