@@ -83,6 +83,7 @@ DISCORD_ANNOUNCEMENT_CHANNEL_ID=your_channel_id     # from Step 4
 DISCORD_FORUM_CHANNEL_ID=your_forum_channel_id      # from Step 4
 DATABASE_PATH=./data/group-ride.db                  # SQLite file path (ignored if DATABASE_URL is set)
 # DATABASE_URL=postgres://user:password@localhost:5432/group_ride  # optional — enables PostgreSQL
+TZ=Europe/Paris                                     # timezone for reminders — must match your group's timezone
 ```
 
 ---
@@ -137,6 +138,7 @@ TELEGRAM_TOKEN=your_bot_token           # from Step A
 TELEGRAM_GROUP_CHAT_ID=-100XXXXXXXXX   # from Step D
 DATABASE_PATH=./data/group-ride.db                  # ignored if DATABASE_URL is set
 # DATABASE_URL=postgres://user:password@localhost:5432/group_ride  # optional — enables PostgreSQL
+TZ=Europe/Paris                                     # timezone for reminders — must match your group's timezone
 ```
 
 ### Available commands (Telegram)

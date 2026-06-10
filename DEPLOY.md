@@ -72,6 +72,7 @@ DISCORD_ANNOUNCEMENT_CHANNEL_ID=your_announcement_channel_id
 DISCORD_FORUM_CHANNEL_ID=your_forum_channel_id
 DATABASE_PATH=/app/data/group-ride.db
 # DATABASE_URL=postgres://user:password@your-db-host:5432/group_ride
+TZ=Europe/Paris
 EOF
 ```
 
