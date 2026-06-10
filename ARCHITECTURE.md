@@ -65,6 +65,7 @@ classDiagram
         +findActiveByMember(userId)
         +update(ride)
         +addMember(rideId, userId)
+        +hasMember(rideId, userId)
         +removeMember(rideId, userId)
         +getMembers(rideId)
     }
