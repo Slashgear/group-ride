@@ -1,6 +1,6 @@
+/* eslint-disable max-lines */
 import {
   type ButtonInteraction,
-  type ChatInputCommandInteraction,
   type Client,
   type Interaction,
   MessageFlags,
@@ -11,14 +11,19 @@ import {
   UnsupportedPlatformError,
   importFromUrl,
 } from "../../../services/importer/index"
+import { parseGpx } from "../../../services/importer/gpx"
+import { generateRouteMap } from "../../../services/map-generator"
 import type { RideLevel } from "../../../domain/ride"
 import type { RideService } from "../../../services/ride.service"
 import { formatDate, formatDraftSummary } from "../format"
 import { parseDateAndTime, parseStats } from "../../shared/parse"
 import { buildConfirmRow } from "./shared"
 import { NEW_RIDE_MODAL_ID, buildNewRideModal } from "./new-ride-modal"
+import { logger } from "../../../logger"
 
+const log = logger.child({ module: "discord-new-ride" })
 const pendingRides = new Map<string, RidePayload>()
+const pendingMapImages = new Map<string, Buffer>()
 const PENDING_TTL_MS = 10 * 60 * 1000
 
 export { buildNewRideModal }
@@ -34,7 +39,7 @@ async function onNewRideInteraction(
   rideService: RideService,
 ): Promise<void> {
   if (interaction.isChatInputCommand() && interaction.commandName === "newride") {
-    await handleNewRideCommand(interaction)
+    await interaction.showModal(buildNewRideModal())
     return
   }
 
@@ -53,10 +58,6 @@ async function onNewRideInteraction(
   }
 }
 
-async function handleNewRideCommand(interaction: ChatInputCommandInteraction): Promise<void> {
-  await interaction.showModal(buildNewRideModal())
-}
-
 async function handleModalSubmit(
   interaction: ModalSubmitInteraction,
   _rideService: RideService,
@@ -72,22 +73,29 @@ async function handleModalSubmit(
   if (parsed == null) return
 
   const { date, meetingTime } = parsed
-  const { importedFields, importWarning } = await resolveImport(rawUrl, parseStats(rawStats))
+  const { importedFields, importWarning, mapImage } = await resolveImport(
+    rawUrl,
+    parseStats(rawStats),
+  )
   const notes = importedFields.notes ?? (rawNotes === "" ? undefined : rawNotes)
-  const payload = encodePayload({
-    dateTime: rawDateTime,
-    name: importedFields.name,
-    meetingTime,
-    meetingPoint,
-    distanceKm: importedFields.distanceKm,
-    elevationGain: importedFields.elevationGain,
-    elevationLoss: importedFields.elevationLoss,
-    level: importedFields.level,
-    externalUrl: importedFields.externalUrl,
-    notes,
-    proposerId: interaction.user.id,
-    proposerName: interaction.user.displayName,
-  })
+  const payload = encodePayload(
+    {
+      dateTime: rawDateTime,
+      name: importedFields.name,
+      meetingTime,
+      meetingPoint,
+      distanceKm: importedFields.distanceKm,
+      elevationGain: importedFields.elevationGain,
+      elevationLoss: importedFields.elevationLoss,
+      level: importedFields.level,
+      gpxUrl: importedFields.gpxUrl,
+      externalUrl: importedFields.externalUrl,
+      notes,
+      proposerId: interaction.user.id,
+      proposerName: interaction.user.displayName,
+    },
+    mapImage,
+  )
   const summary = formatDraftSummary({
     date,
     meetingTime,
@@ -136,8 +144,10 @@ interface ImportResult {
     level?: RideLevel
     externalUrl?: string
     notes?: string
+    gpxUrl?: string
   }
   importWarning: string
+  mapImage?: Buffer
 }
 
 async function resolveImport(
@@ -151,16 +161,49 @@ async function resolveImport(
   }
   if (rawUrl === "") return { importedFields: base, importWarning: "" }
 
+  if (rawUrl.toLowerCase().endsWith(".gpx")) {
+    try {
+      const res = await fetch(rawUrl)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const buffer = Buffer.from(await res.arrayBuffer())
+      const parsed = parseGpx(buffer)
+      let mapImage: Buffer | undefined
+      if (parsed.coordinates.length >= 2) {
+        try {
+          mapImage = await generateRouteMap(parsed.coordinates)
+        } catch (mapErr) {
+          log.warn({ err: mapErr }, "Map generation failed, continuing without map")
+        }
+      }
+      return {
+        importedFields: {
+          ...base,
+          name: parsed.name,
+          distanceKm: base.distanceKm ?? parsed.distanceKm,
+          elevationGain: base.elevationGain ?? parsed.elevationGain,
+          elevationLoss: base.elevationLoss ?? parsed.elevationLoss,
+          gpxUrl: rawUrl,
+        },
+        importWarning: "",
+        mapImage,
+      }
+    } catch (err) {
+      log.warn({ err, url: rawUrl }, "GPX import failed")
+      return {
+        importedFields: base,
+        importWarning: "\n\n⚠️ Could not download or parse GPX file — continuing with manual data.",
+      }
+    }
+  }
+
   try {
     const imported = await importFromUrl(rawUrl)
     const hostname = new URL(rawUrl).hostname
-    let importWarning = ""
-    if (hostname.includes("garmin.com"))
-      importWarning =
-        "\n\n⚠️ Garmin courses are not publicly accessible — only the link was saved. Fill in distance and elevation manually."
-    else if (hostname.includes("strava.com"))
-      importWarning =
-        "\n\n⚠️ Strava activities require authentication — only the link was saved. Fill in distance and elevation manually."
+    const importWarning = hostname.includes("garmin.com")
+      ? "\n\n⚠️ Garmin courses are not publicly accessible — only the link was saved. Fill in distance and elevation manually."
+      : hostname.includes("strava.com")
+        ? "\n\n⚠️ Strava activities require authentication — only the link was saved. Fill in distance and elevation manually."
+        : ""
     return {
       importedFields: {
         ...base,
@@ -190,9 +233,10 @@ async function handleConfirm(
   rideService: RideService,
 ): Promise<void> {
   const id = interaction.customId.replace("ride-confirm:", "")
-  const data = decodePayload(id)
+  const { data, mapImage } = decodePayload(id)
   pendingRides.delete(id)
-  if (!data) {
+  pendingMapImages.delete(id)
+  if (data == null) {
     await interaction.update({
       content: "❌ Could not read ride data. Please try again.",
       components: [],
@@ -220,8 +264,10 @@ async function handleConfirm(
     elevationGain: data.elevationGain,
     elevationLoss: data.elevationLoss,
     level: data.level as never,
+    gpxUrl: data.gpxUrl,
     externalUrl: data.externalUrl,
     notes: data.notes,
+    mapImageBuffer: mapImage,
   })
 
   await interaction.editReply({
@@ -241,19 +287,22 @@ interface RidePayload {
   elevationGain?: number
   elevationLoss?: number
   level?: string
+  gpxUrl?: string
   externalUrl?: string
   notes?: string
 }
 
-function encodePayload(data: RidePayload): string {
+function encodePayload(data: RidePayload, mapImage?: Buffer): string {
   const id = Math.random().toString(36).slice(2, 10)
   pendingRides.set(id, data)
+  if (mapImage != null) pendingMapImages.set(id, mapImage)
   setTimeout(() => {
     pendingRides.delete(id)
+    pendingMapImages.delete(id)
   }, PENDING_TTL_MS)
   return id
 }
 
-function decodePayload(id: string): RidePayload | null {
-  return pendingRides.get(id) ?? null
+function decodePayload(id: string): { data: RidePayload | null; mapImage?: Buffer } {
+  return { data: pendingRides.get(id) ?? null, mapImage: pendingMapImages.get(id) }
 }

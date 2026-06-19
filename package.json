@@ -22,8 +22,10 @@
   "dependencies": {
     "@grammyjs/conversations": "^2.1.1",
     "discord.js": "^14.26.4",
+    "fast-xml-parser": "^5.9.3",
     "grammy": "^1.43.0",
-    "pino": "^10.3.1"
+    "pino": "^10.3.1",
+    "staticmaps": "^1.13.1"
   },
   "devDependencies": {
     "@types/bun": "latest",

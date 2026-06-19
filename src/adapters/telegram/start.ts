@@ -26,7 +26,7 @@ export async function startTelegram(rideRepo: RideRepository): Promise<void> {
   const scheduler = new SchedulerService(rideRepo, messaging)
 
   registerHelpCommand(bot)
-  registerNewRideCommand(bot, rideService)
+  registerNewRideCommand(bot, rideService, token)
   registerRidesCommand(bot, rideRepo)
   registerEditCommand(bot, rideRepo, rideService)
   registerJoinRideHandler(bot, rideService)

@@ -19,7 +19,7 @@ export class DiscordMessaging implements MessagingPort {
     private readonly forumChannelId: string,
   ) {}
 
-  async announce(ride: Ride): Promise<void> {
+  async announce(ride: Ride, mapImage?: Buffer): Promise<void> {
     const channel = await this.client.channels.fetch(this.announcementChannelId)
     if (channel?.isTextBased() !== true)
       throw new Error("Announcement channel is not a text channel")
@@ -32,10 +32,11 @@ export class DiscordMessaging implements MessagingPort {
     await (channel as unknown as TextChannel).send({
       content: formatAnnouncement(ride),
       components: [row],
+      files: mapImage == null ? [] : [{ attachment: mapImage, name: "route.png" }],
     })
   }
 
-  async createThread(ride: Ride): Promise<ThreadId> {
+  async createThread(ride: Ride, mapImage?: Buffer): Promise<ThreadId> {
     const channel = await this.client.channels.fetch(this.forumChannelId)
     if (channel?.type !== ChannelType.GuildForum)
       throw new Error("Forum channel is not a GUILD_FORUM channel")
@@ -44,6 +45,12 @@ export class DiscordMessaging implements MessagingPort {
       name: formatThreadTitle(ride),
       message: { content: formatSummary(ride), components: [buildRideActionsRow(ride.id)] },
     })
+    if (mapImage != null) {
+      await thread.send({
+        content: "📍 Route map",
+        files: [{ attachment: mapImage, name: "route.png" }],
+      })
+    }
     return thread.id
   }
 

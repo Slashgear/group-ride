@@ -1,8 +1,8 @@
 import type { Ride, ThreadId, UserId } from "../ride"
 
 export interface MessagingPort {
-  announce(ride: Ride): Promise<void>
-  createThread(ride: Ride): Promise<ThreadId>
+  announce(ride: Ride, mapImage?: Buffer): Promise<void>
+  createThread(ride: Ride, mapImage?: Buffer): Promise<ThreadId>
   /** Sends and pins the initial summary. Receives the participants list so a single
    *  API call is enough — no need for an immediate updatePinnedSummary after. */
   pinSummary(threadId: ThreadId, ride: Ride, participants: UserId[]): Promise<string>

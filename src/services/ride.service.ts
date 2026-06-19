@@ -36,9 +36,11 @@ export class RideService {
       createdAt: new Date(),
     }
 
+    const mapImage = input.mapImageBuffer
+
     await this.rides.save(ride)
     await this.rides.addMember(ride.id, ride.proposerId)
-    const threadId = await this.messaging.createThread(ride)
+    const threadId = await this.messaging.createThread(ride, mapImage)
     ride.threadId = threadId
     // Pass initial members to pinSummary so the pinned message is correct from the start
     // (avoids an immediate redundant updatePinnedSummary call).
@@ -47,7 +49,7 @@ export class RideService {
     await this.rides.update(ride)
     // silent = true: proposer auto-joins but doesn't need a "You're in!" notification
     await this.messaging.addMemberToThread(threadId, ride.proposerId, true)
-    await this.messaging.announce(ride)
+    await this.messaging.announce(ride, mapImage)
     log.info({ rideId: ride.id, proposerId: ride.proposerId, date: ride.date }, "Ride proposed")
     return ride
   }

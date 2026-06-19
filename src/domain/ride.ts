@@ -44,4 +44,6 @@ export interface CreateRideInput {
   gpxUrl?: string
   externalUrl?: string
   notes?: string
+  /** Pre-generated route map PNG. Not stored in DB — passed directly to messaging adapters. */
+  mapImageBuffer?: Buffer
 }

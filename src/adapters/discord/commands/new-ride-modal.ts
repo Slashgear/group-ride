@@ -11,12 +11,12 @@ export function buildNewRideModal(): ModalBuilder {
     .setTitle("Propose a ride")
     .addLabelComponents(
       field(
-        "Import URL (Komoot/Strava/Garmin)",
+        "Import URL (Komoot, Strava, Garmin, or GPX file URL)",
         new TextInputBuilder()
           .setCustomId("importUrl")
           .setStyle(TextInputStyle.Short)
           .setRequired(false)
-          .setPlaceholder("https://www.komoot.com/tour/…"),
+          .setPlaceholder("https://www.komoot.com/tour/… or https://…/route.gpx"),
       ),
       field(
         "Date & time (DD/MM/YYYY or +HH:MM)",

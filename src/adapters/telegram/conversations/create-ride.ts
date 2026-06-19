@@ -8,8 +8,13 @@ import {
   UnsupportedPlatformError,
   importFromUrl,
 } from "../../../services/importer/index"
+import { parseGpx } from "../../../services/importer/gpx"
+import { generateRouteMap } from "../../../services/map-generator"
 import { parseDateAndTime, parseStats } from "../../shared/parse"
 import { formatDate, formatDraftSummary } from "../format"
+import { logger } from "../../../logger"
+
+const log = logger.child({ module: "telegram-create-ride" })
 
 type Conv = Conversation<BotContext>
 type Ctx = BotContext
@@ -25,11 +30,12 @@ type Prefill = {
   elevationGain?: number
   elevationLoss?: number
   level?: RideLevel
+  gpxUrl?: string
   externalUrl?: string
   notes?: string
 }
 
-export function buildCreateRideConversation(rideService: RideService) {
+export function buildCreateRideConversation(rideService: RideService, telegramToken: string) {
   return async (conversation: Conv, ctx: Ctx): Promise<void> => {
     const from = ctx.from
     if (from == null) return
@@ -37,7 +43,7 @@ export function buildCreateRideConversation(rideService: RideService) {
     const proposerName =
       from.last_name == null ? from.first_name : `${from.first_name} ${from.last_name}`
 
-    const prefill = await stepImport(conversation, ctx)
+    const { prefill, mapImage } = await stepImport(conversation, ctx, telegramToken)
     const dateResult = await stepDate(conversation, ctx)
     if (dateResult == null) return
     const { date, meetingTime } = dateResult
@@ -76,29 +82,81 @@ export function buildCreateRideConversation(rideService: RideService) {
       elevationGain: stats.elevationGain,
       elevationLoss: stats.elevationLoss,
       level,
+      gpxUrl: prefill.gpxUrl,
       externalUrl: prefill.externalUrl,
       notes: notes ?? undefined,
+      mapImageBuffer: mapImage,
     })
     await ctx.reply(`🎉 Ride created for ${formatDate(date)}! The group has been notified.`)
   }
 }
 
-async function stepImport(conversation: Conv, ctx: Ctx): Promise<Prefill> {
-  await ctx.reply("🔗 Paste an import URL (Komoot, Strava, Garmin) or /skip to fill manually.")
-  const msg = await conversation.waitFor("message:text", { maxMilliseconds: TIMEOUT_MS })
-  if (msg == null || msg.message.text === SKIP) return {}
-  try {
-    return await importFromUrl(msg.message.text)
-  } catch (err) {
-    const warning =
-      err instanceof UnsupportedPlatformError
-        ? "⚠️ Platform not supported — continuing manually."
-        : err instanceof ExtractionFailedError
-          ? "⚠️ Could not extract details — continuing manually."
-          : ""
-    if (warning) await ctx.reply(warning)
-    return {}
+async function stepImport(
+  conversation: Conv,
+  ctx: Ctx,
+  telegramToken: string,
+): Promise<{ prefill: Prefill; mapImage?: Buffer }> {
+  await ctx.reply(
+    "🔗 Paste an import URL (Komoot, Strava, Garmin), send a 📎 <b>.gpx file</b>, or /skip to fill manually.",
+    { parse_mode: "HTML" },
+  )
+  const update = await conversation.wait({ maxMilliseconds: TIMEOUT_MS })
+  if (update == null) return { prefill: {} }
+
+  const text = update.message?.text
+  const doc = update.message?.document
+
+  if (text === SKIP) return { prefill: {} }
+
+  if (doc != null && doc.file_name?.toLowerCase().endsWith(".gpx") === true) {
+    try {
+      const fileInfo = await update.api.getFile(doc.file_id)
+      if (fileInfo.file_path == null) throw new Error("No file path returned")
+      const fileUrl = `https://api.telegram.org/file/bot${telegramToken}/${fileInfo.file_path}`
+      const res = await fetch(fileUrl)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const buffer = Buffer.from(await res.arrayBuffer())
+      const parsed = parseGpx(buffer)
+      let mapImage: Buffer | undefined
+      if (parsed.coordinates.length >= 2) {
+        try {
+          mapImage = await generateRouteMap(parsed.coordinates)
+        } catch (mapErr) {
+          log.warn({ err: mapErr }, "Map generation failed, continuing without map")
+        }
+      }
+      const prefill: Prefill = {
+        name: parsed.name,
+        distanceKm: parsed.distanceKm,
+        elevationGain: parsed.elevationGain,
+        elevationLoss: parsed.elevationLoss,
+        gpxUrl: `tg://file/${doc.file_id}`,
+      }
+      return { prefill, mapImage }
+    } catch (err) {
+      log.warn({ err }, "GPX file processing failed")
+      await ctx.reply("⚠️ Could not read GPX file — continuing manually.")
+      return { prefill: {} }
+    }
   }
+
+  if (text != null) {
+    try {
+      const imported = await importFromUrl(text)
+      return { prefill: imported }
+    } catch (err) {
+      const warning =
+        err instanceof UnsupportedPlatformError
+          ? "⚠️ Platform not supported — continuing manually."
+          : err instanceof ExtractionFailedError
+            ? "⚠️ Could not extract details — continuing manually."
+            : ""
+      if (warning) await ctx.reply(warning)
+      return { prefill: {} }
+    }
+  }
+
+  return { prefill: {} }
 }
 
 async function stepDate(

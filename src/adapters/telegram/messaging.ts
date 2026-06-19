@@ -1,4 +1,4 @@
-import { InlineKeyboard, type Api } from "grammy"
+import { InputFile, InlineKeyboard, type Api } from "grammy"
 import type { MessagingPort } from "../../domain/ports/messaging.port"
 import type { Ride, ThreadId, UserId } from "../../domain/ride"
 import { formatAnnouncement, formatSummary, formatTopicTitle, topicLink } from "./format"
@@ -9,16 +9,29 @@ export class TelegramMessaging implements MessagingPort {
     private readonly groupChatId: number,
   ) {}
 
-  async announce(ride: Ride): Promise<void> {
+  async announce(ride: Ride, mapImage?: Buffer): Promise<void> {
     const keyboard = new InlineKeyboard().text("Join this ride 🚴", `join:${ride.id}`)
-    await this.api.sendMessage(this.groupChatId, formatAnnouncement(ride), {
-      parse_mode: "HTML",
-      reply_markup: keyboard,
-    })
+    if (mapImage == null) {
+      await this.api.sendMessage(this.groupChatId, formatAnnouncement(ride), {
+        parse_mode: "HTML",
+        reply_markup: keyboard,
+      })
+    } else {
+      await this.api.sendPhoto(this.groupChatId, new InputFile(mapImage, "route.png"), {
+        caption: formatAnnouncement(ride),
+        parse_mode: "HTML",
+        reply_markup: keyboard,
+      })
+    }
   }
 
-  async createThread(ride: Ride): Promise<ThreadId> {
+  async createThread(ride: Ride, mapImage?: Buffer): Promise<ThreadId> {
     const topic = await this.api.createForumTopic(this.groupChatId, formatTopicTitle(ride))
+    if (mapImage != null) {
+      await this.api.sendPhoto(this.groupChatId, new InputFile(mapImage, "route.png"), {
+        message_thread_id: topic.message_thread_id,
+      })
+    }
     return String(topic.message_thread_id)
   }
 
