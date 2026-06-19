@@ -47,7 +47,7 @@ export class DiscordMessaging implements MessagingPort {
     return thread.id
   }
 
-  async pinSummary(threadId: ThreadId, ride: Ride, participants: UserId[]): Promise<number> {
+  async pinSummary(threadId: ThreadId, ride: Ride, participants: UserId[]): Promise<string> {
     const thread = await this.client.channels.fetch(threadId)
     if (thread?.isThread() !== true) throw new Error(`Channel ${threadId} is not a thread`)
     // The forum thread starter message is already pinned by Discord.
@@ -59,14 +59,14 @@ export class DiscordMessaging implements MessagingPort {
       content: formatSummary(ride, participants),
       components: [buildRideActionsRow(ride.id)],
     })
-    return Number(starter.id)
+    return starter.id
   }
 
   async updatePinnedSummary(threadId: ThreadId, ride: Ride, participants: UserId[]): Promise<void> {
     if (ride.pinnedMessageId == null) return
     const thread = await this.client.channels.fetch(threadId)
     if (thread?.isThread() !== true) throw new Error(`Channel ${threadId} is not a thread`)
-    const msg = await thread.messages.fetch(String(ride.pinnedMessageId))
+    const msg = await thread.messages.fetch(ride.pinnedMessageId)
     const components = ride.status === "active" ? [buildRideActionsRow(ride.id)] : []
     await msg.edit({ content: formatSummary(ride, participants), components })
   }

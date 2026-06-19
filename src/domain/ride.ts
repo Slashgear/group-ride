@@ -24,7 +24,7 @@ export interface Ride {
   externalUrl: string | null
   notes: string | null
   status: RideStatus
-  pinnedMessageId: number | null
+  pinnedMessageId: string | null
   reminderDaySent: boolean
   reminderHourSent: boolean
   createdAt: Date

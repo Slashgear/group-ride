@@ -22,7 +22,7 @@ export class TelegramMessaging implements MessagingPort {
     return String(topic.message_thread_id)
   }
 
-  async pinSummary(threadId: ThreadId, ride: Ride, participants: UserId[]): Promise<number> {
+  async pinSummary(threadId: ThreadId, ride: Ride, participants: UserId[]): Promise<string> {
     const msg = await this.api.sendMessage(this.groupChatId, formatSummary(ride, participants), {
       message_thread_id: Number(threadId),
       parse_mode: "HTML",
@@ -30,7 +30,7 @@ export class TelegramMessaging implements MessagingPort {
     await this.api.pinChatMessage(this.groupChatId, msg.message_id, {
       disable_notification: true,
     })
-    return msg.message_id
+    return String(msg.message_id)
   }
 
   async updatePinnedSummary(
@@ -41,7 +41,7 @@ export class TelegramMessaging implements MessagingPort {
     if (ride.pinnedMessageId == null) return
     await this.api.editMessageText(
       this.groupChatId,
-      ride.pinnedMessageId,
+      Number(ride.pinnedMessageId),
       formatSummary(ride, participants),
       { parse_mode: "HTML" },
     )

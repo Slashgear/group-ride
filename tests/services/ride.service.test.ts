@@ -23,7 +23,7 @@ function mockMessaging(): MessagingPort {
   return {
     announce: mock(async () => {}),
     createThread: mock(async () => "thread-1"),
-    pinSummary: mock(async () => 1),
+    pinSummary: mock(async () => "1"),
     updatePinnedSummary: mock(async () => {}),
     closeThread: mock(async () => {}),
     addMemberToThread: mock(async () => {}),

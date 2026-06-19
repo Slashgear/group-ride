@@ -43,7 +43,7 @@ function rowToRide(row: RideRow): Ride {
     externalUrl: row.external_url,
     notes: row.notes,
     status: row.status as Ride["status"],
-    pinnedMessageId: row.pinned_message_id == null ? null : Number(row.pinned_message_id),
+    pinnedMessageId: row.pinned_message_id,
     reminderDaySent: row.reminder_day_sent,
     reminderHourSent: row.reminder_hour_sent,
     createdAt: row.created_at,

@@ -19,7 +19,7 @@ interface RideRow {
   external_url: string | null
   notes: string | null
   status: string
-  pinned_message_id: number | null
+  pinned_message_id: string | number | null
   reminder_day_sent: number
   reminder_hour_sent: number
   created_at: string
@@ -43,7 +43,7 @@ function rowToRide(row: RideRow): Ride {
     externalUrl: row.external_url,
     notes: row.notes,
     status: row.status as Ride["status"],
-    pinnedMessageId: row.pinned_message_id,
+    pinnedMessageId: row.pinned_message_id == null ? null : String(row.pinned_message_id),
     reminderDaySent: row.reminder_day_sent !== 0,
     reminderHourSent: row.reminder_hour_sent !== 0,
     createdAt: new Date(row.created_at),
