@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.3.0 — 2026-06-19
+
+### Bug Fixes
+
+- Store pinnedMessageId as string to avoid snowflake precision loss
+
+### Features
+
+- **website**: Add Starlight documentation site with Mermaid support
+
 ## v1.2.0 — 2026-06-10
 
 ### Features
