@@ -1,0 +1,29 @@
+/* Align Starlight accent colour with the landing page blurple */
+:root {
+  --sl-color-accent-low: #1a1f3c;
+  --sl-color-accent: #5865f2;
+  --sl-color-accent-high: #a8b3f8;
+}
+
+/* Mermaid diagrams */
+.mermaid-diagram {
+  background: var(--sl-color-bg-nav);
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin: 1.25rem 0;
+  overflow-x: auto;
+  text-align: center;
+}
+
+.mermaid-diagram svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.mermaid-diagram pre.mermaid {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
