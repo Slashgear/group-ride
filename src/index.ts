@@ -1,5 +1,5 @@
-import { SqliteRideRepository } from "./adapters/sqlite/ride.repo"
-import { PostgresRideRepository } from "./adapters/postgres/ride.repo"
+import { SqliteRideRepository } from "./adapters/database/sqlite/ride.repo"
+import { PostgresRideRepository } from "./adapters/database/postgres/ride.repo"
 import { logger } from "./logger"
 import pkg from "../package.json"
 
@@ -40,9 +40,9 @@ process.once("SIGTERM", () => void shutdown())
 process.once("SIGINT", () => void shutdown())
 
 if (adapter === "telegram") {
-  const { startTelegram } = await import("./adapters/telegram/start")
+  const { startTelegram } = await import("./adapters/messaging/telegram/start")
   await startTelegram(rideRepo)
 } else {
-  const { startDiscord } = await import("./adapters/discord/start")
+  const { startDiscord } = await import("./adapters/messaging/discord/start")
   await startDiscord(rideRepo)
 }
