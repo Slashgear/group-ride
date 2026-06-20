@@ -6,6 +6,7 @@ node_modules
 Dockerfile*
 docker-compose*
 .dockerignore
+.gitignore
 .vscode
 .idea
 coverage*
@@ -13,3 +14,8 @@ coverage*
 .oxfmtrc.json
 .oxlintrc.json
 tsconfig.json
+cliff.toml
+renovate.json
+# exclude the whole website except the package.json needed by the install stage
+website/
+!website/package.json
