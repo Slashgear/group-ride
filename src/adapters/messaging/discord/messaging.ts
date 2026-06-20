@@ -9,6 +9,7 @@ import {
 } from "discord.js"
 import type { MessagingPort } from "../../../domain/ports/messaging.port"
 import type { Ride, ThreadId, UserId } from "../../../domain/ride"
+import { generateIcal } from "../../../services/ical"
 import { formatAnnouncement, formatSummary, formatThreadTitle } from "./format"
 
 export class DiscordMessaging implements MessagingPort {
@@ -32,7 +33,10 @@ export class DiscordMessaging implements MessagingPort {
     await (channel as unknown as TextChannel).send({
       content: formatAnnouncement(ride),
       components: [row],
-      files: mapImage == null ? [] : [{ attachment: mapImage, name: "route.png" }],
+      files: [
+        ...(mapImage == null ? [] : [{ attachment: mapImage, name: "route.png" }]),
+        { attachment: generateIcal(ride), name: "ride.ics" },
+      ],
     })
   }
 

@@ -1,6 +1,7 @@
 import { InputFile, InlineKeyboard, type Api } from "grammy"
 import type { MessagingPort } from "../../../domain/ports/messaging.port"
 import type { Ride, ThreadId, UserId } from "../../../domain/ride"
+import { generateIcal } from "../../../services/ical"
 import { formatAnnouncement, formatSummary, formatTopicTitle, topicLink } from "./format"
 
 export class TelegramMessaging implements MessagingPort {
@@ -23,6 +24,9 @@ export class TelegramMessaging implements MessagingPort {
         reply_markup: keyboard,
       })
     }
+    await this.api.sendDocument(this.groupChatId, new InputFile(generateIcal(ride), "ride.ics"), {
+      caption: "📅 Add to calendar",
+    })
   }
 
   async createThread(ride: Ride, mapImage?: Buffer): Promise<ThreadId> {
