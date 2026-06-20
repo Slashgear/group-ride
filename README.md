@@ -1,4 +1,6 @@
-# Group Ride — Discord bot to organise group cycling rides
+# Group Ride — Discord & Telegram bot to organise group cycling rides
+
+**[Documentation →](https://group-ride.slashgear.dev)**
 
 ## Context and problem
 
@@ -194,7 +196,7 @@ sequenceDiagram
 - **Language**: TypeScript
 - **Bot framework**: [discord.js](https://discord.js.org) v14
 - **Database**: SQLite via `bun:sqlite` (default) or PostgreSQL via Bun's native SQL — set `DATABASE_URL` to use PostgreSQL
-- **Architecture**: Ports & Adapters — see [ARCHITECTURE.md](ARCHITECTURE.md) for diagrams and file map
+- **Architecture**: Ports & Adapters — see [Architecture](https://group-ride.slashgear.dev/docs/architecture/) for diagrams and file map
 
 ---
 
