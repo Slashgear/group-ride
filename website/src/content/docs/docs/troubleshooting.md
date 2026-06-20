@@ -20,6 +20,7 @@ The bot must be running to handle button interactions. Check `docker compose ps`
 ### "Missing Access" error in logs
 
 The bot is missing permissions on the announcement or forum channel. Go to **Server Settings → Roles** and ensure the bot role has:
+
 - **Send Messages** and **Embed Links** on the announcement channel
 - **Send Messages in Threads**, **Create Public Threads**, and **Manage Threads** on the forum channel
 
