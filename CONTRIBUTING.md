@@ -14,7 +14,7 @@ Thanks for your interest in contributing to Group Ride!
 git clone https://github.com/Slashgear/group-ride.git
 cd group-ride
 bun install
-cp .env.example .env   # fill in your values — see SETUP.md
+cp .env.example .env   # fill in your values — see https://group-ride.slashgear.dev/docs/configuration/
 ```
 
 You don't need a real Discord bot to run the tests or work on business logic. A bot token is only required to run the bot itself.
@@ -49,6 +49,8 @@ tests/
 ```
 
 **Key rule:** `services/` must never import from `adapters/`. Business logic depends only on the port interfaces defined in `domain/ports/`.
+
+See [Architecture](https://group-ride.slashgear.dev/docs/architecture/) for diagrams and a full file map.
 
 ## Running tests
 
