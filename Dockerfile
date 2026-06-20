@@ -32,5 +32,9 @@ COPY --from=prerelease /usr/src/app/package.json .
 # Pre-create the data directory so the unprivileged bun user can write to it
 RUN mkdir -p /usr/src/app/data && chown bun:bun /usr/src/app/data
 
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD test -f /tmp/healthcheck && \
+      test $(( $(date +%s) - $(cat /tmp/healthcheck) / 1000 )) -lt 60 || exit 1
+
 USER bun
 ENTRYPOINT ["bun", "run", "start"]

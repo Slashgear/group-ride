@@ -46,3 +46,8 @@ if (adapter === "telegram") {
   const { startDiscord } = await import("./adapters/messaging/discord/start")
   await startDiscord(rideRepo)
 }
+
+// Heartbeat for Docker HEALTHCHECK
+setInterval(() => {
+  Bun.write("/tmp/healthcheck", String(Date.now()))
+}, 30_000)
