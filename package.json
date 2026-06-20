@@ -15,7 +15,7 @@
     "fmt:check": "oxfmt --check .",
     "lint": "oxlint src tests",
     "lint:fix": "oxlint --fix src tests",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "bunx tsc --noEmit",
     "website": "bun run --cwd website dev",
     "release": "git tag -a \"v$(node -p \"require('./package.json').version\")\" -m \"Release v$(node -p \"require('./package.json').version\")\" && git push --tags"
   },
