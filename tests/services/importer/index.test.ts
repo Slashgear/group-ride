@@ -1,5 +1,8 @@
 import { describe, expect, mock, test } from "bun:test"
-import { ExtractionFailedError, UnsupportedPlatformError } from "../../../src/services/importer/errors"
+import {
+  ExtractionFailedError,
+  UnsupportedPlatformError,
+} from "../../../src/services/importer/errors"
 
 // Mock fetch globally before importing the module under test so that
 // komoot (the only HTTP-calling importer) does not hit the network.

@@ -1,5 +1,9 @@
 import type { Bot } from "grammy"
-import { AlreadyMemberError, RideNotActiveError, RideNotFoundError } from "../../../../domain/errors"
+import {
+  AlreadyMemberError,
+  RideNotActiveError,
+  RideNotFoundError,
+} from "../../../../domain/errors"
 import type { RideService } from "../../../../services/ride.service"
 import type { BotContext } from "../bot"
 

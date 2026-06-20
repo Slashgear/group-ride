@@ -9,9 +9,7 @@ describe("importFromGarmin", () => {
   })
 
   test("ignores extra path segments and returns canonical URL", async () => {
-    const result = await importFromGarmin(
-      "https://connect.garmin.com/course/789012?ref=something",
-    )
+    const result = await importFromGarmin("https://connect.garmin.com/course/789012?ref=something")
     expect(result).toEqual({ externalUrl: "https://connect.garmin.com/app/course/789012" })
   })
 

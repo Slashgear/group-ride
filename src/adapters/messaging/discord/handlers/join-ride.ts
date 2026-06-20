@@ -1,5 +1,9 @@
 import { MessageFlags, type Client, type Interaction } from "discord.js"
-import { AlreadyMemberError, RideNotActiveError, RideNotFoundError } from "../../../../domain/errors"
+import {
+  AlreadyMemberError,
+  RideNotActiveError,
+  RideNotFoundError,
+} from "../../../../domain/errors"
 import type { RideService } from "../../../../services/ride.service"
 
 export function registerJoinRideHandler(client: Client, rideService: RideService): void {
