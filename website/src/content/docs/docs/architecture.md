@@ -146,29 +146,31 @@ src/
 │   ├── scheduler.service.ts           # SchedulerService — reminders + auto-close
 │   └── importer/                      # Komoot / Strava / Garmin URL importers
 └── adapters/
-    ├── shared/
-    │   └── parse.ts                   # Date/stats parsing shared by adapters
-    ├── discord/                       # discord.js — implements MessagingPort
-    │   ├── messaging.ts
-    │   ├── commands/                  # /newride, /rides
-    │   └── handlers/                  # join, leave, edit, participants, member events
-    ├── telegram/                      # grammY — implements MessagingPort
-    │   ├── messaging.ts
-    │   ├── conversations/             # multi-step /newride flow
-    │   └── handlers/                  # join, member events
-    ├── sqlite/                        # bun:sqlite — implements RideRepository
-    │   ├── db.ts                      # connection + auto-migration runner
-    │   └── ride.repo.ts
-    └── postgres/                      # Bun SQL — implements RideRepository
-        ├── ride.repo.ts
-        └── migrations/                # run manually before first start
+    ├── messaging/
+    │   ├── shared/
+    │   │   └── parse.ts               # Date/stats parsing shared by discord and telegram
+    │   ├── discord/                   # discord.js — implements MessagingPort
+    │   │   ├── messaging.ts
+    │   │   ├── commands/              # /newride, /rides, /help
+    │   │   └── handlers/              # join, leave, edit, participants, member events
+    │   └── telegram/                  # grammY — implements MessagingPort
+    │       ├── messaging.ts
+    │       ├── conversations/         # multi-step /newride and /edit flows
+    │       └── handlers/              # join, cancel, member events
+    └── database/
+        ├── sqlite/                    # bun:sqlite — implements RideRepository
+        │   ├── db.ts                  # connection + auto-migration runner
+        │   └── ride.repo.ts
+        └── postgres/                  # Bun SQL — implements RideRepository
+            ├── ride.repo.ts
+            └── migrations/            # run manually before first start
 ```
 
 ## Adding a new adapter
 
 To add a new messaging platform (e.g. Slack):
 
-1. Create `src/adapters/slack/messaging.ts` implementing `MessagingPort`
-2. Create `src/adapters/slack/start.ts` wiring commands and handlers
+1. Create `src/adapters/messaging/slack/messaging.ts` implementing `MessagingPort`
+2. Create `src/adapters/messaging/slack/start.ts` wiring commands and handlers
 3. Add the `ADAPTER=slack` branch in `src/index.ts`
 4. No changes to `domain/` or `services/` are needed

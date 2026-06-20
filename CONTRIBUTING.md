@@ -33,15 +33,19 @@ src/
 │   ├── scheduler.service.ts
 │   └── importer/                # Komoot / Strava / Garmin importers
 ├── adapters/
-│   ├── discord/                 # discord.js bot, commands, handlers
-│   │   ├── client.ts
-│   │   ├── messaging.ts         # DiscordMessaging implements MessagingPort
-│   │   ├── format.ts
-│   │   ├── deploy-commands.ts   # registers /newride slash command at startup
-│   │   ├── commands/            # slash command + modal handlers
-│   │   └── handlers/            # join, member-joined, member-left
-│   ├── sqlite/                  # SQLite implementation of RideRepository
-│   └── postgres/                # PostgreSQL implementation of RideRepository (set DATABASE_URL)
+│   ├── messaging/
+│   │   ├── shared/              # date/stats parsing shared by discord and telegram
+│   │   ├── discord/             # discord.js bot, commands, handlers
+│   │   │   ├── messaging.ts     # DiscordMessaging implements MessagingPort
+│   │   │   ├── commands/        # /newride, /rides, /help
+│   │   │   └── handlers/        # join, leave, edit, member events
+│   │   └── telegram/            # grammY bot, commands, conversations, handlers
+│   │       ├── messaging.ts     # TelegramMessaging implements MessagingPort
+│   │       ├── conversations/   # multi-step /newride and /edit flows
+│   │       └── handlers/        # join, cancel, member events
+│   └── database/
+│       ├── sqlite/              # SQLite implementation of RideRepository
+│       └── postgres/            # PostgreSQL implementation of RideRepository (set DATABASE_URL)
 └── index.ts                     # dependency wiring + bot startup
 
 tests/

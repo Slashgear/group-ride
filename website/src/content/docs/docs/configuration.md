@@ -36,7 +36,7 @@ When `DATABASE_URL` is set, the bot uses PostgreSQL. When unset, it uses SQLite.
 For PostgreSQL, run migrations manually before the first start:
 
 ```bash
-psql $DATABASE_URL -f src/adapters/postgres/migrations/001_init.sql
+psql $DATABASE_URL -f src/adapters/database/postgres/migrations/001_initial.sql
 ```
 
 ## Timezone

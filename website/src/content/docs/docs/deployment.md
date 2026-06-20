@@ -188,7 +188,7 @@ docker run --rm \
 If you set `DATABASE_URL`, the bot connects to your PostgreSQL instance instead of SQLite — no volume needed. Run the migrations once before starting the bot:
 
 ```bash
-for f in src/adapters/postgres/migrations/*.sql; do
+for f in src/adapters/database/postgres/migrations/*.sql; do
   psql "$DATABASE_URL" -f "$f"
 done
 ```
