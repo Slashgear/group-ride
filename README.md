@@ -6,15 +6,15 @@
 
 A group of cycling friends communicates via a shared channel (WhatsApp, Signal…). When someone proposes a ride, everyone gets notified — including those who are not interested. The discussion that follows spams the entire group, and the relevant information ends up buried in the feed.
 
-**Group Ride** is a Discord bot that solves this problem:
+**Group Ride** is a Discord & Telegram bot that solves this problem:
 
 - a single notification in the announcement channel for each proposed ride
-- an isolated thread per ride in a Forum channel, visible to registered participants
+- an isolated thread (Discord) or topic (Telegram) per ride, visible to registered participants
 - the thread closes automatically 24 hours after the ride
 
 ---
 
-## Platform: Discord
+## Supported platforms
 
 | Criteria            | Discord                    | Telegram                 | WhatsApp                 |
 | ------------------- | -------------------------- | ------------------------ | ------------------------ |
@@ -24,11 +24,13 @@ A group of cycling friends communicates via a shared channel (WhatsApp, Signal�
 | Participant limit   | ✅ None                    | ✅ None                  | ⚠️ 8 via API             |
 | Integration effort  | Low                        | Low                      | High                     |
 
-Discord offers native **modals** for structured input, which gives a much cleaner ride creation experience than a step-by-step conversation.
+Both Discord and Telegram are fully supported. Discord offers native **modals** for structured input; Telegram uses a step-by-step conversation flow. Select the adapter via the `ADAPTER` environment variable.
 
 ---
 
-## Discord architecture
+## Channel structure
+
+**Discord** requires two channels:
 
 ```
 Discord Server
@@ -41,7 +43,18 @@ Discord Server
 └── ...
 ```
 
-The bot automatically creates a forum thread per ride and manages its full lifecycle.
+**Telegram** requires a supergroup with Topics enabled:
+
+```
+Telegram Supergroup (Topics enabled)
+│
+├── 📢 General thread   → ride announcements and join notifications
+├── 🗂️ Ride May 25      → one topic per ride
+├── 🗂️ Ride Jun 1       → one topic per ride
+└── ...
+```
+
+The bot automatically creates a thread or topic per ride and manages its full lifecycle.
 
 ---
 
@@ -84,7 +97,9 @@ If extraction fails (private activity or unavailable), the bot warns the propose
 
 ---
 
-## Sequence diagram
+## Sequence diagram (Discord)
+
+> The Telegram flow is equivalent: `/newride` starts a step-by-step conversation instead of a modal, and threads are Telegram Topics instead of Forum threads.
 
 ```mermaid
 sequenceDiagram
@@ -169,24 +184,24 @@ sequenceDiagram
 
 ## Business rules
 
-### Announcement channel
+### Announcement channel / General thread
 
 - Reserved for ride announcements. No discussion takes place here.
 - On cancellation, the bot posts a notification there (justified exception: non-registered members also need to know).
 
-### Ride thread
+### Ride thread / Topic
 
 - Created automatically by the bot for each proposal.
-- The starter message is the source of truth for the ride details.
+- The pinned message is the source of truth for the ride details.
 - Any registered member can join, leave, edit, or cancel the ride via the action buttons.
 - If a meeting time is set, the bot sends a reminder the day before and 1 hour before.
-- The thread closes immediately on cancellation.
-- The thread becomes read-only 24 hours after the ride.
+- The thread/topic closes immediately on cancellation.
+- On Discord, the thread becomes read-only 24 hours after the ride.
 
 ### Member management
 
-- Only admins can add or remove members from the server.
-- If a member leaves or is removed, the bot automatically removes them from all active rides.
+- On Discord, only admins can add or remove members from the server.
+- If a member leaves or is removed, the bot automatically removes them from all active rides (both Discord and Telegram).
 
 ---
 
@@ -194,7 +209,7 @@ sequenceDiagram
 
 - **Runtime**: [Bun](https://bun.sh)
 - **Language**: TypeScript
-- **Bot framework**: [discord.js](https://discord.js.org) v14
+- **Bot framework**: [discord.js](https://discord.js.org) v14 (Discord) · [grammY](https://grammy.dev) (Telegram)
 - **Database**: SQLite via `bun:sqlite` (default) or PostgreSQL via Bun's native SQL — set `DATABASE_URL` to use PostgreSQL
 - **Architecture**: Ports & Adapters — see [Architecture](https://group-ride.slashgear.dev/docs/architecture/) for diagrams and file map
 
