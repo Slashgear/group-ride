@@ -1,5 +1,43 @@
 # Changelog
 
+## v1.4.0 — 2026-06-20
+
+### Bug Fixes
+
+- Update import path in messaging/shared/parse.ts after adapter reorganization
+- **typecheck**: Use bunx tsc and resolve grammy type errors
+- **typecheck**: Use bunx tsc and resolve grammy type errors
+- Resolve remaining lint errors
+
+### Documentation
+
+- **website**: Consolidate documentation into Starlight site
+- Remove ARCHITECTURE.md — content lives on the website
+- **readme**: Add link to doc site, fix broken ARCHITECTURE.md link, update title
+- **readme**: Update all sections to mention Telegram alongside Discord
+- **contributing**: Fix broken SETUP.md link, add link to doc site
+- **website**: Move adapter installation guides under adapters/
+- Update file structure references after adapter reorganization
+
+### Features
+
+- Add GPX file upload + static route map generation
+- Add Docker HEALTHCHECK via heartbeat file
+- **docker**: Add HEALTHCHECK via heartbeat file
+
+### Refactoring
+
+- Group adapters by type under messaging/ and database/
+
+### ci
+
+- Add typecheck step
+
+### test
+
+- Add tests for importers and shared/parse
+- Add tests for importers, gpx parser and shared parse utils
+
 ## v1.3.0 — 2026-06-19
 
 ### Bug Fixes
