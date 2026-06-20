@@ -1,6 +1,6 @@
+import type { Database } from "bun:sqlite"
 import type { RideRepository } from "../../../domain/ports/ride.repository"
 import type { Ride, RideId, UserId } from "../../../domain/ride"
-import { db } from "./db"
 
 interface RideRow {
   id: string
@@ -51,8 +51,10 @@ function rowToRide(row: RideRow): Ride {
 }
 
 export class SqliteRideRepository implements RideRepository {
+  constructor(private readonly db: Database) {}
+
   save(ride: Ride): Promise<void> {
-    db.run(
+    this.db.run(
       `INSERT INTO rides
         (id, thread_id, proposer_id, proposer_name, name, date, meeting_time, meeting_point,
          distance_km, elevation_gain, elevation_loss, level, gpx_url, external_url, notes,
@@ -85,19 +87,19 @@ export class SqliteRideRepository implements RideRepository {
   }
 
   findById(id: RideId): Promise<Ride | null> {
-    const row = db.query("SELECT * FROM rides WHERE id = ?").get(id) as RideRow | null
+    const row = this.db.query("SELECT * FROM rides WHERE id = ?").get(id) as RideRow | null
     return Promise.resolve(row == null ? null : rowToRide(row))
   }
 
   findActive(): Promise<Ride[]> {
-    const rows = db
+    const rows = this.db
       .query("SELECT * FROM rides WHERE status = 'active' ORDER BY date ASC")
       .all() as RideRow[]
     return Promise.resolve(rows.map(rowToRide))
   }
 
   findActiveByMember(userId: UserId): Promise<Ride[]> {
-    const rows = db
+    const rows = this.db
       .query(`
       SELECT r.* FROM rides r
       JOIN ride_members rm ON rm.ride_id = r.id
@@ -108,7 +110,7 @@ export class SqliteRideRepository implements RideRepository {
   }
 
   update(ride: Ride): Promise<void> {
-    db.run(
+    this.db.run(
       `UPDATE rides SET
         thread_id = ?, name = ?, date = ?, meeting_time = ?, meeting_point = ?,
         distance_km = ?, elevation_gain = ?, elevation_loss = ?, level = ?,
@@ -139,28 +141,29 @@ export class SqliteRideRepository implements RideRepository {
   }
 
   addMember(rideId: RideId, userId: UserId): Promise<void> {
-    db.run("INSERT OR IGNORE INTO ride_members (ride_id, user_id, joined_at) VALUES (?, ?, ?)", [
-      rideId,
-      userId,
-      new Date().toISOString(),
-    ])
+    this.db.run(
+      "INSERT OR IGNORE INTO ride_members (ride_id, user_id, joined_at) VALUES (?, ?, ?)",
+      [rideId, userId, new Date().toISOString()],
+    )
     return Promise.resolve()
   }
 
   hasMember(rideId: RideId, userId: UserId): Promise<boolean> {
-    const row = db
+    const row = this.db
       .query("SELECT 1 FROM ride_members WHERE ride_id = ? AND user_id = ?")
       .get(rideId, userId)
     return Promise.resolve(row != null)
   }
 
   removeMember(rideId: RideId, userId: UserId): Promise<void> {
-    db.run("DELETE FROM ride_members WHERE ride_id = ? AND user_id = ?", [rideId, userId])
+    this.db.run("DELETE FROM ride_members WHERE ride_id = ? AND user_id = ?", [rideId, userId])
     return Promise.resolve()
   }
 
   getMembers(rideId: RideId): Promise<UserId[]> {
-    const rows = db.query("SELECT user_id FROM ride_members WHERE ride_id = ?").all(rideId) as {
+    const rows = this.db
+      .query("SELECT user_id FROM ride_members WHERE ride_id = ?")
+      .all(rideId) as {
       user_id: number
     }[]
     return Promise.resolve(rows.map((r) => String(r.user_id)))

@@ -1,4 +1,5 @@
 import { SqliteRideRepository } from "./adapters/database/sqlite/ride.repo"
+import { db } from "./adapters/database/sqlite/db"
 import { PostgresRideRepository } from "./adapters/database/postgres/ride.repo"
 import { logger } from "./logger"
 import pkg from "../package.json"
@@ -6,7 +7,7 @@ import pkg from "../package.json"
 const adapter = (process.env.ADAPTER ?? "discord").toLowerCase()
 const databaseUrl = process.env.DATABASE_URL
 const rideRepo =
-  databaseUrl == null ? new SqliteRideRepository() : new PostgresRideRepository(databaseUrl)
+  databaseUrl == null ? new SqliteRideRepository(db) : new PostgresRideRepository(databaseUrl)
 
 function maskDatabaseUrl(url: string): string {
   try {
