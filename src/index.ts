@@ -49,5 +49,5 @@ if (adapter === "telegram") {
 
 // Heartbeat for Docker HEALTHCHECK
 setInterval(() => {
-  Bun.write("/tmp/healthcheck", String(Date.now()))
+  void Bun.write("/tmp/healthcheck", String(Date.now()))
 }, 30_000)

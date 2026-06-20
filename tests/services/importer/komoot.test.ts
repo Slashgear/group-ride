@@ -87,7 +87,7 @@ describe("importFromKomoot", () => {
 
     await importFromKomoot("https://www.komoot.com/tour/999?share_token=abc123")
 
-    const calledUrl = (fetchMock as ReturnType<typeof mock>).mock.calls[0]?.[0] as URL
+    const calledUrl = (fetchMock as unknown as ReturnType<typeof mock>).mock.calls[0]?.[0] as URL
     expect(calledUrl.searchParams.get("share_token")).toBe("abc123")
   })
 

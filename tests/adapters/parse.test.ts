@@ -13,7 +13,7 @@ function makeRide(overrides: Partial<Ride> = {}): Ride {
     threadId: "thread-1",
     proposerId: "123",
     proposerName: "Test User",
-    date: new Date(2026, 5, 15), // 15/06/2026
+    date: new Date(2026, 5, 15),
     name: null,
     meetingTime: null,
     meetingPoint: "Place de la République",
@@ -37,15 +37,15 @@ describe("parseDateAndTime", () => {
   test("parses a valid date DD/MM/YYYY", () => {
     const result = parseDateAndTime("15/06/2026")
     expect(result).not.toBeNull()
-    expect(result!.date).toEqual(new Date(2026, 5, 15))
-    expect(result!.meetingTime).toBeUndefined()
+    expect(result?.date).toEqual(new Date(2026, 5, 15))
+    expect(result?.meetingTime).toBeUndefined()
   })
 
   test("parses a valid date with time HH:MM", () => {
     const result = parseDateAndTime("15/06/2026 08:30")
     expect(result).not.toBeNull()
-    expect(result!.date).toEqual(new Date(2026, 5, 15))
-    expect(result!.meetingTime).toBe("08:30")
+    expect(result?.date).toEqual(new Date(2026, 5, 15))
+    expect(result?.meetingTime).toBe("08:30")
   })
 
   test("returns null for invalid format (not enough parts)", () => {
@@ -112,7 +112,7 @@ describe("formatDateTimeValue", () => {
   })
 
   test("pads single-digit day and month", () => {
-    const ride = makeRide({ date: new Date(2026, 0, 5), meetingTime: null }) // 05/01/2026
+    const ride = makeRide({ date: new Date(2026, 0, 5), meetingTime: null })
     expect(formatDateTimeValue(ride)).toBe("05/01/2026")
   })
 })
