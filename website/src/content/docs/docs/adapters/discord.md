@@ -44,10 +44,10 @@ All buttons are handled via Discord's interaction system:
 
 ## Member events
 
-| Event              | Behaviour                                                                              |
-| ------------------ | -------------------------------------------------------------------------------------- |
-| `guildMemberAdd`   | Sends a welcome DM explaining how to use the bot (falls back to the system channel if DMs are closed) |
-| `guildMemberRemove`| Removes the member from all active rides they had joined                               |
+| Event               | Behaviour                                                                                             |
+| ------------------- | ----------------------------------------------------------------------------------------------------- |
+| `guildMemberAdd`    | Sends a welcome DM explaining how to use the bot (falls back to the system channel if DMs are closed) |
+| `guildMemberRemove` | Removes the member from all active rides they had joined                                              |
 
 ## Required bot permissions
 

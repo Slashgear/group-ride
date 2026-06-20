@@ -123,10 +123,10 @@ ssh root@<YOUR_INSTANCE_IP> "echo '$(cat ~/.ssh/group-ride-deploy.pub)' >> ~/.ss
 
 Go to **GitHub → your repo → Settings → Secrets and variables → Actions** and add:
 
-| Secret name      | Value                                                     |
-| ---------------- | --------------------------------------------------------- |
-| `DEPLOY_HOST`    | Your instance IP address                                  |
-| `DEPLOY_SSH_KEY` | Contents of `~/.ssh/group-ride-deploy` (the private key)  |
+| Secret name      | Value                                                    |
+| ---------------- | -------------------------------------------------------- |
+| `DEPLOY_HOST`    | Your instance IP address                                 |
+| `DEPLOY_SSH_KEY` | Contents of `~/.ssh/group-ride-deploy` (the private key) |
 
 ### 5d — Configure the GitHub environment
 

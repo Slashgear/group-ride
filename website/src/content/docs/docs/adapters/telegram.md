@@ -29,11 +29,11 @@ The Telegram adapter requires a **supergroup** with **Topics** enabled. Topics a
 
 ## Differences from Discord
 
-| Feature                | Discord                             | Telegram                                |
-| ---------------------- | ----------------------------------- | --------------------------------------- |
-| Thread access          | Bot adds/removes members explicitly | Topics are visible to all group members |
-| Join notification      | Sent in the forum thread            | Sent in the ride topic                  |
-| Leave notification     | Member removed from thread          | No-op (topic stays visible)             |
+| Feature                | Discord                             | Telegram                                     |
+| ---------------------- | ----------------------------------- | -------------------------------------------- |
+| Thread access          | Bot adds/removes members explicitly | Topics are visible to all group members      |
+| Join notification      | Sent in the forum thread            | Sent in the ride topic                       |
+| Leave notification     | Member removed from thread          | No-op (topic stays visible)                  |
 | Member leave detection | `guildMemberRemove` event           | `chat_member` event (status `left`/`kicked`) |
 
 ## Required bot permissions
