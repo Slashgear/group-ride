@@ -1,5 +1,5 @@
 # see all versions at https://hub.docker.com/r/oven/bun/tags
-FROM oven/bun:1 AS base
+FROM oven/bun:1.3.14 AS base
 WORKDIR /usr/src/app
 
 # install dependencies into temp directories for layer caching
@@ -22,7 +22,7 @@ ENV NODE_ENV=production
 RUN bun test
 
 # final image: prod dependencies + source only
-FROM oven/bun:1-slim AS release
+FROM oven/bun:1.3.14-slim AS release
 WORKDIR /usr/src/app
 ENV NODE_ENV=production
 COPY --from=install /temp/prod/node_modules node_modules
