@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.5.0 — 2026-06-20
+
+### Features
+
+- Attach iCal (.ics) file to ride announcements (Discord + Telegram)
+- Multi-arch Docker build: linux/amd64 + linux/arm64
+
+### Documentation
+
+- Add commands reference, troubleshooting and changelog pages to the website
+- Add status badges to README
+
 ## v1.4.0 — 2026-06-20
 
 ### Bug Fixes
