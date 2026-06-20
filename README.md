@@ -1,5 +1,11 @@
 # Group Ride — Discord & Telegram bot to organise group cycling rides
 
+[![CI](https://github.com/Slashgear/group-ride/actions/workflows/ci.yml/badge.svg)](https://github.com/Slashgear/group-ride/actions/workflows/ci.yml)
+[![Version](https://img.shields.io/github/package-json/v/Slashgear/group-ride)](https://github.com/Slashgear/group-ride/releases)
+[![Docker Image](https://img.shields.io/badge/docker-ghcr.io-blue)](https://github.com/Slashgear/group-ride/pkgs/container/group-ride)
+[![Bun](https://img.shields.io/badge/bun-1.3.14-f9f1e1)](https://bun.sh)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
 **[Documentation →](https://group-ride.slashgear.dev)**
 
 ## Context and problem
