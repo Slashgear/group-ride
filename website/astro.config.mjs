@@ -53,8 +53,11 @@ export default defineConfig({
         {
           label: "Reference",
           items: [
+            { label: "Commands", slug: "docs/commands" },
             { label: "Architecture", slug: "docs/architecture" },
             { label: "Deployment", slug: "docs/deployment" },
+            { label: "Troubleshooting", slug: "docs/troubleshooting" },
+            { label: "Changelog", slug: "docs/changelog" },
           ],
         },
       ],
