@@ -1,4 +1,4 @@
-import type { Ride } from "../../domain/ride"
+import type { Ride } from "../../../domain/ride"
 
 export function parseDateAndTime(text: string): { date: Date; meetingTime?: string } | null {
   const [datePart, timePart] = text.trim().split(/\s+/u, 2) as [string, string | undefined]
