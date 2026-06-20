@@ -3,6 +3,18 @@ title: Changelog
 description: Release history for group-ride
 ---
 
+## v1.5.1 — 2026-06-20
+
+### Refactoring
+
+- Inject `Database` into `SqliteRideRepository` constructor instead of module-level singleton
+
+### Tests
+
+- Add 18 `RideService` integration tests with SQLite in-memory DB
+
+---
+
 ## v1.5.0 — 2026-06-20
 
 ### Features
