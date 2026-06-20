@@ -1,0 +1,23 @@
+# group-ride
+
+> A Discord & Telegram bot to organise group cycling rides — propose rides, manage participants, send reminders, and import routes from Komoot, Strava, or Garmin.
+
+group-ride is open-source and self-hostable. It supports two adapters (Discord and Telegram) configured via a single environment variable.
+
+## Getting started
+
+- [Overview](https://group-ride.slashgear.dev/docs/): What group-ride is and how it works
+- [Installation](https://group-ride.slashgear.dev/docs/installation/): Quick-start overview and Docker Compose setup
+- [Install on Discord](https://group-ride.slashgear.dev/docs/installation/discord/): Step-by-step guide to set up the Discord bot
+- [Install on Telegram](https://group-ride.slashgear.dev/docs/installation/telegram/): Step-by-step guide to set up the Telegram bot
+- [Configuration](https://group-ride.slashgear.dev/docs/configuration/): All environment variables — adapter, tokens, database, timezone
+
+## Adapters
+
+- [Discord adapter](https://group-ride.slashgear.dev/docs/adapters/discord/): Slash commands, button interactions, forum threads, member events
+- [Telegram adapter](https://group-ride.slashgear.dev/docs/adapters/telegram/): Commands, topics, differences from Discord
+
+## Reference
+
+- [Architecture](https://group-ride.slashgear.dev/docs/architecture/): Hexagonal architecture, domain model, ports and adapters
+- [Deployment](https://group-ride.slashgear.dev/docs/deployment/): Scaleway instance, Docker Compose, CI/CD, backups

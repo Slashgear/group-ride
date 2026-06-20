@@ -28,6 +28,7 @@ The Discord adapter uses two channels:
 | ---------- | -------------------------------------- |
 | `/newride` | Open the ride creation modal           |
 | `/rides`   | List upcoming rides with a join button |
+| `/help`    | Show how the bot works (ephemeral)     |
 
 ## Button interactions
 
@@ -43,7 +44,10 @@ All buttons are handled via Discord's interaction system:
 
 ## Member events
 
-The adapter listens to `guildMemberRemove` events. When a member leaves the server, they are automatically removed from all active rides they had joined.
+| Event              | Behaviour                                                                              |
+| ------------------ | -------------------------------------------------------------------------------------- |
+| `guildMemberAdd`   | Sends a welcome DM explaining how to use the bot (falls back to the system channel if DMs are closed) |
+| `guildMemberRemove`| Removes the member from all active rides they had joined                               |
 
 ## Required bot permissions
 

@@ -23,6 +23,9 @@ The Telegram adapter requires a **supergroup** with **Topics** enabled. Topics a
 | ---------- | --------------------------------------- |
 | `/newride` | Start the multi-step ride creation flow |
 | `/rides`   | List upcoming rides with a Join button  |
+| `/edit`    | Edit a ride you proposed                |
+| `/cancel`  | Cancel an active ride                   |
+| `/help`    | Show how the bot works                  |
 
 ## Differences from Discord
 
@@ -31,7 +34,7 @@ The Telegram adapter requires a **supergroup** with **Topics** enabled. Topics a
 | Thread access          | Bot adds/removes members explicitly | Topics are visible to all group members |
 | Join notification      | Sent in the forum thread            | Sent in the ride topic                  |
 | Leave notification     | Member removed from thread          | No-op (topic stays visible)             |
-| Member leave detection | `guildMemberRemove` event           | Not supported (no equivalent event)     |
+| Member leave detection | `guildMemberRemove` event           | `chat_member` event (status `left`/`kicked`) |
 
 ## Required bot permissions
 

@@ -1,27 +1,15 @@
-# Deployment Guide
-
-This guide covers deploying Group Ride on a Scaleway instance using Docker Compose, with automatic deployments triggered by a git tag.
-
-## Table of contents
-
-- [Prerequisites](#prerequisites)
-- [Step 1 — Create a Scaleway instance](#step-1--create-a-scaleway-instance)
-- [Step 2 — Authenticate to GitHub Container Registry](#step-2--authenticate-to-github-container-registry)
-- [Step 3 — Set up the deployment directory](#step-3--set-up-the-deployment-directory)
-- [Step 4 — Start the bot](#step-4--start-the-bot)
-- [Step 5 — Enable automatic deployments (CI/CD)](#step-5--enable-automatic-deployments-cicd)
-- [Releasing a new version](#releasing-a-new-version)
-- [Useful commands](#useful-commands)
-- [SQLite data](#sqlite-data)
-- [PostgreSQL data](#postgresql-data)
-
 ---
+title: Deployment
+description: Deploy group-ride on a Scaleway instance with Docker Compose and automatic CI/CD
+---
+
+This guide covers deploying group-ride on a Scaleway instance using Docker Compose, with automatic deployments triggered by a git tag.
 
 ## Prerequisites
 
 - A [Scaleway](https://www.scaleway.com) account
 - A GitHub Personal Access Token with `read:packages` scope (to pull the image from GHCR)
-- Your bot configured — see [SETUP.md](SETUP.md)
+- Your bot configured — see [Installation](/docs/installation/)
 
 ---
 
@@ -135,10 +123,10 @@ ssh root@<YOUR_INSTANCE_IP> "echo '$(cat ~/.ssh/group-ride-deploy.pub)' >> ~/.ss
 
 Go to **GitHub → your repo → Settings → Secrets and variables → Actions** and add:
 
-| Secret name      | Value                                                    |
-| ---------------- | -------------------------------------------------------- |
-| `DEPLOY_HOST`    | Your instance IP address                                 |
-| `DEPLOY_SSH_KEY` | Contents of `~/.ssh/group-ride-deploy` (the private key) |
+| Secret name      | Value                                                     |
+| ---------------- | --------------------------------------------------------- |
+| `DEPLOY_HOST`    | Your instance IP address                                  |
+| `DEPLOY_SSH_KEY` | Contents of `~/.ssh/group-ride-deploy` (the private key)  |
 
 ### 5d — Configure the GitHub environment
 

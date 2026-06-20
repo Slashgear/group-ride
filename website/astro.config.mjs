@@ -27,7 +27,14 @@ export default defineConfig({
           label: "Getting Started",
           items: [
             { label: "Overview", slug: "docs" },
-            { label: "Installation", slug: "docs/installation" },
+            {
+              label: "Installation",
+              items: [
+                { label: "Overview", slug: "docs/installation" },
+                { label: "Discord", slug: "docs/installation/discord" },
+                { label: "Telegram", slug: "docs/installation/telegram" },
+              ],
+            },
             { label: "Configuration", slug: "docs/configuration" },
           ],
         },
@@ -40,11 +47,22 @@ export default defineConfig({
         },
         {
           label: "Reference",
-          items: [{ label: "Architecture", slug: "docs/architecture" }],
+          items: [
+            { label: "Architecture", slug: "docs/architecture" },
+            { label: "Deployment", slug: "docs/deployment" },
+          ],
         },
       ],
       customCss: ["./src/styles/docs.css"],
       head: [
+        {
+          tag: "meta",
+          attrs: { property: "og:image", content: "https://group-ride.slashgear.dev/og.jpeg" },
+        },
+        {
+          tag: "meta",
+          attrs: { name: "twitter:image", content: "https://group-ride.slashgear.dev/og.jpeg" },
+        },
         {
           tag: "script",
           attrs: { type: "module" },
