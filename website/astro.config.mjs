@@ -27,22 +27,27 @@ export default defineConfig({
           label: "Getting Started",
           items: [
             { label: "Overview", slug: "docs" },
-            {
-              label: "Installation",
-              items: [
-                { label: "Overview", slug: "docs/installation" },
-                { label: "Discord", slug: "docs/installation/discord" },
-                { label: "Telegram", slug: "docs/installation/telegram" },
-              ],
-            },
+            { label: "Installation", slug: "docs/installation" },
             { label: "Configuration", slug: "docs/configuration" },
           ],
         },
         {
           label: "Adapters",
           items: [
-            { label: "Discord", slug: "docs/adapters/discord" },
-            { label: "Telegram", slug: "docs/adapters/telegram" },
+            {
+              label: "Discord",
+              items: [
+                { label: "Overview", slug: "docs/adapters/discord" },
+                { label: "Installation", slug: "docs/adapters/discord/installation" },
+              ],
+            },
+            {
+              label: "Telegram",
+              items: [
+                { label: "Overview", slug: "docs/adapters/telegram" },
+                { label: "Installation", slug: "docs/adapters/telegram/installation" },
+              ],
+            },
           ],
         },
         {

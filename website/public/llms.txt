@@ -8,14 +8,16 @@ group-ride is open-source and self-hostable. It supports two adapters (Discord a
 
 - [Overview](https://group-ride.slashgear.dev/docs/): What group-ride is and how it works
 - [Installation](https://group-ride.slashgear.dev/docs/installation/): Quick-start overview and Docker Compose setup
-- [Install on Discord](https://group-ride.slashgear.dev/docs/installation/discord/): Step-by-step guide to set up the Discord bot
-- [Install on Telegram](https://group-ride.slashgear.dev/docs/installation/telegram/): Step-by-step guide to set up the Telegram bot
+- [Install on Discord](https://group-ride.slashgear.dev/docs/adapters/discord/installation/): Step-by-step guide to set up the Discord bot
+- [Install on Telegram](https://group-ride.slashgear.dev/docs/adapters/telegram/installation/): Step-by-step guide to set up the Telegram bot
 - [Configuration](https://group-ride.slashgear.dev/docs/configuration/): All environment variables — adapter, tokens, database, timezone
 
 ## Adapters
 
-- [Discord adapter](https://group-ride.slashgear.dev/docs/adapters/discord/): Slash commands, button interactions, forum threads, member events
-- [Telegram adapter](https://group-ride.slashgear.dev/docs/adapters/telegram/): Commands, topics, differences from Discord
+- [Discord — Overview](https://group-ride.slashgear.dev/docs/adapters/discord/): Slash commands, button interactions, forum threads, member events
+- [Discord — Installation](https://group-ride.slashgear.dev/docs/adapters/discord/installation/): Step-by-step setup guide
+- [Telegram — Overview](https://group-ride.slashgear.dev/docs/adapters/telegram/): Commands, topics, differences from Discord
+- [Telegram — Installation](https://group-ride.slashgear.dev/docs/adapters/telegram/installation/): Step-by-step setup guide
 
 ## Reference
 

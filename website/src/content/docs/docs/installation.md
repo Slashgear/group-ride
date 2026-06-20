@@ -7,8 +7,8 @@ group-ride supports **Discord** (default) and **Telegram**, configured via the `
 
 Choose your platform to get started:
 
-- [Install on Discord](/docs/installation/discord/)
-- [Install on Telegram](/docs/installation/telegram/)
+- [Install on Discord](/docs/adapters/discord/installation/)
+- [Install on Telegram](/docs/adapters/telegram/installation/)
 
 ---
 
