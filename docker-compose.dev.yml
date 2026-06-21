@@ -1,0 +1,11 @@
+services:
+  bot:
+    build:
+      context: .
+      target: base
+    command: bun --watch src/index.ts
+    env_file: .env
+    environment:
+      DATABASE_PATH: /tmp/group-ride-dev.db
+    volumes:
+      - ./src:/usr/src/app/src:ro

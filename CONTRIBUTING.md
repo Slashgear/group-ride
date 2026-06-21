@@ -19,6 +19,22 @@ cp .env.example .env   # fill in your values — see https://group-ride.slashgea
 
 You don't need a real Discord bot to run the tests or work on business logic. A bot token is only required to run the bot itself.
 
+## Running the bot locally
+
+The fastest way to iterate with a real bot token is `bun dev` — it watches `src/` and restarts on every change:
+
+```bash
+bun dev
+```
+
+Alternatively, use Docker with hot-reload so the environment matches production more closely:
+
+```bash
+docker compose -f docker-compose.dev.yml up
+```
+
+This builds from the local `Dockerfile` (stage `base`), mounts `src/` as a read-only volume, starts the bot with `bun --watch`, and stores the database in `/tmp` so it resets on each container restart — no cleanup needed.
+
 ## Project structure
 
 ```
@@ -62,7 +78,12 @@ See [Architecture](https://group-ride.slashgear.dev/docs/architecture/) for diag
 bun test
 ```
 
-Tests run against in-memory mocks — no bot token or database needed.
+The test suite includes:
+
+- **Unit tests** — mock-based, no bot token or database needed
+- **Integration tests** — `RideService` wired to a real SQLite `:memory:` DB, migrations applied automatically
+
+All tests run without any external dependency.
 
 ## Code style
 
