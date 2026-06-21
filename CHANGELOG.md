@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.5.3 — 2026-06-21
+
+### Features
+
+- Log unexpected errors in handlers before re-throwing (structured error logging)
+
+### Tests
+
+- Add SchedulerService tests with fake timers (13 tests)
+
 ## v1.5.2 — 2026-06-21
 
 ### test

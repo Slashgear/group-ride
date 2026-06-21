@@ -3,6 +3,18 @@ title: Changelog
 description: Release history for group-ride
 ---
 
+## v1.5.3 — 2026-06-21
+
+### Observability
+
+- Structured error logging in all Discord and Telegram handlers — unexpected errors now log `error` with context (rideId, userId) before re-throwing
+
+### Tests
+
+- Add `SchedulerService` tests with fake timers — 13 tests covering close, day-before reminder, and hour-before reminder logic
+
+---
+
 ## v1.5.2 — 2026-06-21
 
 ### Tests

@@ -1,6 +1,6 @@
 {
   "name": "group-ride",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "Discord bot to organise group cycling rides",
   "workspaces": [
     "website"
