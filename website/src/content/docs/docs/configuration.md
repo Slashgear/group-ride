@@ -49,6 +49,19 @@ The `TZ` variable controls when reminders fire. The day-before reminder sends at
 
 Set it to your group's timezone — e.g. `Europe/London`, `America/New_York`, `Asia/Tokyo`.
 
+## Language
+
+```bash
+LANG=fr   # "en" (default) or "fr"
+```
+
+Controls the language of all user-facing bot messages — notifications, reminders, and command replies. Log messages always stay in English regardless of this setting.
+
+| Value | Language |
+| ----- | -------- |
+| `en`  | English (default) |
+| `fr`  | French |
+
 ## Summary
 
 | Variable                          | Required | Default                | Description                    |
@@ -64,3 +77,4 @@ Set it to your group's timezone — e.g. `Europe/London`, `America/New_York`, `A
 | `DATABASE_PATH`                   | No       | `./data/group-ride.db` | SQLite file path               |
 | `DATABASE_URL`                    | No       | —                      | PostgreSQL connection URL      |
 | `TZ`                              | No       | System default         | Timezone for reminders         |
+| `LANG`                            | No       | `en`                   | Bot message language (`en` or `fr`) |

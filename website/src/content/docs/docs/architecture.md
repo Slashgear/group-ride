@@ -141,6 +141,10 @@ src/
 │   └── ports/
 │       ├── ride.repository.ts         # RideRepository interface
 │       └── messaging.port.ts          # MessagingPort interface
+├── i18n/
+│   ├── en.ts                          # English message catalogue
+│   ├── fr.ts                          # French message catalogue
+│   └── index.ts                       # getMessages() — locale selection via LANG
 ├── services/
 │   ├── ride.service.ts                # RideService — orchestrates ride operations
 │   ├── scheduler.service.ts           # SchedulerService — reminders + auto-close
@@ -165,6 +169,33 @@ src/
             ├── ride.repo.ts
             └── migrations/            # run manually before first start
 ```
+
+## Internationalisation (i18n)
+
+User-facing runtime messages are translated via a lightweight catalogue system in `src/i18n/`. No external library is used.
+
+```
+src/i18n/
+├── en.ts          # English (default)
+├── fr.ts          # French
+└── index.ts       # getMessages() — reads LANG env var at call time
+```
+
+`getMessages()` reads `process.env.LANG`, lowercases it, slices the first two characters (`en`, `fr`, …), and returns the matching catalogue, falling back to English if the locale is unknown.
+
+**What is translated:** all user-facing strings sent through `MessagingPort` — notifications, reminders, and handler reply messages.
+
+**What is not translated:** log messages (always English), announcement/summary formats (adapter-specific, in `format.ts`), help and welcome messages.
+
+**Adding a new locale:**
+
+1. Create `src/i18n/xx.ts` exporting a `messages` object with the same shape as `en.ts`
+2. Register it in `src/i18n/index.ts`:
+   ```ts
+   import { messages as xx } from "./xx"
+   const LOCALES = { en, fr, xx }
+   ```
+3. Set `LANG=xx` in your environment
 
 ## Adding a new adapter
 
