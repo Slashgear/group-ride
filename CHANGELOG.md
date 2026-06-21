@@ -1,5 +1,22 @@
 # Changelog
 
+## v1.6.0 — 2026-06-21
+
+### Documentation
+
+- Enrich llms.txt with architecture, commands, env vars, and tech stack
+- Document i18n system in architecture and configuration pages
+- Document i18n in architecture and configuration pages
+
+### Features
+
+- Add i18n support (EN/FR) via LANG env var
+- Add i18n support (EN/FR) via LANG env var
+
+### style
+
+- Fix formatting in configuration.md
+
 ## v1.5.3 — 2026-06-21
 
 ### Features
