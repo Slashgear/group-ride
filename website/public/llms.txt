@@ -1,8 +1,8 @@
 # group-ride
 
-> A Discord & Telegram bot to organise group cycling rides — propose rides, manage participants, send reminders, and import routes from Komoot, Strava, or Garmin.
+> A Discord & Telegram bot to organise group cycling rides — propose rides, manage participants, send day-before and hour-before reminders, attach iCal files, and import routes from Komoot, Strava, or Garmin.
 
-group-ride is open-source and self-hostable. It supports two adapters (Discord and Telegram) configured via a single environment variable.
+group-ride is open-source and self-hostable. It supports two messaging adapters (Discord and Telegram) selected via a single environment variable. A single Docker image covers both.
 
 ## Getting started
 
@@ -22,4 +22,209 @@ group-ride is open-source and self-hostable. It supports two adapters (Discord a
 ## Reference
 
 - [Architecture](https://group-ride.slashgear.dev/docs/architecture/): Hexagonal architecture, domain model, ports and adapters
+- [Commands](https://group-ride.slashgear.dev/docs/docs/commands/): Full reference for all Discord slash commands, Telegram commands, and interactive buttons
+- [Troubleshooting](https://group-ride.slashgear.dev/docs/docs/troubleshooting/): Common issues grouped by category
 - [Deployment](https://group-ride.slashgear.dev/docs/deployment/): Scaleway instance, Docker Compose, CI/CD, backups
+- [Changelog](https://group-ride.slashgear.dev/docs/docs/changelog/): Release history
+
+---
+
+## Environment variables
+
+All configuration is via environment variables. None have defaults except where noted.
+
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `ADAPTER` | no | `discord` | Which messaging adapter to use: `discord` or `telegram` |
+| `DISCORD_TOKEN` | Discord only | — | Bot token from Discord Developer Portal |
+| `DISCORD_CLIENT_ID` | Discord only | — | Application ID from Discord Developer Portal |
+| `DISCORD_GUILD_ID` | Discord only | — | Server (guild) ID where the bot operates |
+| `DISCORD_ANNOUNCEMENTS_CHANNEL_ID` | Discord only | — | Channel ID for ride announcements |
+| `DISCORD_FORUM_CHANNEL_ID` | Discord only | — | Forum channel ID for ride threads |
+| `TELEGRAM_TOKEN` | Telegram only | — | Bot token from @BotFather |
+| `TELEGRAM_CHAT_ID` | Telegram only | — | Group chat ID where the bot operates |
+| `DATABASE_URL` | no | — | PostgreSQL connection URL (e.g. `postgres://user:pass@host/db`). If absent, SQLite is used. |
+| `DATABASE_PATH` | no | `./data/group-ride.db` | SQLite file path (ignored when `DATABASE_URL` is set) |
+| `TZ` | no | system timezone | Timezone for reminder scheduling, e.g. `Europe/Paris` |
+| `LANG` | no | `en` | Bot message language: `en` (English) or `fr` (French) |
+
+---
+
+## Architecture
+
+group-ride uses hexagonal architecture (Ports & Adapters). The domain layer has zero knowledge of Discord, Telegram, SQLite, or PostgreSQL.
+
+```
+src/
+├── domain/
+│   ├── ride.ts           # Ride entity + CreateRideInput type
+│   ├── errors.ts         # RideNotFoundError, RideNotActiveError, AlreadyMemberError
+│   └── ports/
+│       ├── messaging.port.ts   # MessagingPort interface
+│       └── ride.repository.ts  # RideRepository interface
+├── services/
+│   ├── ride.service.ts        # Business logic (propose, join, leave, cancel, update)
+│   ├── scheduler.service.ts   # Reminder and close logic, runs every 60 s
+│   ├── ical.ts                # Generates .ics buffer for calendar attachments
+│   ├── map-generator.ts       # Renders static route map PNG from GPX
+│   └── importer/              # Route importers: komoot, strava, garmin, gpx
+└── adapters/
+    ├── messaging/
+    │   ├── discord/           # Discord.js implementation of MessagingPort
+    │   └── telegram/          # grammY implementation of MessagingPort
+    └── database/
+        ├── sqlite/            # bun:sqlite implementation of RideRepository
+        └── postgres/          # Bun SQL (template-tag) implementation of RideRepository
+```
+
+**Rule**: `src/services/` and `src/domain/` must never import from `src/adapters/`.
+
+---
+
+## Domain model
+
+```ts
+interface Ride {
+  id: string            // UUID
+  threadId: string | null
+  proposerId: string    // Discord snowflake or Telegram user ID (string to avoid precision loss)
+  proposerName: string
+  date: Date
+  name: string | null
+  meetingTime: string | null   // "HH:MM" format
+  meetingPoint: string
+  distanceKm: number | null
+  elevationGain: number | null
+  elevationLoss: number | null
+  level: "easy" | "moderate" | "hard" | null
+  gpxUrl: string | null
+  externalUrl: string | null
+  notes: string | null
+  status: "active" | "cancelled" | "closed"
+  pinnedMessageId: string | null
+  reminderDaySent: boolean
+  reminderHourSent: boolean
+  createdAt: Date
+}
+```
+
+---
+
+## Commands reference
+
+### Discord (slash commands + buttons)
+
+| Command / Button | Description |
+|---|---|
+| `/newride` | Opens a modal form to propose a new ride |
+| `/rides` | Lists all upcoming rides with Join buttons |
+| `/help` | Shows usage instructions (ephemeral) |
+| **Join this ride** button | Registers the user for a ride |
+| **Leave** button (in thread) | Removes the user from a ride |
+| **Cancel ride** button (in thread) | Cancels the ride and notifies members |
+| **✏️ Edit** button (in thread) | Opens an edit modal (proposer or admin only) |
+
+### Telegram (bot commands + inline buttons)
+
+| Command / Button | Description |
+|---|---|
+| `/newride` | Starts a guided conversation to propose a ride |
+| `/rides` | Lists all upcoming rides with Join buttons |
+| `/edit` | Starts a guided conversation to edit an existing ride |
+| `/help` | Shows usage instructions |
+| **Join** button | Registers the user for a ride |
+| **Leave** button | Removes the user from a ride |
+| **Cancel ride** button | Cancels the ride and notifies members |
+
+---
+
+## Scheduler
+
+The `SchedulerService` runs a `tick()` every 60 seconds:
+
+- **Hour-before reminder**: sent when the ride is between 45 and 75 minutes away (window accounts for tick interval)
+- **Day-before reminder**: sent when the ride date is tomorrow (midnight-to-midnight comparison in local TZ)
+- **Close ride**: triggered 24 hours after the ride date — updates status to `closed`, posts a closing message, and locks the thread
+
+Reminders are idempotent (`reminderDaySent`, `reminderHourSent` flags in the DB). The scheduler never double-sends.
+
+---
+
+## Route importers
+
+Paste a URL when proposing a ride — group-ride auto-fills distance and elevation:
+
+| Platform | What is extracted |
+|---|---|
+| Komoot | Distance, elevation gain/loss, GPX track URL |
+| Strava | Distance, elevation gain |
+| Garmin Connect | Distance, elevation gain/loss |
+| GPX file upload | Distance, elevation gain/loss, static map preview PNG |
+
+---
+
+## Database
+
+Two database adapters, selected automatically:
+
+- **SQLite** (default): `bun:sqlite`, file at `DATABASE_PATH`. Good for single-server deployments.
+- **PostgreSQL**: activated when `DATABASE_URL` is set. Uses Bun's native SQL template-tag client. Migrations live in `src/adapters/database/postgres/migrations/`.
+
+Both implement the same `RideRepository` port — the rest of the codebase is database-agnostic.
+
+---
+
+## Runtime
+
+- **Runtime**: [Bun](https://bun.sh) ≥ 1.3
+- **Docker image**: `ghcr.io/slashgear/group-ride` (multi-arch: `linux/amd64` + `linux/arm64`)
+- **Health check**: writes `Date.now()` to `/tmp/healthcheck` every 30 s; Docker checks file age
+- **Graceful shutdown**: SIGTERM / SIGINT closes the PostgreSQL connection pool before exit
+
+---
+
+## Development
+
+```bash
+# Install dependencies
+bun install
+
+# Run the bot (with hot reload)
+bun dev
+
+# Run tests
+bun test
+
+# Format + lint (run before committing)
+bun run fmt:check
+bun run lint
+bun run typecheck
+
+# Start the documentation site
+bun run website
+```
+
+For local development with Docker:
+```bash
+docker compose -f docker-compose.dev.yml up
+```
+
+See [CONTRIBUTING.md](https://github.com/slashgear/group-ride/blob/main/CONTRIBUTING.md) for the full setup guide.
+
+---
+
+## Technology stack
+
+| Layer | Technology |
+|---|---|
+| Runtime | Bun |
+| Discord adapter | discord.js v14 |
+| Telegram adapter | grammY |
+| Database (SQLite) | bun:sqlite (built-in) |
+| Database (Postgres) | Bun SQL template tag (built-in) |
+| Logging | pino |
+| Documentation site | Astro + Starlight |
+| Formatter | oxfmt |
+| Linter | oxlint |
+| CI | GitHub Actions |
+| Container registry | GitHub Container Registry (ghcr.io) |
