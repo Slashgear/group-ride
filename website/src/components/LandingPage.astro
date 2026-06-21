@@ -82,6 +82,24 @@ const avatarMap: Record<string, string> = {
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" sizes="any"          href="/favicon.ico" />
+
+    <!-- JSON-LD structured data -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "group-ride",
+      "description": t.heroSub,
+      "url": canonicalUrl,
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Discord, Telegram",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR"
+      },
+      "codeRepository": "https://github.com/Slashgear/group-ride",
+      "license": "https://github.com/Slashgear/group-ride/blob/main/LICENSE"
+    })} />
     <style is:global>
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 

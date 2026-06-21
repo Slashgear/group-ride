@@ -52,6 +52,41 @@ Find your message in the response — the chat ID is in `result[n].message.chat.
 
 `TELEGRAM_GROUP_CHAT_ID` must be the supergroup chat ID (negative number). Topic IDs from forum groups are different — use the group's top-level chat ID.
 
+### Commands don't appear in the Telegram menu
+
+The bot registers commands with Telegram on startup via `setMyCommands`. If the menu is empty or outdated:
+
+1. Restart the bot — it re-registers commands every time it starts.
+2. In the chat, type `/` to force Telegram to refresh the command list.
+3. If commands still don't appear, check that the bot has **admin rights** in the group (required for `setMyCommands` to apply inside a group).
+
+### The bot was removed from the group — how do I re-add it?
+
+1. Re-invite the bot to the group via its username (`@YourBotName`).
+2. Promote it to **admin** with permission to send messages and manage topics (if using a forum group).
+3. Restart the bot so it re-registers commands and resumes the scheduler.
+
+Existing ride data is unaffected — the bot reconnects to the same database.
+
+### The `/newride` conversation stopped mid-way
+
+The bot uses stateful conversations (grammY Conversations). Conversation state lives in memory and is lost if the bot restarts. Send `/newride` again to start fresh — no partial data is saved until the last step.
+
+### The bot doesn't receive messages (allowed_updates issue)
+
+The bot subscribes to `message`, `callback_query`, `chat_member`, and `inline_query` updates. If it stops receiving messages after a configuration change:
+
+1. Check that the bot is still a group member: send a message and watch `docker compose logs -f bot`.
+2. Verify the bot has not been demoted or silenced by a group admin.
+3. Restart the bot — it re-subscribes to updates on startup.
+
+### Reminders are not sent on Telegram
+
+1. Confirm `TZ` is set to your group's timezone (e.g. `TZ=Europe/Paris`). The day-before reminder fires at **20:00** and the hour-before fires **1 hour before** `meetingTime`.
+2. If `meetingTime` is not set on the ride, the hour-before reminder is skipped.
+3. Check that the bot is running at the scheduled time: `docker compose ps`.
+4. If the bot was offline at reminder time, it will send the reminder on restart if the ride is still in the future.
+
 ---
 
 ## Database
