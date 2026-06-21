@@ -1,5 +1,5 @@
 [changelog]
-header = "# Changelog\n\n"
+header = "---\ntitle: Changelog\ndescription: Release history for group-ride\n---\n\n# Changelog\n\n"
 body = """
 {% if version %}\
 ## {{ version }} — {{ timestamp | date(format="%Y-%m-%d") }}

@@ -5,6 +5,11 @@ import { remarkMermaid } from "./src/plugins/remark-mermaid.mjs"
 
 export default defineConfig({
   site: "https://group-ride.slashgear.dev",
+  vite: {
+    resolve: {
+      preserveSymlinks: true,
+    },
+  },
   markdown: {
     remarkPlugins: [remarkMermaid],
   },

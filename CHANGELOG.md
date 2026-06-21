@@ -1,3 +1,8 @@
+---
+title: Changelog
+description: Release history for group-ride
+---
+
 # Changelog
 
 ## v1.7.0 — 2026-06-21
