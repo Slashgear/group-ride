@@ -45,7 +45,7 @@ describe("validateConfig — discord (default)", () => {
 
   test("reports all missing vars in a single error", () => {
     expect(() => validateConfig()).toThrow(
-      /DISCORD_TOKEN.*DISCORD_CLIENT_ID.*DISCORD_GUILD_ID.*DISCORD_ANNOUNCEMENT_CHANNEL_ID.*DISCORD_FORUM_CHANNEL_ID/,
+      /DISCORD_TOKEN.*DISCORD_CLIENT_ID.*DISCORD_GUILD_ID.*DISCORD_ANNOUNCEMENT_CHANNEL_ID.*DISCORD_FORUM_CHANNEL_ID/u,
     )
   })
 })
@@ -68,7 +68,7 @@ describe("validateConfig — telegram", () => {
   })
 
   test("reports all missing vars in a single error", () => {
-    expect(() => validateConfig()).toThrow(/TELEGRAM_TOKEN.*TELEGRAM_GROUP_CHAT_ID/)
+    expect(() => validateConfig()).toThrow(/TELEGRAM_TOKEN.*TELEGRAM_GROUP_CHAT_ID/u)
   })
 
   test("does not require Discord vars", () => {
@@ -80,12 +80,12 @@ describe("validateConfig — telegram", () => {
 describe("validateConfig — unknown adapter", () => {
   test("throws on unknown ADAPTER value", () => {
     process.env.ADAPTER = "telegrem"
-    expect(() => validateConfig()).toThrow(/Unknown ADAPTER "telegrem"/)
+    expect(() => validateConfig()).toThrow(/Unknown ADAPTER "telegrem"/u)
   })
 
   test("error message lists valid values", () => {
     process.env.ADAPTER = "slack"
-    expect(() => validateConfig()).toThrow(/discord.*telegram/)
+    expect(() => validateConfig()).toThrow(/discord.*telegram/u)
   })
 })
 
@@ -111,9 +111,9 @@ describe("validateConfig — unused adapter vars warning", () => {
     Object.assign(process.env, DISCORD_VARS, TELEGRAM_VARS)
     const { warnings } = validateConfig()
     expect(warnings).toHaveLength(1)
-    expect(warnings[0]).toMatch(/TELEGRAM_TOKEN/)
-    expect(warnings[0]).toMatch(/TELEGRAM_GROUP_CHAT_ID/)
-    expect(warnings[0]).toMatch(/discord/)
+    expect(warnings[0]).toMatch(/TELEGRAM_TOKEN/u)
+    expect(warnings[0]).toMatch(/TELEGRAM_GROUP_CHAT_ID/u)
+    expect(warnings[0]).toMatch(/discord/u)
   })
 
   test("warns when Discord vars are set alongside Telegram adapter", () => {
@@ -121,8 +121,8 @@ describe("validateConfig — unused adapter vars warning", () => {
     Object.assign(process.env, DISCORD_VARS, TELEGRAM_VARS)
     const { warnings } = validateConfig()
     expect(warnings).toHaveLength(1)
-    expect(warnings[0]).toMatch(/DISCORD_TOKEN/)
-    expect(warnings[0]).toMatch(/telegram/)
+    expect(warnings[0]).toMatch(/DISCORD_TOKEN/u)
+    expect(warnings[0]).toMatch(/telegram/u)
   })
 
   test("no warning when only the active adapter vars are set", () => {

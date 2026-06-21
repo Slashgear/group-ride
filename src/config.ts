@@ -22,7 +22,7 @@ export function validateConfig(): { warnings: string[] } {
   const required = isTelegram ? TELEGRAM_REQUIRED : DISCORD_REQUIRED
   const unused = isTelegram ? DISCORD_REQUIRED : TELEGRAM_REQUIRED
 
-  const missing = required.filter((key) => !process.env[key])
+  const missing = required.filter((key) => process.env[key] == null || process.env[key] === "")
   if (missing.length > 0) {
     throw new Error(`Missing required environment variables: ${missing.join(", ")}`)
   }
@@ -34,7 +34,7 @@ export function validateConfig(): { warnings: string[] } {
   }
 
   const warnings: string[] = []
-  const spurious = unused.filter((key) => process.env[key])
+  const spurious = unused.filter((key) => process.env[key] != null && process.env[key] !== "")
   if (spurious.length > 0) {
     warnings.push(
       `The following variables are set but will be ignored (active adapter: ${adapter}): ${spurious.join(", ")}`,
