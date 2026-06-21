@@ -57,24 +57,24 @@ LANG=fr   # "en" (default) or "fr"
 
 Controls the language of all user-facing bot messages — notifications, reminders, and command replies. Log messages always stay in English regardless of this setting.
 
-| Value | Language |
-| ----- | -------- |
+| Value | Language          |
+| ----- | ----------------- |
 | `en`  | English (default) |
-| `fr`  | French |
+| `fr`  | French            |
 
 ## Summary
 
-| Variable                          | Required | Default                | Description                    |
-| --------------------------------- | -------- | ---------------------- | ------------------------------ |
-| `ADAPTER`                         | No       | `discord`              | `discord` or `telegram`        |
-| `DISCORD_TOKEN`                   | Discord  | —                      | Bot token                      |
-| `DISCORD_CLIENT_ID`               | Discord  | —                      | Application client ID          |
-| `DISCORD_GUILD_ID`                | Discord  | —                      | Server (guild) ID              |
-| `DISCORD_ANNOUNCEMENT_CHANNEL_ID` | Discord  | —                      | Text channel for announcements |
-| `DISCORD_FORUM_CHANNEL_ID`        | Discord  | —                      | Forum channel for ride threads |
-| `TELEGRAM_TOKEN`                  | Telegram | —                      | Bot token from BotFather       |
-| `TELEGRAM_GROUP_CHAT_ID`          | Telegram | —                      | Supergroup chat ID             |
-| `DATABASE_PATH`                   | No       | `./data/group-ride.db` | SQLite file path               |
-| `DATABASE_URL`                    | No       | —                      | PostgreSQL connection URL      |
-| `TZ`                              | No       | System default         | Timezone for reminders         |
+| Variable                          | Required | Default                | Description                         |
+| --------------------------------- | -------- | ---------------------- | ----------------------------------- |
+| `ADAPTER`                         | No       | `discord`              | `discord` or `telegram`             |
+| `DISCORD_TOKEN`                   | Discord  | —                      | Bot token                           |
+| `DISCORD_CLIENT_ID`               | Discord  | —                      | Application client ID               |
+| `DISCORD_GUILD_ID`                | Discord  | —                      | Server (guild) ID                   |
+| `DISCORD_ANNOUNCEMENT_CHANNEL_ID` | Discord  | —                      | Text channel for announcements      |
+| `DISCORD_FORUM_CHANNEL_ID`        | Discord  | —                      | Forum channel for ride threads      |
+| `TELEGRAM_TOKEN`                  | Telegram | —                      | Bot token from BotFather            |
+| `TELEGRAM_GROUP_CHAT_ID`          | Telegram | —                      | Supergroup chat ID                  |
+| `DATABASE_PATH`                   | No       | `./data/group-ride.db` | SQLite file path                    |
+| `DATABASE_URL`                    | No       | —                      | PostgreSQL connection URL           |
+| `TZ`                              | No       | System default         | Timezone for reminders              |
 | `LANG`                            | No       | `en`                   | Bot message language (`en` or `fr`) |
