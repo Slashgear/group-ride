@@ -19,4 +19,10 @@ export const messages = {
   rideUpdatedConfirm: (date: string) => `✅ Ride updated for ${date}!`,
   rideCancelledTelegram: "✅ Ride has been cancelled and the group notified.",
   joinSuccessTelegram: "You're in! Check the ride topic. 🚴",
+  joinWaitlist: (position: number) =>
+    `The ride is full. You've been added to the waitlist at position #${position}. You'll be notified if a spot opens up.`,
+  promotedFromWaitlist:
+    "A spot opened up! You've been moved from the waitlist and are now confirmed. 🚴",
+  rideFull: "This ride is full and has a waitlist.",
+  capConflict: "Cannot set cap: fewer spots than current confirmed participants.",
 }

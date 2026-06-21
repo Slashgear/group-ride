@@ -18,3 +18,5 @@ export class AlreadyMemberError extends Error {
     this.name = "AlreadyMemberError"
   }
 }
+
+export { CapConflictError } from "./cap-error"

@@ -17,8 +17,9 @@ export function registerJoinRideHandler(bot: Bot<BotContext>, rideService: RideS
     const userId = String(ctx.from.id)
     const m = getMessages()
     try {
-      await rideService.join(rideId, userId)
-      await ctx.answerCallbackQuery({ text: m.joinSuccessTelegram })
+      const result = await rideService.join(rideId, userId)
+      const text = result.waitlisted ? m.joinWaitlist(result.position) : m.joinSuccessTelegram
+      await ctx.answerCallbackQuery({ text, show_alert: result.waitlisted })
     } catch (err) {
       const text =
         err instanceof AlreadyMemberError

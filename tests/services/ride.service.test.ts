@@ -17,6 +17,9 @@ function mockRepo(): RideRepository {
     hasMember: mock(async () => false),
     removeMember: mock(async () => {}),
     getMembers: mock(async () => []),
+    countConfirmed: mock(async () => 0),
+    getWaitlist: mock(async () => []),
+    promoteFromWaitlist: mock(async () => null),
   }
 }
 
@@ -56,6 +59,7 @@ function makeRide(overrides: Partial<Ride> = {}): Ride {
     reminderDaySent: false,
     reminderHourSent: false,
     createdAt: new Date(),
+    maxParticipants: null,
     ...overrides,
   }
 }
@@ -107,7 +111,7 @@ describe("RideService.join", () => {
 
     await service.join("ride-1", "42")
 
-    expect(repo.addMember).toHaveBeenCalledWith("ride-1", "42")
+    expect(repo.addMember).toHaveBeenCalledWith("ride-1", "42", false)
     expect(messaging.addMemberToThread).toHaveBeenCalledWith("thread-1", "42")
   })
 
@@ -197,6 +201,7 @@ describe("RideService.cancel", () => {
       "thread-1",
       expect.objectContaining({ status: "cancelled" }),
       expect.any(Array),
+      expect.any(Array),
     )
     expect(messaging.notifyMainChannel).toHaveBeenCalledTimes(1)
     expect(messaging.closeThread).toHaveBeenCalledWith("thread-1")
@@ -230,6 +235,7 @@ describe("RideService.update", () => {
     expect(messaging.updatePinnedSummary).toHaveBeenCalledWith(
       "thread-1",
       expect.objectContaining({ meetingPoint: "Gare du Nord" }),
+      expect.any(Array),
       expect.any(Array),
     )
     expect(messaging.notifyThread).toHaveBeenCalledWith("thread-1", expect.any(String))

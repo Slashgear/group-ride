@@ -63,14 +63,28 @@ export function formatAnnouncement(ride: Ride): string {
   return lines.join("\n")
 }
 
-export function formatSummary(ride: Ride, participants: UserId[] = []): string {
+export function formatSummary(
+  ride: Ride,
+  participants: UserId[] = [],
+  waitlist: UserId[] = [],
+): string {
   const lines = buildSummaryLines(ride)
   lines.push("")
-  lines.push(
-    participants.length === 0
-      ? "👥 <i>No participants yet</i>"
-      : `👥 <b>Participants (${participants.length}):</b> ${participants.map((id) => `<a href="tg://user?id=${id}">rider</a>`).join(", ")}`,
-  )
+  const cap = ride.maxParticipants
+  if (participants.length === 0) {
+    const capLabel = cap == null ? "" : ` (cap: ${cap})`
+    lines.push(`👥 <i>No participants yet</i>${capLabel}`)
+  } else {
+    const countLabel = cap == null ? `${participants.length}` : `${participants.length}/${cap}`
+    lines.push(
+      `👥 <b>Participants (${countLabel}):</b> ${participants.map((id) => `<a href="tg://user?id=${id}">rider</a>`).join(", ")}`,
+    )
+  }
+  if (waitlist.length > 0) {
+    lines.push(
+      `⏳ <b>Waitlist (${waitlist.length}):</b> ${waitlist.map((id) => `<a href="tg://user?id=${id}">rider</a>`).join(", ")}`,
+    )
+  }
   return lines.join("\n")
 }
 

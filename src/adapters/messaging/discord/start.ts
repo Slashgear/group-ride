@@ -10,6 +10,7 @@ import { registerMemberLeftHandler } from "./handlers/member-left"
 import { registerLeaveCancelHandler } from "./handlers/leave-cancel"
 import { registerEditRideHandler } from "./handlers/edit-ride"
 import { registerParticipantsHandler } from "./handlers/participants"
+import { registerSetCapCommand } from "./commands/set-cap"
 import { DiscordMessaging } from "./messaging"
 import type { RideRepository } from "../../../domain/ports/ride.repository"
 import { RideService } from "../../../services/ride.service"
@@ -40,6 +41,7 @@ export async function startDiscord(rideRepo: RideRepository): Promise<void> {
   registerLeaveCancelHandler(client, rideService)
   registerEditRideHandler(client, rideRepo, rideService)
   registerParticipantsHandler(client, rideRepo)
+  registerSetCapCommand(client, rideService)
 
   client.once("clientReady", () => {
     logger.info({ username: client.user?.tag, adapter: "discord" }, "Group Ride bot is running")

@@ -5,8 +5,18 @@ export interface MessagingPort {
   createThread(ride: Ride, mapImage?: Buffer): Promise<ThreadId>
   /** Sends and pins the initial summary. Receives the participants list so a single
    *  API call is enough — no need for an immediate updatePinnedSummary after. */
-  pinSummary(threadId: ThreadId, ride: Ride, participants: UserId[]): Promise<string>
-  updatePinnedSummary(threadId: ThreadId, ride: Ride, participants: UserId[]): Promise<void>
+  pinSummary(
+    threadId: ThreadId,
+    ride: Ride,
+    participants: UserId[],
+    waitlist?: UserId[],
+  ): Promise<string>
+  updatePinnedSummary(
+    threadId: ThreadId,
+    ride: Ride,
+    participants: UserId[],
+    waitlist?: UserId[],
+  ): Promise<void>
   closeThread(threadId: ThreadId): Promise<void>
   /** silent = true: only grants access (Discord) or is a no-op (Telegram).
    *  Use silent when the proposer auto-joins on creation — no "You're in!" needed. */

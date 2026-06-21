@@ -15,6 +15,8 @@ const MIGRATION_FILES = [
   "004_add_meeting_time.sql",
   "005_add_ride_name.sql",
   "006_add_reminder_flags.sql",
+  "007_add_max_participants.sql",
+  "008_add_waitlist.sql",
 ]
 
 function createTestDb(): Database {

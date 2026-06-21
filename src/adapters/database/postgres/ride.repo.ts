@@ -23,6 +23,7 @@ interface RideRow {
   reminder_day_sent: boolean
   reminder_hour_sent: boolean
   created_at: Date
+  max_participants: number | null
 }
 
 function rowToRide(row: RideRow): Ride {
@@ -47,6 +48,7 @@ function rowToRide(row: RideRow): Ride {
     reminderDaySent: row.reminder_day_sent,
     reminderHourSent: row.reminder_hour_sent,
     createdAt: row.created_at,
+    maxParticipants: row.max_participants,
   }
 }
 
@@ -62,14 +64,14 @@ export class PostgresRideRepository implements RideRepository {
       INSERT INTO rides
         (id, thread_id, proposer_id, proposer_name, name, date, meeting_time, meeting_point,
          distance_km, elevation_gain, elevation_loss, level, gpx_url, external_url, notes,
-         status, pinned_message_id, reminder_day_sent, reminder_hour_sent, created_at)
+         status, pinned_message_id, reminder_day_sent, reminder_hour_sent, created_at, max_participants)
       VALUES (
         ${ride.id}, ${ride.threadId}, ${ride.proposerId}, ${ride.proposerName}, ${ride.name},
         ${ride.date}, ${ride.meetingTime}, ${ride.meetingPoint},
         ${ride.distanceKm}, ${ride.elevationGain}, ${ride.elevationLoss}, ${ride.level},
         ${ride.gpxUrl}, ${ride.externalUrl}, ${ride.notes}, ${ride.status},
         ${ride.pinnedMessageId}, ${ride.reminderDaySent}, ${ride.reminderHourSent},
-        ${ride.createdAt}
+        ${ride.createdAt}, ${ride.maxParticipants}
       )
     `
   }
@@ -113,15 +115,16 @@ export class PostgresRideRepository implements RideRepository {
         status = ${ride.status},
         pinned_message_id = ${ride.pinnedMessageId},
         reminder_day_sent = ${ride.reminderDaySent},
-        reminder_hour_sent = ${ride.reminderHourSent}
+        reminder_hour_sent = ${ride.reminderHourSent},
+        max_participants = ${ride.maxParticipants}
       WHERE id = ${ride.id}
     `
   }
 
-  async addMember(rideId: RideId, userId: UserId): Promise<void> {
+  async addMember(rideId: RideId, userId: UserId, waitlisted = false): Promise<void> {
     await this.sql`
-      INSERT INTO ride_members (ride_id, user_id, joined_at)
-      VALUES (${rideId}, ${userId}, ${new Date()})
+      INSERT INTO ride_members (ride_id, user_id, joined_at, waitlisted)
+      VALUES (${rideId}, ${userId}, ${new Date()}, ${waitlisted})
       ON CONFLICT DO NOTHING
     `
   }
@@ -139,9 +142,35 @@ export class PostgresRideRepository implements RideRepository {
 
   async getMembers(rideId: RideId): Promise<UserId[]> {
     const rows = await this.sql<{ user_id: string }[]>`
-      SELECT user_id FROM ride_members WHERE ride_id = ${rideId}
+      SELECT user_id FROM ride_members WHERE ride_id = ${rideId} AND waitlisted = FALSE
     `
     return rows.map((r) => r.user_id)
+  }
+
+  async countConfirmed(rideId: RideId): Promise<number> {
+    const rows = await this.sql<{ count: string }[]>`
+      SELECT COUNT(*) as count FROM ride_members WHERE ride_id = ${rideId} AND waitlisted = FALSE
+    `
+    return Number(rows[0]?.count ?? 0)
+  }
+
+  async getWaitlist(rideId: RideId): Promise<UserId[]> {
+    const rows = await this.sql<{ user_id: string }[]>`
+      SELECT user_id FROM ride_members WHERE ride_id = ${rideId} AND waitlisted = TRUE ORDER BY joined_at ASC
+    `
+    return rows.map((r) => r.user_id)
+  }
+
+  async promoteFromWaitlist(rideId: RideId): Promise<UserId | null> {
+    const rows = await this.sql<{ user_id: string }[]>`
+      SELECT user_id FROM ride_members WHERE ride_id = ${rideId} AND waitlisted = TRUE ORDER BY joined_at ASC LIMIT 1
+    `
+    if (rows[0] == null) return null
+    const userId = rows[0].user_id
+    await this.sql`
+      UPDATE ride_members SET waitlisted = FALSE WHERE ride_id = ${rideId} AND user_id = ${userId}
+    `
+    return userId
   }
 
   async findPast(limit = 10): Promise<Ride[]> {

@@ -29,6 +29,7 @@ function makeRide(overrides: Partial<Ride> = {}): Ride {
     reminderDaySent: false,
     reminderHourSent: false,
     createdAt: new Date(),
+    maxParticipants: null,
     ...overrides,
   }
 }

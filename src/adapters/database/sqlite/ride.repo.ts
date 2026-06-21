@@ -23,6 +23,7 @@ interface RideRow {
   reminder_day_sent: number
   reminder_hour_sent: number
   created_at: string
+  max_participants: number | null
 }
 
 function rowToRide(row: RideRow): Ride {
@@ -47,6 +48,7 @@ function rowToRide(row: RideRow): Ride {
     reminderDaySent: row.reminder_day_sent !== 0,
     reminderHourSent: row.reminder_hour_sent !== 0,
     createdAt: new Date(row.created_at),
+    maxParticipants: row.max_participants,
   }
 }
 
@@ -58,8 +60,8 @@ export class SqliteRideRepository implements RideRepository {
       `INSERT INTO rides
         (id, thread_id, proposer_id, proposer_name, name, date, meeting_time, meeting_point,
          distance_km, elevation_gain, elevation_loss, level, gpx_url, external_url, notes,
-         status, pinned_message_id, reminder_day_sent, reminder_hour_sent, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         status, pinned_message_id, reminder_day_sent, reminder_hour_sent, created_at, max_participants)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         ride.id,
         ride.threadId,
@@ -81,6 +83,7 @@ export class SqliteRideRepository implements RideRepository {
         ride.reminderDaySent ? 1 : 0,
         ride.reminderHourSent ? 1 : 0,
         ride.createdAt.toISOString(),
+        ride.maxParticipants,
       ],
     )
     return Promise.resolve()
@@ -115,7 +118,7 @@ export class SqliteRideRepository implements RideRepository {
         thread_id = ?, name = ?, date = ?, meeting_time = ?, meeting_point = ?,
         distance_km = ?, elevation_gain = ?, elevation_loss = ?, level = ?,
         gpx_url = ?, external_url = ?, notes = ?, status = ?, pinned_message_id = ?,
-        reminder_day_sent = ?, reminder_hour_sent = ?
+        reminder_day_sent = ?, reminder_hour_sent = ?, max_participants = ?
        WHERE id = ?`,
       [
         ride.threadId,
@@ -134,16 +137,17 @@ export class SqliteRideRepository implements RideRepository {
         ride.pinnedMessageId,
         ride.reminderDaySent ? 1 : 0,
         ride.reminderHourSent ? 1 : 0,
+        ride.maxParticipants,
         ride.id,
       ],
     )
     return Promise.resolve()
   }
 
-  addMember(rideId: RideId, userId: UserId): Promise<void> {
+  addMember(rideId: RideId, userId: UserId, waitlisted = false): Promise<void> {
     this.db.run(
-      "INSERT OR IGNORE INTO ride_members (ride_id, user_id, joined_at) VALUES (?, ?, ?)",
-      [rideId, userId, new Date().toISOString()],
+      "INSERT OR IGNORE INTO ride_members (ride_id, user_id, joined_at, waitlisted) VALUES (?, ?, ?, ?)",
+      [rideId, userId, new Date().toISOString(), waitlisted ? 1 : 0],
     )
     return Promise.resolve()
   }
@@ -162,11 +166,41 @@ export class SqliteRideRepository implements RideRepository {
 
   getMembers(rideId: RideId): Promise<UserId[]> {
     const rows = this.db
-      .query("SELECT user_id FROM ride_members WHERE ride_id = ?")
+      .query("SELECT user_id FROM ride_members WHERE ride_id = ? AND waitlisted = 0")
       .all(rideId) as {
       user_id: number
     }[]
     return Promise.resolve(rows.map((r) => String(r.user_id)))
+  }
+
+  countConfirmed(rideId: RideId): Promise<number> {
+    const row = this.db
+      .query("SELECT COUNT(*) as count FROM ride_members WHERE ride_id = ? AND waitlisted = 0")
+      .get(rideId) as { count: number }
+    return Promise.resolve(row.count)
+  }
+
+  getWaitlist(rideId: RideId): Promise<UserId[]> {
+    const rows = this.db
+      .query(
+        "SELECT user_id FROM ride_members WHERE ride_id = ? AND waitlisted = 1 ORDER BY joined_at ASC",
+      )
+      .all(rideId) as { user_id: number }[]
+    return Promise.resolve(rows.map((r) => String(r.user_id)))
+  }
+
+  promoteFromWaitlist(rideId: RideId): Promise<UserId | null> {
+    const row = this.db
+      .query(
+        "SELECT user_id FROM ride_members WHERE ride_id = ? AND waitlisted = 1 ORDER BY joined_at ASC LIMIT 1",
+      )
+      .get(rideId) as { user_id: number } | null
+    if (row == null) return Promise.resolve(null)
+    this.db.run("UPDATE ride_members SET waitlisted = 0 WHERE ride_id = ? AND user_id = ?", [
+      rideId,
+      row.user_id,
+    ])
+    return Promise.resolve(String(row.user_id))
   }
 
   findPast(limit = 10): Promise<Ride[]> {

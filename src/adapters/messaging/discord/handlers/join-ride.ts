@@ -26,8 +26,9 @@ async function onJoinRide(interaction: Interaction, rideService: RideService): P
   await interaction.deferReply({ flags: MessageFlags.Ephemeral })
   const m = getMessages()
   try {
-    await rideService.join(rideId, userId)
-    await interaction.editReply({ content: m.joinSuccess })
+    const result = await rideService.join(rideId, userId)
+    const content = result.waitlisted ? m.joinWaitlist(result.position) : m.joinSuccess
+    await interaction.editReply({ content })
   } catch (err) {
     const message =
       err instanceof AlreadyMemberError

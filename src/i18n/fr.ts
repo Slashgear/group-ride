@@ -19,4 +19,11 @@ export const messages = {
   rideUpdatedConfirm: (date: string) => `✅ Sortie mise à jour pour le ${date} !`,
   rideCancelledTelegram: "✅ La sortie a été annulée et le groupe notifié.",
   joinSuccessTelegram: "Tu es inscrit ! Rejoins le sujet de la sortie. 🚴",
+  joinWaitlist: (position: number) =>
+    `La sortie est complète. Tu es sur liste d'attente à la position #${position}. Tu seras notifié si une place se libère.`,
+  promotedFromWaitlist:
+    "Une place s'est libérée ! Tu passes de la liste d'attente aux participants confirmés. 🚴",
+  rideFull: "Cette sortie est complète et dispose d'une liste d'attente.",
+  capConflict:
+    "Impossible de définir le plafond : il y a moins de places que de participants confirmés.",
 }

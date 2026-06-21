@@ -1,0 +1,1 @@
+ALTER TABLE ride_members ADD COLUMN waitlisted INTEGER NOT NULL DEFAULT 0;

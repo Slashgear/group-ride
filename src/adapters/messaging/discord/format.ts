@@ -61,15 +61,27 @@ export function formatAnnouncement(ride: Ride): string {
   return lines.join("\n")
 }
 
-export function formatSummary(ride: Ride, participants: UserId[] = []): string {
+export function formatSummary(
+  ride: Ride,
+  participants: UserId[] = [],
+  waitlist: UserId[] = [],
+): string {
   const lines = buildSummaryLines(ride)
   lines.push("")
+  const cap = ride.maxParticipants
   if (participants.length > 0) {
+    const countLabel = cap == null ? `${participants.length}` : `${participants.length}/${cap}`
     lines.push(
-      `👥 **Participants (${participants.length}):** ${participants.map((id) => `<@${id}>`).join(", ")}`,
+      `👥 **Participants (${countLabel}):** ${participants.map((id) => `<@${id}>`).join(", ")}`,
     )
   } else {
-    lines.push("👥 *No participants yet*")
+    const capLabel = cap == null ? "" : ` (cap: ${cap})`
+    lines.push(`👥 *No participants yet*${capLabel}`)
+  }
+  if (waitlist.length > 0) {
+    lines.push(
+      `⏳ **Waitlist (${waitlist.length}):** ${waitlist.map((id) => `<@${id}>`).join(", ")}`,
+    )
   }
   return lines.join("\n")
 }

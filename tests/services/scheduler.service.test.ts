@@ -16,6 +16,9 @@ function mockRepo(): RideRepository {
     hasMember: mock(async () => false),
     removeMember: mock(async () => {}),
     getMembers: mock(async () => []),
+    countConfirmed: mock(async () => 0),
+    getWaitlist: mock(async () => []),
+    promoteFromWaitlist: mock(async () => null),
   }
 }
 
@@ -55,6 +58,7 @@ function makeRide(overrides: Partial<Ride> = {}): Ride {
     reminderDaySent: false,
     reminderHourSent: false,
     createdAt: new Date(),
+    maxParticipants: null,
     ...overrides,
   }
 }

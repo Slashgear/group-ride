@@ -9,6 +9,18 @@ const commands = [
   new SlashCommandBuilder().setName("rides").setDescription("List upcoming rides").toJSON(),
   new SlashCommandBuilder().setName("pastrides").setDescription("List past rides").toJSON(),
   new SlashCommandBuilder()
+    .setName("setcap")
+    .setDescription("Set or remove the participant cap for a ride (0 = no cap)")
+    .addStringOption((opt) => opt.setName("ride").setDescription("Ride ID").setRequired(true))
+    .addIntegerOption((opt) =>
+      opt
+        .setName("max")
+        .setDescription("Max participants (0 to remove cap)")
+        .setRequired(true)
+        .setMinValue(0),
+    )
+    .toJSON(),
+  new SlashCommandBuilder()
     .setName("help")
     .setDescription("How to use the Group Ride bot")
     .toJSON(),
