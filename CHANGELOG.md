@@ -4,11 +4,11 @@
 
 ### Features
 
-- Log unexpected errors in handlers before re-throwing (structured error logging)
+- **observability**: Log unexpected errors in handlers before re-throwing
 
-### Tests
+### test
 
-- Add SchedulerService tests with fake timers (13 tests)
+- Add SchedulerService tests with fake timers
 
 ## v1.5.2 — 2026-06-21
 
