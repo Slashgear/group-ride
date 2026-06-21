@@ -2,9 +2,9 @@
 
 ## v1.5.2 — 2026-06-21
 
-### Tests
+### test
 
-- Add PostgreSQL integration tests with CI job (postgres service)
+- Add PostgreSQL integration tests + CI job with postgres service
 
 ## v1.5.1 — 2026-06-20
 
