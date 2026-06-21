@@ -2,6 +2,7 @@ import { MessageFlags, type Client, type Interaction } from "discord.js"
 import { RideNotActiveError, RideNotFoundError } from "../../../../domain/errors"
 import type { RideService } from "../../../../services/ride.service"
 import { logger } from "../../../../logger"
+import { getMessages } from "../../../../i18n"
 
 const log = logger.child({ module: "discord-leave-cancel" })
 
@@ -18,11 +19,12 @@ async function onLeaveCancel(interaction: Interaction, rideService: RideService)
   if (leaveMatch?.[1] != null) {
     const rideId = leaveMatch[1]
     await interaction.deferReply({ flags: MessageFlags.Ephemeral })
+    const m = getMessages()
     try {
       await rideService.leave(rideId, interaction.user.id)
-      await interaction.editReply({ content: "You've left the ride." })
+      await interaction.editReply({ content: m.leftRide })
     } catch (err) {
-      await interaction.editReply({ content: `❌ ${rideErrorMessage(err)}` })
+      await interaction.editReply({ content: `❌ ${rideErrorMessage(err, m)}` })
       if (!isRideDomainError(err)) {
         log.error({ err, rideId }, "Unexpected error in leave/cancel handler")
         throw err
@@ -35,11 +37,12 @@ async function onLeaveCancel(interaction: Interaction, rideService: RideService)
   if (cancelMatch?.[1] != null) {
     const rideId = cancelMatch[1]
     await interaction.deferReply({ flags: MessageFlags.Ephemeral })
+    const m = getMessages()
     try {
       await rideService.cancel(rideId)
-      await interaction.editReply({ content: "Ride cancelled." })
+      await interaction.editReply({ content: m.rideCancelledConfirm })
     } catch (err) {
-      await interaction.editReply({ content: `❌ ${rideErrorMessage(err)}` })
+      await interaction.editReply({ content: `❌ ${rideErrorMessage(err, m)}` })
       if (!isRideDomainError(err)) {
         log.error({ err, rideId }, "Unexpected error in leave/cancel handler")
         throw err
@@ -52,8 +55,8 @@ function isRideDomainError(err: unknown): boolean {
   return err instanceof RideNotFoundError || err instanceof RideNotActiveError
 }
 
-function rideErrorMessage(err: unknown): string {
-  if (err instanceof RideNotActiveError) return "This ride has already been cancelled."
-  if (err instanceof RideNotFoundError) return "This ride no longer exists."
-  return "Something went wrong. Please try again."
+function rideErrorMessage(err: unknown, m: ReturnType<typeof getMessages>): string {
+  if (err instanceof RideNotActiveError) return m.rideAlreadyCancelled
+  if (err instanceof RideNotFoundError) return m.rideNotFound
+  return m.unexpectedError
 }

@@ -7,6 +7,7 @@ import {
 import type { RideService } from "../../../../services/ride.service"
 import type { BotContext } from "../bot"
 import { logger } from "../../../../logger"
+import { getMessages } from "../../../../i18n"
 
 const log = logger.child({ module: "telegram-join" })
 
@@ -14,18 +15,19 @@ export function registerJoinRideHandler(bot: Bot<BotContext>, rideService: RideS
   bot.callbackQuery(/^join:(.+)$/u, async (ctx) => {
     const rideId = ctx.match[1] ?? ""
     const userId = String(ctx.from.id)
+    const m = getMessages()
     try {
       await rideService.join(rideId, userId)
-      await ctx.answerCallbackQuery({ text: "You're in! Check the ride topic. 🚴" })
+      await ctx.answerCallbackQuery({ text: m.joinSuccessTelegram })
     } catch (err) {
       const text =
         err instanceof AlreadyMemberError
-          ? "You're already registered for this ride."
+          ? m.alreadyMember
           : err instanceof RideNotActiveError
-            ? "This ride has been cancelled."
+            ? m.rideNotActive
             : err instanceof RideNotFoundError
-              ? "This ride no longer exists."
-              : "Something went wrong. Please try again."
+              ? m.rideNotFound
+              : m.unexpectedError
       await ctx.answerCallbackQuery({ text, show_alert: true })
       if (
         !(
