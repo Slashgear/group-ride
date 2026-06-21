@@ -1,4 +1,7 @@
 import { type Client, type GuildMember } from "discord.js"
+import { logger } from "../../../../logger"
+
+const log = logger.child({ module: "discord-member-joined" })
 
 const WELCOME_MESSAGE = (name: string) => `Hey ${name}! 👋 Welcome to **Group Ride** 🚴
 
@@ -27,11 +30,23 @@ export function registerMemberJoinedHandler(client: Client): void {
 async function onMemberJoined(member: GuildMember): Promise<void> {
   try {
     await member.send(WELCOME_MESSAGE(member.displayName))
-  } catch {
+  } catch (err) {
+    log.warn(
+      { err, userId: member.id },
+      "Could not send welcome DM; falling back to system channel",
+    )
     const channel = member.guild.systemChannel
-    if (channel)
-      await channel.send(
-        `Welcome to Group Ride, ${member.displayName}! 🚴 Check your DMs for info on how to use the bot.`,
-      )
+    if (channel) {
+      try {
+        await channel.send(
+          `Welcome to Group Ride, ${member.displayName}! 🚴 Check your DMs for info on how to use the bot.`,
+        )
+      } catch (channelErr) {
+        log.error(
+          { err: channelErr, userId: member.id, guildId: member.guild.id },
+          "Failed to send welcome message to system channel",
+        )
+      }
+    }
   }
 }

@@ -6,6 +6,9 @@ import {
 } from "../../../../domain/errors"
 import type { RideService } from "../../../../services/ride.service"
 import type { BotContext } from "../bot"
+import { logger } from "../../../../logger"
+
+const log = logger.child({ module: "telegram-join" })
 
 export function registerJoinRideHandler(bot: Bot<BotContext>, rideService: RideService): void {
   bot.callbackQuery(/^join:(.+)$/u, async (ctx) => {
@@ -30,8 +33,10 @@ export function registerJoinRideHandler(bot: Bot<BotContext>, rideService: RideS
           err instanceof RideNotActiveError ||
           err instanceof RideNotFoundError
         )
-      )
+      ) {
+        log.error({ err, rideId, userId }, "Unexpected error in join handler")
         throw err
+      }
     }
   })
 }

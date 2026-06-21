@@ -5,6 +5,9 @@ import {
   RideNotFoundError,
 } from "../../../../domain/errors"
 import type { RideService } from "../../../../services/ride.service"
+import { logger } from "../../../../logger"
+
+const log = logger.child({ module: "discord-join" })
 
 export function registerJoinRideHandler(client: Client, rideService: RideService): void {
   client.on("interactionCreate", (interaction) => {
@@ -39,7 +42,9 @@ async function onJoinRide(interaction: Interaction, rideService: RideService): P
         err instanceof RideNotActiveError ||
         err instanceof RideNotFoundError
       )
-    )
+    ) {
+      log.error({ err, rideId, userId }, "Unexpected error in join handler")
       throw err
+    }
   }
 }

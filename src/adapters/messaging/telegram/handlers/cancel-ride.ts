@@ -4,6 +4,9 @@ import { RideNotActiveError, RideNotFoundError } from "../../../../domain/errors
 import type { RideService } from "../../../../services/ride.service"
 import type { BotContext } from "../bot"
 import { formatDate } from "../format"
+import { logger } from "../../../../logger"
+
+const log = logger.child({ module: "telegram-cancel-ride" })
 
 export function registerCancelRideHandler(
   bot: Bot<BotContext>,
@@ -56,7 +59,10 @@ export function registerCancelRideHandler(
             ? "This ride no longer exists."
             : "Something went wrong. Please try again."
       await ctx.editMessageText(`❌ ${text}`)
-      if (!(err instanceof RideNotActiveError || err instanceof RideNotFoundError)) throw err
+      if (!(err instanceof RideNotActiveError || err instanceof RideNotFoundError)) {
+        log.error({ err, rideId }, "Unexpected error in cancel-ride handler")
+        throw err
+      }
     }
     await ctx.answerCallbackQuery()
   })

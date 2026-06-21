@@ -14,6 +14,9 @@ import type { Ride } from "../../../../domain/ride"
 import { RideNotActiveError, RideNotFoundError } from "../../../../domain/errors"
 import type { RideService } from "../../../../services/ride.service"
 import { formatDate } from "../format"
+import { logger } from "../../../../logger"
+
+const log = logger.child({ module: "discord-edit-ride" })
 import {
   formatDateTimeValue,
   formatStatsValue,
@@ -166,6 +169,9 @@ async function handleEditModalSubmit(
           ? "This ride no longer exists."
           : "Something went wrong. Please try again."
     await interaction.editReply({ content: `❌ ${message}` })
-    if (!(err instanceof RideNotActiveError || err instanceof RideNotFoundError)) throw err
+    if (!(err instanceof RideNotActiveError || err instanceof RideNotFoundError)) {
+      log.error({ err, rideId }, "Unexpected error in edit-ride handler")
+      throw err
+    }
   }
 }

@@ -1,6 +1,9 @@
 import { MessageFlags, type Client, type Interaction } from "discord.js"
 import { RideNotActiveError, RideNotFoundError } from "../../../../domain/errors"
 import type { RideService } from "../../../../services/ride.service"
+import { logger } from "../../../../logger"
+
+const log = logger.child({ module: "discord-leave-cancel" })
 
 export function registerLeaveCancelHandler(client: Client, rideService: RideService): void {
   client.on("interactionCreate", (interaction) => {
@@ -20,7 +23,10 @@ async function onLeaveCancel(interaction: Interaction, rideService: RideService)
       await interaction.editReply({ content: "You've left the ride." })
     } catch (err) {
       await interaction.editReply({ content: `❌ ${rideErrorMessage(err)}` })
-      if (!isRideDomainError(err)) throw err
+      if (!isRideDomainError(err)) {
+        log.error({ err, rideId }, "Unexpected error in leave/cancel handler")
+        throw err
+      }
     }
     return
   }
@@ -34,7 +40,10 @@ async function onLeaveCancel(interaction: Interaction, rideService: RideService)
       await interaction.editReply({ content: "Ride cancelled." })
     } catch (err) {
       await interaction.editReply({ content: `❌ ${rideErrorMessage(err)}` })
-      if (!isRideDomainError(err)) throw err
+      if (!isRideDomainError(err)) {
+        log.error({ err, rideId }, "Unexpected error in leave/cancel handler")
+        throw err
+      }
     }
   }
 }
