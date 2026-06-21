@@ -16,17 +16,11 @@ import { SchedulerService } from "../../../services/scheduler.service"
 import { logger } from "../../../logger"
 
 export async function startDiscord(rideRepo: RideRepository): Promise<void> {
-  const token = process.env.DISCORD_TOKEN
-  const clientId = process.env.DISCORD_CLIENT_ID
-  const guildId = process.env.DISCORD_GUILD_ID
-  const announcementChannelId = process.env.DISCORD_ANNOUNCEMENT_CHANNEL_ID
-  const forumChannelId = process.env.DISCORD_FORUM_CHANNEL_ID
-
-  if (token == null) throw new Error("DISCORD_TOKEN is required")
-  if (clientId == null) throw new Error("DISCORD_CLIENT_ID is required")
-  if (guildId == null) throw new Error("DISCORD_GUILD_ID is required")
-  if (announcementChannelId == null) throw new Error("DISCORD_ANNOUNCEMENT_CHANNEL_ID is required")
-  if (forumChannelId == null) throw new Error("DISCORD_FORUM_CHANNEL_ID is required")
+  const token = process.env.DISCORD_TOKEN as string
+  const clientId = process.env.DISCORD_CLIENT_ID as string
+  const guildId = process.env.DISCORD_GUILD_ID as string
+  const announcementChannelId = process.env.DISCORD_ANNOUNCEMENT_CHANNEL_ID as string
+  const forumChannelId = process.env.DISCORD_FORUM_CHANNEL_ID as string
 
   const client = createClient()
   const messaging = new DiscordMessaging(client, guildId, announcementChannelId, forumChannelId)

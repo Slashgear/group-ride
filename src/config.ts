@@ -1,3 +1,6 @@
+const ADAPTERS = ["discord", "telegram"] as const
+type Adapter = (typeof ADAPTERS)[number]
+
 const DISCORD_REQUIRED = [
   "DISCORD_TOKEN",
   "DISCORD_CLIENT_ID",
@@ -10,6 +13,11 @@ const TELEGRAM_REQUIRED = ["TELEGRAM_TOKEN", "TELEGRAM_GROUP_CHAT_ID"] as const
 
 export function validateConfig(): { warnings: string[] } {
   const adapter = (process.env.ADAPTER ?? "discord").toLowerCase()
+
+  if (!ADAPTERS.includes(adapter as Adapter)) {
+    throw new Error(`Unknown ADAPTER "${adapter}". Valid values: ${ADAPTERS.join(", ")}`)
+  }
+
   const isTelegram = adapter === "telegram"
   const required = isTelegram ? TELEGRAM_REQUIRED : DISCORD_REQUIRED
   const unused = isTelegram ? DISCORD_REQUIRED : TELEGRAM_REQUIRED
@@ -17,6 +25,12 @@ export function validateConfig(): { warnings: string[] } {
   const missing = required.filter((key) => !process.env[key])
   if (missing.length > 0) {
     throw new Error(`Missing required environment variables: ${missing.join(", ")}`)
+  }
+
+  if (isTelegram && isNaN(Number(process.env.TELEGRAM_GROUP_CHAT_ID))) {
+    throw new Error(
+      `TELEGRAM_GROUP_CHAT_ID must be a number (got "${process.env.TELEGRAM_GROUP_CHAT_ID}")`,
+    )
   }
 
   const warnings: string[] = []

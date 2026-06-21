@@ -77,6 +77,35 @@ describe("validateConfig — telegram", () => {
   })
 })
 
+describe("validateConfig — unknown adapter", () => {
+  test("throws on unknown ADAPTER value", () => {
+    process.env.ADAPTER = "telegrem"
+    expect(() => validateConfig()).toThrow(/Unknown ADAPTER "telegrem"/)
+  })
+
+  test("error message lists valid values", () => {
+    process.env.ADAPTER = "slack"
+    expect(() => validateConfig()).toThrow(/discord.*telegram/)
+  })
+})
+
+describe("validateConfig — TELEGRAM_GROUP_CHAT_ID format", () => {
+  beforeEach(() => {
+    process.env.ADAPTER = "telegram"
+    process.env.TELEGRAM_TOKEN = "token"
+  })
+
+  test("throws when TELEGRAM_GROUP_CHAT_ID is not a number", () => {
+    process.env.TELEGRAM_GROUP_CHAT_ID = "not-a-number"
+    expect(() => validateConfig()).toThrow("TELEGRAM_GROUP_CHAT_ID must be a number")
+  })
+
+  test("passes with a valid negative chat ID", () => {
+    process.env.TELEGRAM_GROUP_CHAT_ID = "-1001234567890"
+    expect(() => validateConfig()).not.toThrow()
+  })
+})
+
 describe("validateConfig — unused adapter vars warning", () => {
   test("warns when Telegram vars are set alongside Discord adapter", () => {
     Object.assign(process.env, DISCORD_VARS, TELEGRAM_VARS)

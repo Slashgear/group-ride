@@ -14,11 +14,8 @@ import { registerMemberJoinedHandler } from "./handlers/member-joined"
 import { registerMemberLeftHandler } from "./handlers/member-left"
 
 export async function startTelegram(rideRepo: RideRepository): Promise<void> {
-  const token = process.env.TELEGRAM_TOKEN
-  const groupChatId = process.env.TELEGRAM_GROUP_CHAT_ID
-
-  if (token == null) throw new Error("TELEGRAM_TOKEN is required")
-  if (groupChatId == null) throw new Error("TELEGRAM_GROUP_CHAT_ID is required")
+  const token = process.env.TELEGRAM_TOKEN as string
+  const groupChatId = process.env.TELEGRAM_GROUP_CHAT_ID as string
 
   const bot = createBot(token)
   const messaging = new TelegramMessaging(bot.api, Number(groupChatId))
