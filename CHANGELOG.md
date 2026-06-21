@@ -1,5 +1,24 @@
 # Changelog
 
+## v1.7.0 — 2026-06-21
+
+### Bug Fixes
+
+- Harden config validation — unknown adapter, numeric chat ID, remove dead guards
+- Resolve all lint warnings in config.ts and config.test.ts
+
+### Documentation
+
+- Add FAQ, migration guide, enrich Telegram troubleshooting; add JSON-LD schema
+- **landing**: Add /pastrides to commands ref; rewrite hero sub + add CTA button
+
+### Features
+
+- Validate config at startup and warn on unused adapter vars
+- Add findPast() to RideRepository — returns past rides sorted by date DESC
+- Add /pastrides command on Discord and Telegram
+- Add optional participant cap and waitlist
+
 ## v1.6.0 — 2026-06-21
 
 ### Documentation
