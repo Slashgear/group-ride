@@ -10,4 +10,5 @@ export interface RideRepository {
   hasMember(rideId: RideId, userId: UserId): Promise<boolean>
   removeMember(rideId: RideId, userId: UserId): Promise<void>
   getMembers(rideId: RideId): Promise<UserId[]>
+  findPast(limit?: number): Promise<Ride[]>
 }

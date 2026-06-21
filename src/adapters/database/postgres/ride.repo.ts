@@ -144,6 +144,13 @@ export class PostgresRideRepository implements RideRepository {
     return rows.map((r) => r.user_id)
   }
 
+  async findPast(limit = 10): Promise<Ride[]> {
+    const rows = await this.sql<
+      RideRow[]
+    >`SELECT * FROM rides WHERE date < NOW() ORDER BY date DESC LIMIT ${limit}`
+    return rows.map(rowToRide)
+  }
+
   async end(): Promise<void> {
     await this.sql.end()
   }

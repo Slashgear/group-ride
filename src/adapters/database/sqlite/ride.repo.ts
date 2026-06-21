@@ -168,4 +168,11 @@ export class SqliteRideRepository implements RideRepository {
     }[]
     return Promise.resolve(rows.map((r) => String(r.user_id)))
   }
+
+  findPast(limit = 10): Promise<Ride[]> {
+    const rows = this.db
+      .query("SELECT * FROM rides WHERE date < datetime('now') ORDER BY date DESC LIMIT ?")
+      .all(limit) as RideRow[]
+    return Promise.resolve(rows.map(rowToRide))
+  }
 }
