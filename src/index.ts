@@ -2,7 +2,11 @@ import { SqliteRideRepository } from "./adapters/database/sqlite/ride.repo"
 import { db } from "./adapters/database/sqlite/db"
 import { PostgresRideRepository } from "./adapters/database/postgres/ride.repo"
 import { logger } from "./logger"
+import { validateConfig } from "./config"
 import pkg from "../package.json"
+
+const { warnings } = validateConfig()
+for (const warning of warnings) logger.warn(warning)
 
 const adapter = (process.env.ADAPTER ?? "discord").toLowerCase()
 const databaseUrl = process.env.DATABASE_URL

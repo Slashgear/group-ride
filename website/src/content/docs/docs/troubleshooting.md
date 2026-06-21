@@ -84,7 +84,26 @@ Set `TZ` to your group's local timezone, e.g. `TZ=Europe/Paris`. The day-before 
 
 ### The bot starts but immediately exits
 
-Check the logs — a missing required environment variable (`DISCORD_TOKEN`, `TELEGRAM_TOKEN`, etc.) will cause a startup error. Run `docker compose logs bot` to see the error.
+Check the logs — a missing required environment variable will cause a startup error on boot. The error message lists **all** missing variables at once:
+
+```
+Missing required environment variables: DISCORD_TOKEN, DISCORD_CLIENT_ID
+```
+
+Run `docker compose logs bot` to see it, then add the missing variables to your `.env` file or `docker-compose.yml`.
+
+### Warning: variables from another adapter are set
+
+If the bot logs a line like:
+
+```
+The following variables are set but will be ignored (active adapter: discord): TELEGRAM_TOKEN, TELEGRAM_GROUP_CHAT_ID
+```
+
+it means variables for the **inactive** adapter are present in your environment. The bot still runs, but the unused variables have no effect. Either:
+
+- Remove the unused variables, or
+- Switch adapters by setting `ADAPTER=telegram` (or `ADAPTER=discord`).
 
 ### I updated the image but the bot still runs the old version
 
