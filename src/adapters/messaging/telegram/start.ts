@@ -6,6 +6,7 @@ import { createBot } from "./bot"
 import { TelegramMessaging } from "./messaging"
 import { registerHelpCommand } from "./commands/help"
 import { registerNewRideCommand } from "./commands/new-ride"
+import { registerPastRidesCommand } from "./commands/past-rides"
 import { registerRidesCommand } from "./commands/rides"
 import { registerEditCommand } from "./commands/edit"
 import { registerJoinRideHandler } from "./handlers/join-ride"
@@ -25,6 +26,7 @@ export async function startTelegram(rideRepo: RideRepository): Promise<void> {
   registerHelpCommand(bot)
   registerNewRideCommand(bot, rideService, token)
   registerRidesCommand(bot, rideRepo)
+  registerPastRidesCommand(bot, rideRepo)
   registerEditCommand(bot, rideRepo, rideService)
   registerJoinRideHandler(bot, rideService)
   registerCancelRideHandler(bot, rideRepo, rideService)
@@ -39,6 +41,7 @@ export async function startTelegram(rideRepo: RideRepository): Promise<void> {
     { command: "help", description: "How to use the Group Ride bot" },
     { command: "newride", description: "Propose a new group ride" },
     { command: "rides", description: "List upcoming rides" },
+    { command: "pastrides", description: "List past rides" },
     { command: "edit", description: "Edit a ride you proposed" },
   ])
 

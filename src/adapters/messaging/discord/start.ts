@@ -2,6 +2,7 @@ import { createClient } from "./client"
 import { deployCommands } from "./deploy-commands"
 import { registerHelpCommand } from "./commands/help"
 import { registerNewRideCommand } from "./commands/new-ride"
+import { registerPastRidesCommand } from "./commands/past-rides"
 import { registerRidesCommand } from "./commands/rides"
 import { registerJoinRideHandler } from "./handlers/join-ride"
 import { registerMemberJoinedHandler } from "./handlers/member-joined"
@@ -32,6 +33,7 @@ export async function startDiscord(rideRepo: RideRepository): Promise<void> {
   registerHelpCommand(client)
   registerNewRideCommand(client, rideService)
   registerRidesCommand(client, rideRepo)
+  registerPastRidesCommand(client, rideRepo)
   registerJoinRideHandler(client, rideService)
   registerMemberJoinedHandler(client)
   registerMemberLeftHandler(client, rideService)
