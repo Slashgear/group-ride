@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.5.2 — 2026-06-21
+
+### Tests
+
+- Add PostgreSQL integration tests with CI job (postgres service)
+
 ## v1.5.1 — 2026-06-20
 
 ### test
