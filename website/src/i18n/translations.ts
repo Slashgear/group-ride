@@ -12,6 +12,7 @@ export interface Translation {
   heroEm: string
   heroRest: string
   heroSub: string
+  heroCta: string
   scrollHint: string
 
   audienceTitle: string
@@ -624,7 +625,8 @@ export const t: Record<Lang, Translation> = {
     heroEm: "bazar",
     heroRest: "dans votre groupe vélo",
     heroSub:
-      "group-ride organise vos sorties sur Discord. Plus de messages perdus, plus de « c'est à quelle heure déjà ? ».",
+      "Une commande remplace 40 messages. group-ride annonce la sortie, gère la liste des participants et envoie les rappels automatiquement — sur Discord et Telegram. Gratuit et auto-hébergé.",
+    heroCta: "Démarrer en 5 minutes",
     scrollHint: "Faites défiler",
 
     audienceTitle: "Pour qui ?",
@@ -799,7 +801,8 @@ export const t: Record<Lang, Translation> = {
     heroEm: "chaos",
     heroRest: "in your cycling group",
     heroSub:
-      'group-ride organises your rides on Discord. No more lost messages, no more "wait, what time was it again?".',
+      "One command replaces 40 messages. group-ride announces the ride, manages the participant list, and sends reminders automatically — on Discord and Telegram. Free and self-hosted.",
+    heroCta: "Get started in 5 minutes",
     scrollHint: "Scroll down",
 
     audienceTitle: "Who is it for?",

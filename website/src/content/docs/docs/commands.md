@@ -7,11 +7,12 @@ description: All bot commands and button interactions for Discord and Telegram
 
 Discord commands are slash commands — type `/` in any channel to see them.
 
-| Command    | Description                                                                                                                               |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `/newride` | Propose a new group ride. Opens a modal form with fields for date, meeting point, time, stats, and an optional Komoot/Strava/Garmin link. |
-| `/rides`   | List the next 5 upcoming rides, each with **Join** and **Participants** buttons. Reply is visible only to you.                            |
-| `/help`    | Show a summary of how the bot works. Reply is visible only to you.                                                                        |
+| Command      | Description                                                                                                                               |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `/newride`   | Propose a new group ride. Opens a modal form with fields for date, meeting point, time, stats, and an optional Komoot/Strava/Garmin link. |
+| `/rides`     | List the next 5 upcoming rides, each with **Join** and **Participants** buttons. Reply is visible only to you.                            |
+| `/pastrides` | List the 5 most recent past rides with status (completed / cancelled). Reply is visible only to you.                                      |
+| `/help`      | Show a summary of how the bot works. Reply is visible only to you.                                                                        |
 
 ### Button interactions
 
@@ -29,12 +30,13 @@ Discord commands are slash commands — type `/` in any channel to see them.
 
 Telegram commands are sent as messages prefixed with `/`. They also appear in the bot command menu (tap the `/` icon in the message bar).
 
-| Command    | Description                                                                                                               |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `/newride` | Propose a new group ride. The bot guides you step by step: date, meeting point, time, stats, and an optional import link. |
-| `/rides`   | List the next 5 upcoming rides, each with a **Join** button.                                                              |
-| `/edit`    | Edit a ride you proposed. Shows a list of your active rides to pick from.                                                 |
-| `/help`    | Show a summary of how the bot works.                                                                                      |
+| Command      | Description                                                                                                               |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| `/newride`   | Propose a new group ride. The bot guides you step by step: date, meeting point, time, stats, and an optional import link. |
+| `/rides`     | List the next 5 upcoming rides, each with a **Join** button.                                                              |
+| `/pastrides` | List the 5 most recent past rides with status (completed / cancelled).                                                    |
+| `/edit`      | Edit a ride you proposed. Shows a list of your active rides to pick from.                                                 |
+| `/help`      | Show a summary of how the bot works.                                                                                      |
 
 ### Button interactions
 
