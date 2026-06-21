@@ -5,6 +5,7 @@ import type { RideService } from "../../../../services/ride.service"
 import type { BotContext } from "../bot"
 import { formatDate } from "../format"
 import { logger } from "../../../../logger"
+import { getMessages } from "../../../../i18n"
 
 const log = logger.child({ module: "telegram-cancel-ride" })
 
@@ -48,16 +49,17 @@ export function registerCancelRideHandler(
 
   bot.callbackQuery(/^cancel-confirm:(.+)$/u, async (ctx) => {
     const rideId = ctx.match[1] ?? ""
+    const m = getMessages()
     try {
       await rideService.cancel(rideId)
-      await ctx.editMessageText("✅ Ride has been cancelled and the group notified.")
+      await ctx.editMessageText(m.rideCancelledTelegram)
     } catch (err) {
       const text =
         err instanceof RideNotActiveError
-          ? "This ride has already been cancelled."
+          ? m.rideAlreadyCancelled
           : err instanceof RideNotFoundError
-            ? "This ride no longer exists."
-            : "Something went wrong. Please try again."
+            ? m.rideNotFound
+            : m.unexpectedError
       await ctx.editMessageText(`❌ ${text}`)
       if (!(err instanceof RideNotActiveError || err instanceof RideNotFoundError)) {
         log.error({ err, rideId }, "Unexpected error in cancel-ride handler")

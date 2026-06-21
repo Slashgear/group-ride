@@ -3,6 +3,7 @@ import type { RideRepository } from "../domain/ports/ride.repository"
 import type { CreateRideInput, Ride, RideId, UserId } from "../domain/ride"
 import { AlreadyMemberError, RideNotActiveError, RideNotFoundError } from "../domain/errors"
 import { logger } from "../logger"
+import { getMessages } from "../i18n"
 
 const log = logger.child({ module: "ride-service" })
 
@@ -72,7 +73,8 @@ export class RideService {
     if (ride.status !== "active") throw new RideNotActiveError()
     await this.rides.removeMember(rideId, userId)
     await this.messaging.removeMemberFromThread(ride.threadId, userId)
-    await this.messaging.notifyThread(ride.threadId, "A member left the ride.")
+    const m = getMessages()
+    await this.messaging.notifyThread(ride.threadId, m.memberLeft)
     const members = await this.rides.getMembers(rideId)
     await this.messaging.updatePinnedSummary(ride.threadId, ride, members)
     log.info({ rideId, userId }, "Member left ride")
@@ -86,8 +88,9 @@ export class RideService {
     await this.rides.update(ride)
     const members = await this.rides.getMembers(rideId)
     await this.messaging.updatePinnedSummary(ride.threadId, ride, members)
+    const cancelMsg = getMessages()
     await this.messaging.notifyMainChannel(
-      `The ride on ${ride.date.toDateString()} (${ride.meetingPoint}) has been cancelled.`,
+      cancelMsg.rideCancelled(ride.date.toDateString(), ride.meetingPoint),
     )
     await this.messaging.closeThread(ride.threadId)
     log.info({ rideId }, "Ride cancelled")
@@ -104,7 +107,8 @@ export class RideService {
     if (ride.threadId != null) {
       const members = await this.rides.getMembers(rideId)
       await this.messaging.updatePinnedSummary(ride.threadId, ride, members)
-      await this.messaging.notifyThread(ride.threadId, "Ride details have been updated.")
+      const updateMsg = getMessages()
+      await this.messaging.notifyThread(ride.threadId, updateMsg.rideUpdated)
     }
     log.info({ rideId, changes: Object.keys(changes) }, "Ride updated")
   }

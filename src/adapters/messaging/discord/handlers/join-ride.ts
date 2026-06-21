@@ -6,6 +6,7 @@ import {
 } from "../../../../domain/errors"
 import type { RideService } from "../../../../services/ride.service"
 import { logger } from "../../../../logger"
+import { getMessages } from "../../../../i18n"
 
 const log = logger.child({ module: "discord-join" })
 
@@ -23,18 +24,19 @@ async function onJoinRide(interaction: Interaction, rideService: RideService): P
   const rideId = match[1]
   const userId = interaction.user.id
   await interaction.deferReply({ flags: MessageFlags.Ephemeral })
+  const m = getMessages()
   try {
     await rideService.join(rideId, userId)
-    await interaction.editReply({ content: "You're in! Check the ride thread. 🚴" })
+    await interaction.editReply({ content: m.joinSuccess })
   } catch (err) {
     const message =
       err instanceof AlreadyMemberError
-        ? "You're already registered for this ride."
+        ? m.alreadyMember
         : err instanceof RideNotActiveError
-          ? "This ride has been cancelled."
+          ? m.rideNotActive
           : err instanceof RideNotFoundError
-            ? "This ride no longer exists."
-            : "Something went wrong. Please try again."
+            ? m.rideNotFound
+            : m.unexpectedError
     await interaction.editReply({ content: `❌ ${message}` })
     if (
       !(
