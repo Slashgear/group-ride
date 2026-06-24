@@ -5,12 +5,15 @@ description: Release history for group-ride
 
 # Changelog
 
-## v1.7.1 — 2026-06-25
+## v1.7.1 — 2026-06-24
 
 ### Bug Fixes
 
-- Shorten Discord modal label to stay within the 45-character API limit
-- Add tests enforcing Discord label/title/placeholder limits on all modals
+- Shorten modal label to stay within Discord's 45-char limit
+
+### Documentation
+
+- Single-source changelog via symlink from docs to root CHANGELOG.md
 
 ## v1.7.0 — 2026-06-21
 
