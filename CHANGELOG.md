@@ -5,6 +5,12 @@ description: Release history for group-ride
 
 # Changelog
 
+## v1.7.2 — 2026-06-24
+
+### Bug Fixes
+
+- Register missing SQLite migrations 007 and 008 in db.ts
+
 ## v1.7.1 — 2026-06-24
 
 ### Bug Fixes
