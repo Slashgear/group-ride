@@ -67,7 +67,7 @@ async function handleEditButton(
   await interaction.showModal(buildEditModal(rideId, ride))
 }
 
-function buildEditModal(rideId: string, ride: Ride): ModalBuilder {
+export function buildEditModal(rideId: string, ride: Ride): ModalBuilder {
   const field = (labelText: string, input: TextInputBuilder) =>
     new LabelBuilder().setLabel(labelText).setTextInputComponent(input)
   return new ModalBuilder()

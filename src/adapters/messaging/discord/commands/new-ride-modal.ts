@@ -11,7 +11,7 @@ export function buildNewRideModal(): ModalBuilder {
     .setTitle("Propose a ride")
     .addLabelComponents(
       field(
-        "Import URL (Komoot, Strava, Garmin, or GPX file URL)",
+        "Import URL (Komoot, Strava, Garmin, GPX)",
         new TextInputBuilder()
           .setCustomId("importUrl")
           .setStyle(TextInputStyle.Short)
