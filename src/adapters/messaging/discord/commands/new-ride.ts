@@ -201,11 +201,12 @@ async function resolveImport(
   try {
     const imported = await importFromUrl(rawUrl)
     const hostname = new URL(rawUrl).hostname
-    const importWarning = hostname.includes("garmin.com")
-      ? "\n\n⚠️ Garmin courses are not publicly accessible — only the link was saved. Fill in distance and elevation manually."
-      : hostname.includes("strava.com")
-        ? "\n\n⚠️ Strava activities require authentication — only the link was saved. Fill in distance and elevation manually."
-        : ""
+    const importWarning =
+      hostname === "garmin.com" || hostname.endsWith(".garmin.com")
+        ? "\n\n⚠️ Garmin courses are not publicly accessible — only the link was saved. Fill in distance and elevation manually."
+        : hostname === "strava.com" || hostname.endsWith(".strava.com")
+          ? "\n\n⚠️ Strava activities require authentication — only the link was saved. Fill in distance and elevation manually."
+          : ""
     return {
       importedFields: {
         ...base,

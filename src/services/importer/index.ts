@@ -15,9 +15,12 @@ export async function importFromUrl(url: string): Promise<Partial<CreateRideInpu
 
   let result: Partial<CreateRideInput>
 
-  if (hostname.includes("komoot.com")) result = await importFromKomoot(url)
-  else if (hostname.includes("strava.com")) result = await importFromStrava(url)
-  else if (hostname.includes("garmin.com")) result = await importFromGarmin(url)
+  if (hostname === "komoot.com" || hostname.endsWith(".komoot.com"))
+    result = await importFromKomoot(url)
+  else if (hostname === "strava.com" || hostname.endsWith(".strava.com"))
+    result = await importFromStrava(url)
+  else if (hostname === "garmin.com" || hostname.endsWith(".garmin.com"))
+    result = await importFromGarmin(url)
   else throw new UnsupportedPlatformError(`Unsupported platform: ${hostname}`)
 
   log.info({ url, fields: Object.keys(result) }, "Import succeeded")
