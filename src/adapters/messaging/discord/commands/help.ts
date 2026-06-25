@@ -1,4 +1,7 @@
 import { type Client, type Interaction, MessageFlags } from "discord.js"
+import { logger } from "../../../../logger"
+
+const log = logger.child({ module: "discord-help" })
 
 const HELP_MESSAGE = `## 🚴 Group Ride — How it works
 
@@ -19,7 +22,9 @@ Inside the thread, use the **Leave** button to drop out, or **Cancel ride** to c
 
 export function registerHelpCommand(client: Client): void {
   client.on("interactionCreate", (interaction) => {
-    void onHelp(interaction)
+    void onHelp(interaction).catch((err) => {
+      log.error({ err }, "Unhandled error in help command")
+    })
   })
 }
 

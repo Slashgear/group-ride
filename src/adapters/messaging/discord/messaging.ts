@@ -11,6 +11,9 @@ import type { MessagingPort } from "../../../domain/ports/messaging.port"
 import type { Ride, ThreadId, UserId } from "../../../domain/ride"
 import { generateIcal } from "../../../services/ical"
 import { formatAnnouncement, formatSummary, formatThreadTitle } from "./format"
+import { logger } from "../../../logger"
+
+const log = logger.child({ module: "discord-messaging" })
 
 export class DiscordMessaging implements MessagingPort {
   constructor(
@@ -87,7 +90,16 @@ export class DiscordMessaging implements MessagingPort {
     if (ride.pinnedMessageId == null) return
     const thread = await this.client.channels.fetch(threadId)
     if (thread?.isThread() !== true) throw new Error(`Channel ${threadId} is not a thread`)
-    const msg = await thread.messages.fetch(ride.pinnedMessageId)
+    let msg
+    try {
+      msg = await thread.messages.fetch(ride.pinnedMessageId)
+    } catch (err) {
+      log.warn(
+        { err, threadId, pinnedMessageId: ride.pinnedMessageId },
+        "Pinned message not found, skipping update",
+      )
+      return
+    }
     const components = ride.status === "active" ? [buildRideActionsRow(ride.id)] : []
     await msg.edit({ content: formatSummary(ride, participants, waitlist), components })
   }

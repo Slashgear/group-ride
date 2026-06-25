@@ -10,12 +10,16 @@ import {
 import type { RideRepository } from "../../../../domain/ports/ride.repository"
 import type { Ride } from "../../../../domain/ride"
 import { formatDate } from "../format"
+import { logger } from "../../../../logger"
 
+const log = logger.child({ module: "discord-rides" })
 const MAX_RIDES_SHOWN = 5
 
 export function registerRidesCommand(client: Client, rideRepo: RideRepository): void {
   client.on("interactionCreate", (interaction) => {
-    void onRides(interaction, rideRepo)
+    void onRides(interaction, rideRepo).catch((err) => {
+      log.error({ err }, "Unhandled error in rides command")
+    })
   })
 }
 

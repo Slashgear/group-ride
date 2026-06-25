@@ -13,7 +13,9 @@ const log = logger.child({ module: "discord-setcap" })
 
 export function registerSetCapCommand(client: Client, rideService: RideService): void {
   client.on("interactionCreate", (interaction) => {
-    void onSetCap(interaction, rideService)
+    void onSetCap(interaction, rideService).catch((err) => {
+      log.error({ err }, "Unhandled error in setcap interaction")
+    })
   })
 }
 
@@ -57,7 +59,6 @@ async function handleSetCap(
       )
     ) {
       log.error({ err, rideId }, "Unexpected error in setcap handler")
-      throw err
     }
   }
 }

@@ -8,7 +8,9 @@ const log = logger.child({ module: "discord-leave-cancel" })
 
 export function registerLeaveCancelHandler(client: Client, rideService: RideService): void {
   client.on("interactionCreate", (interaction) => {
-    void onLeaveCancel(interaction, rideService)
+    void onLeaveCancel(interaction, rideService).catch((err) => {
+      log.error({ err }, "Unhandled error in leave/cancel interaction")
+    })
   })
 }
 
@@ -27,7 +29,6 @@ async function onLeaveCancel(interaction: Interaction, rideService: RideService)
       await interaction.editReply({ content: `❌ ${rideErrorMessage(err, m)}` })
       if (!isRideDomainError(err)) {
         log.error({ err, rideId }, "Unexpected error in leave/cancel handler")
-        throw err
       }
     }
     return
@@ -45,7 +46,6 @@ async function onLeaveCancel(interaction: Interaction, rideService: RideService)
       await interaction.editReply({ content: `❌ ${rideErrorMessage(err, m)}` })
       if (!isRideDomainError(err)) {
         log.error({ err, rideId }, "Unexpected error in leave/cancel handler")
-        throw err
       }
     }
   }
