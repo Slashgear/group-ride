@@ -25,12 +25,16 @@ export class SchedulerService {
     dayAfterMidnight.setDate(dayAfterMidnight.getDate() + 1)
 
     for (const ride of activeRides) {
-      if (now >= ride.date.getTime() + CLOSE_DELAY_MS) {
-        await this.closeRide(ride)
-        continue
+      try {
+        if (now >= ride.date.getTime() + CLOSE_DELAY_MS) {
+          await this.closeRide(ride)
+          continue
+        }
+        await this.maybeSendDayBeforeReminder(ride, tomorrowMidnight, dayAfterMidnight)
+        await this.maybeSendHourBeforeReminder(ride, now)
+      } catch (err) {
+        log.error({ err, rideId: ride.id }, "Scheduler error processing ride")
       }
-      await this.maybeSendDayBeforeReminder(ride, tomorrowMidnight, dayAfterMidnight)
-      await this.maybeSendHourBeforeReminder(ride, now)
     }
   }
 
@@ -88,7 +92,9 @@ export class SchedulerService {
 
   start(): void {
     setInterval(() => {
-      void this.tick()
+      void this.tick().catch((err) => {
+        log.error({ err }, "Unhandled error in scheduler tick")
+      })
     }, 60_000)
   }
 }
