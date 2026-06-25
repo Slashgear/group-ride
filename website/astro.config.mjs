@@ -1,5 +1,6 @@
 // @ts-check
 import starlight from "@astrojs/starlight"
+import { unified } from "@astrojs/markdown-remark"
 import { defineConfig } from "astro/config"
 import { remarkMermaid } from "./src/plugins/remark-mermaid.mjs"
 
@@ -10,9 +11,9 @@ export default defineConfig({
       preserveSymlinks: true,
     },
   },
-  markdown: {
+  markdown: unified({
     remarkPlugins: [remarkMermaid],
-  },
+  }),
   integrations: [
     starlight({
       title: "group-ride",
