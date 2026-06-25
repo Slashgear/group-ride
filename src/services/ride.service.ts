@@ -59,7 +59,10 @@ export class RideService {
     try {
       await this.messaging.announce(ride, mapImage)
     } catch (err) {
-      log.error({ err, rideId: ride.id }, "Failed to post announcement — ride was created but check bot channel permissions")
+      log.error(
+        { err, rideId: ride.id },
+        "Failed to post announcement — ride was created but check bot channel permissions",
+      )
     }
     log.info({ rideId: ride.id, proposerId: ride.proposerId, date: ride.date }, "Ride proposed")
     return ride
