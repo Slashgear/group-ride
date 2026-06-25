@@ -33,7 +33,9 @@ export function registerEditRideHandler(
   rideService: RideService,
 ): void {
   client.on("interactionCreate", (interaction) => {
-    void onEditRide(interaction, rideRepo, rideService)
+    void onEditRide(interaction, rideRepo, rideService).catch((err) => {
+      log.error({ err }, "Unhandled error in edit ride interaction")
+    })
   })
 }
 
@@ -173,7 +175,6 @@ async function handleEditModalSubmit(
     await interaction.editReply({ content: `❌ ${message}` })
     if (!(err instanceof RideNotActiveError || err instanceof RideNotFoundError)) {
       log.error({ err, rideId }, "Unexpected error in edit-ride handler")
-      throw err
     }
   }
 }

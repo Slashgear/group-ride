@@ -1,9 +1,14 @@
 import { type Client, MessageFlags, type Interaction } from "discord.js"
 import type { RideRepository } from "../../../../domain/ports/ride.repository"
+import { logger } from "../../../../logger"
+
+const log = logger.child({ module: "discord-participants" })
 
 export function registerParticipantsHandler(client: Client, rideRepo: RideRepository): void {
   client.on("interactionCreate", (interaction) => {
-    void onParticipants(interaction, rideRepo)
+    void onParticipants(interaction, rideRepo).catch((err) => {
+      log.error({ err }, "Unhandled error in participants handler")
+    })
   })
 }
 

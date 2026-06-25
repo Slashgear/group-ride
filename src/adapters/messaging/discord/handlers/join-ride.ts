@@ -12,7 +12,9 @@ const log = logger.child({ module: "discord-join" })
 
 export function registerJoinRideHandler(client: Client, rideService: RideService): void {
   client.on("interactionCreate", (interaction) => {
-    void onJoinRide(interaction, rideService)
+    void onJoinRide(interaction, rideService).catch((err) => {
+      log.error({ err }, "Unhandled error in join ride interaction")
+    })
   })
 }
 
@@ -47,7 +49,6 @@ async function onJoinRide(interaction: Interaction, rideService: RideService): P
       )
     ) {
       log.error({ err, rideId, userId }, "Unexpected error in join handler")
-      throw err
     }
   }
 }

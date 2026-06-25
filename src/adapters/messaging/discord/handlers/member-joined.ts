@@ -23,7 +23,9 @@ See you on the road! 🚵`
 
 export function registerMemberJoinedHandler(client: Client): void {
   client.on("guildMemberAdd", (member) => {
-    void onMemberJoined(member)
+    void onMemberJoined(member).catch((err) => {
+      log.error({ err, userId: member.id }, "Unhandled error in member joined handler")
+    })
   })
 }
 

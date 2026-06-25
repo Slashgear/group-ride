@@ -7,7 +7,9 @@ import {
 import type { RideRepository } from "../../../../domain/ports/ride.repository"
 import type { Ride } from "../../../../domain/ride"
 import { formatDate } from "../format"
+import { logger } from "../../../../logger"
 
+const log = logger.child({ module: "discord-past-rides" })
 const MAX_PAST_RIDES_SHOWN = 5
 
 const STATUS_LABEL: Record<string, string> = {
@@ -18,7 +20,9 @@ const STATUS_LABEL: Record<string, string> = {
 
 export function registerPastRidesCommand(client: Client, rideRepo: RideRepository): void {
   client.on("interactionCreate", (interaction) => {
-    void onPastRides(interaction, rideRepo)
+    void onPastRides(interaction, rideRepo).catch((err) => {
+      log.error({ err }, "Unhandled error in past-rides command")
+    })
   })
 }
 
