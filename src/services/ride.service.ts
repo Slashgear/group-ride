@@ -56,7 +56,11 @@ export class RideService {
     await this.rides.update(ride)
     // silent = true: proposer auto-joins but doesn't need a "You're in!" notification
     await this.messaging.addMemberToThread(threadId, ride.proposerId, true)
-    await this.messaging.announce(ride, mapImage)
+    try {
+      await this.messaging.announce(ride, mapImage)
+    } catch (err) {
+      log.error({ err, rideId: ride.id }, "Failed to post announcement — ride was created but check bot channel permissions")
+    }
     log.info({ rideId: ride.id, proposerId: ride.proposerId, date: ride.date }, "Ride proposed")
     return ride
   }

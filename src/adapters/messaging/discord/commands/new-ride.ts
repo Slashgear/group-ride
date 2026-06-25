@@ -30,7 +30,9 @@ export { buildNewRideModal }
 
 export function registerNewRideCommand(client: Client, rideService: RideService): void {
   client.on("interactionCreate", (interaction) => {
-    void onNewRideInteraction(interaction, rideService)
+    void onNewRideInteraction(interaction, rideService).catch((err) => {
+      log.error({ err }, "Unhandled error in new ride interaction")
+    })
   })
 }
 
