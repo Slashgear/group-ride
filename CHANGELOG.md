@@ -5,6 +5,12 @@ description: Release history for group-ride
 
 # Changelog
 
+## v1.7.5 — 2026-06-26
+
+### Bug Fixes
+
+- **ci**: Pin exact version tag on deploy instead of relying on latest
+
 ## v1.7.4 — 2026-06-26
 
 ### Bug Fixes
