@@ -5,6 +5,13 @@ description: Release history for group-ride
 
 # Changelog
 
+## v1.7.6 — 2026-06-26
+
+### Bug Fixes
+
+- **ci**: Use correct server path and strip v prefix from docker image tag
+- **sqlite**: Use CAST(AS TEXT) in queries to prevent Discord snowflake precision loss
+
 ## v1.7.5 — 2026-06-26
 
 ### Bug Fixes
