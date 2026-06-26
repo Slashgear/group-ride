@@ -5,6 +5,18 @@ description: Release history for group-ride
 
 # Changelog
 
+## v1.7.4 — 2026-06-26
+
+### Bug Fixes
+
+- Prevent bot crash when announcement channel post fails
+- Prevent bot crash from unhandled rejections in all Discord handlers
+- Use fetchStarterMessage() to reliably edit forum thread starter message
+- Isolate scheduler errors per ride and add catch on tick()
+- Use exact hostname matching to prevent URL substring bypass (CWE-020)
+- Add explicit permissions: read to CI workflow jobs (CWE-275)
+- **sqlite**: Store Discord IDs as TEXT to prevent snowflake precision loss
+
 ## v1.7.2 — 2026-06-24
 
 ### Bug Fixes
