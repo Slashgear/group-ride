@@ -120,7 +120,9 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: root
           key: ${{ secrets.DEPLOY_SSH_KEY }}
+          envs: GITHUB_REF_NAME
           script: |
             cd /opt/group-ride
+            sed -i "s|ghcr.io/slashgear/group-ride:.*|ghcr.io/slashgear/group-ride:${GITHUB_REF_NAME}|" docker-compose.yml
             docker compose pull
             docker compose up -d
