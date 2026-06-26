@@ -5,7 +5,7 @@ import type { Ride, RideId, UserId } from "../../../domain/ride"
 interface RideRow {
   id: string
   thread_id: string | null
-  proposer_id: number
+  proposer_id: string
   proposer_name: string
   name: string | null
   date: string
@@ -19,7 +19,7 @@ interface RideRow {
   external_url: string | null
   notes: string | null
   status: string
-  pinned_message_id: string | number | null
+  pinned_message_id: string | null
   reminder_day_sent: number
   reminder_hour_sent: number
   created_at: string
@@ -30,7 +30,7 @@ function rowToRide(row: RideRow): Ride {
   return {
     id: row.id,
     threadId: row.thread_id,
-    proposerId: String(row.proposer_id),
+    proposerId: row.proposer_id,
     proposerName: row.proposer_name,
     name: row.name,
     date: new Date(row.date),
@@ -44,7 +44,7 @@ function rowToRide(row: RideRow): Ride {
     externalUrl: row.external_url,
     notes: row.notes,
     status: row.status as Ride["status"],
-    pinnedMessageId: row.pinned_message_id == null ? null : String(row.pinned_message_id),
+    pinnedMessageId: row.pinned_message_id,
     reminderDaySent: row.reminder_day_sent !== 0,
     reminderHourSent: row.reminder_hour_sent !== 0,
     createdAt: new Date(row.created_at),
@@ -167,10 +167,8 @@ export class SqliteRideRepository implements RideRepository {
   getMembers(rideId: RideId): Promise<UserId[]> {
     const rows = this.db
       .query("SELECT user_id FROM ride_members WHERE ride_id = ? AND waitlisted = 0")
-      .all(rideId) as {
-      user_id: number
-    }[]
-    return Promise.resolve(rows.map((r) => String(r.user_id)))
+      .all(rideId) as { user_id: string }[]
+    return Promise.resolve(rows.map((r) => r.user_id))
   }
 
   countConfirmed(rideId: RideId): Promise<number> {
@@ -185,8 +183,8 @@ export class SqliteRideRepository implements RideRepository {
       .query(
         "SELECT user_id FROM ride_members WHERE ride_id = ? AND waitlisted = 1 ORDER BY joined_at ASC",
       )
-      .all(rideId) as { user_id: number }[]
-    return Promise.resolve(rows.map((r) => String(r.user_id)))
+      .all(rideId) as { user_id: string }[]
+    return Promise.resolve(rows.map((r) => r.user_id))
   }
 
   promoteFromWaitlist(rideId: RideId): Promise<UserId | null> {
@@ -194,13 +192,13 @@ export class SqliteRideRepository implements RideRepository {
       .query(
         "SELECT user_id FROM ride_members WHERE ride_id = ? AND waitlisted = 1 ORDER BY joined_at ASC LIMIT 1",
       )
-      .get(rideId) as { user_id: number } | null
+      .get(rideId) as { user_id: string } | null
     if (row == null) return Promise.resolve(null)
     this.db.run("UPDATE ride_members SET waitlisted = 0 WHERE ride_id = ? AND user_id = ?", [
       rideId,
       row.user_id,
     ])
-    return Promise.resolve(String(row.user_id))
+    return Promise.resolve(row.user_id)
   }
 
   findPast(limit = 10): Promise<Ride[]> {
