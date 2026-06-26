@@ -90,13 +90,17 @@ export class SqliteRideRepository implements RideRepository {
   }
 
   findById(id: RideId): Promise<Ride | null> {
-    const row = this.db.query("SELECT * FROM rides WHERE id = ?").get(id) as RideRow | null
+    const row = this.db
+      .query("SELECT *, CAST(proposer_id AS TEXT) as proposer_id FROM rides WHERE id = ?")
+      .get(id) as RideRow | null
     return Promise.resolve(row == null ? null : rowToRide(row))
   }
 
   findActive(): Promise<Ride[]> {
     const rows = this.db
-      .query("SELECT * FROM rides WHERE status = 'active' ORDER BY date ASC")
+      .query(
+        "SELECT *, CAST(proposer_id AS TEXT) as proposer_id FROM rides WHERE status = 'active' ORDER BY date ASC",
+      )
       .all() as RideRow[]
     return Promise.resolve(rows.map(rowToRide))
   }
@@ -104,7 +108,7 @@ export class SqliteRideRepository implements RideRepository {
   findActiveByMember(userId: UserId): Promise<Ride[]> {
     const rows = this.db
       .query(`
-      SELECT r.* FROM rides r
+      SELECT r.*, CAST(r.proposer_id AS TEXT) as proposer_id FROM rides r
       JOIN ride_members rm ON rm.ride_id = r.id
       WHERE r.status = 'active' AND rm.user_id = ?
     `)
@@ -166,7 +170,9 @@ export class SqliteRideRepository implements RideRepository {
 
   getMembers(rideId: RideId): Promise<UserId[]> {
     const rows = this.db
-      .query("SELECT user_id FROM ride_members WHERE ride_id = ? AND waitlisted = 0")
+      .query(
+        "SELECT CAST(user_id AS TEXT) as user_id FROM ride_members WHERE ride_id = ? AND waitlisted = 0",
+      )
       .all(rideId) as { user_id: string }[]
     return Promise.resolve(rows.map((r) => r.user_id))
   }
@@ -181,7 +187,7 @@ export class SqliteRideRepository implements RideRepository {
   getWaitlist(rideId: RideId): Promise<UserId[]> {
     const rows = this.db
       .query(
-        "SELECT user_id FROM ride_members WHERE ride_id = ? AND waitlisted = 1 ORDER BY joined_at ASC",
+        "SELECT CAST(user_id AS TEXT) as user_id FROM ride_members WHERE ride_id = ? AND waitlisted = 1 ORDER BY joined_at ASC",
       )
       .all(rideId) as { user_id: string }[]
     return Promise.resolve(rows.map((r) => r.user_id))
@@ -190,7 +196,7 @@ export class SqliteRideRepository implements RideRepository {
   promoteFromWaitlist(rideId: RideId): Promise<UserId | null> {
     const row = this.db
       .query(
-        "SELECT user_id FROM ride_members WHERE ride_id = ? AND waitlisted = 1 ORDER BY joined_at ASC LIMIT 1",
+        "SELECT CAST(user_id AS TEXT) as user_id FROM ride_members WHERE ride_id = ? AND waitlisted = 1 ORDER BY joined_at ASC LIMIT 1",
       )
       .get(rideId) as { user_id: string } | null
     if (row == null) return Promise.resolve(null)
@@ -203,7 +209,9 @@ export class SqliteRideRepository implements RideRepository {
 
   findPast(limit = 10): Promise<Ride[]> {
     const rows = this.db
-      .query("SELECT * FROM rides WHERE date < datetime('now') ORDER BY date DESC LIMIT ?")
+      .query(
+        "SELECT *, CAST(proposer_id AS TEXT) as proposer_id FROM rides WHERE date < datetime('now') ORDER BY date DESC LIMIT ?",
+      )
       .all(limit) as RideRow[]
     return Promise.resolve(rows.map(rowToRide))
   }
