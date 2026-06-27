@@ -15,6 +15,7 @@ import { DiscordMessaging } from "./messaging"
 import type { RideRepository } from "../../../domain/ports/ride.repository"
 import { RideService } from "../../../services/ride.service"
 import { SchedulerService } from "../../../services/scheduler.service"
+import { WeatherService } from "../../../services/weather.service"
 import { logger } from "../../../logger"
 
 export async function startDiscord(rideRepo: RideRepository): Promise<void> {
@@ -27,7 +28,8 @@ export async function startDiscord(rideRepo: RideRepository): Promise<void> {
   const client = createClient()
   const messaging = new DiscordMessaging(client, guildId, announcementChannelId, forumChannelId)
   const rideService = new RideService(rideRepo, messaging)
-  const scheduler = new SchedulerService(rideRepo, messaging)
+  const weatherService = process.env.WEATHER_ENABLED === "false" ? undefined : new WeatherService()
+  const scheduler = new SchedulerService(rideRepo, messaging, weatherService)
 
   await deployCommands(token, clientId, guildId)
 

@@ -719,12 +719,17 @@ export const t: Record<Lang, Translation> = {
       {
         emoji: "⏰",
         title: "Rappels automatiques",
-        text: "Le bot notifie les participants la veille et le matin de la sortie. Personne ne l'oublie.",
+        text: "Le bot notifie les participants la veille (avec la météo du jour) et une heure avant la sortie. Personne ne l'oublie.",
       },
       {
         emoji: "🔒",
         title: "Vos données restent chez vous",
         text: "Open-source et auto-hébergé. Pas de compte tiers, pas de SaaS, pas de dépendance.",
+      },
+      {
+        emoji: "📆",
+        title: "Export calendrier inclus",
+        text: "Chaque annonce contient un fichier iCal pour ajouter la sortie en un clic dans Google Calendar ou Apple Calendar.",
       },
       {
         emoji: "🗺️",
@@ -754,9 +759,9 @@ export const t: Record<Lang, Translation> = {
         text: "Nombre de sorties, participants les plus assidus, distance cumulée — un tableau de bord pour votre club.",
       },
       {
-        emoji: "📆",
-        title: "Intégration calendrier",
-        text: "Exportez les sorties confirmées en iCal pour les avoir directement dans Google Calendar ou Apple Calendar.",
+        emoji: "🔔",
+        title: "Notifications personnalisées",
+        text: "Choisissez quels rappels recevoir et à quelle fréquence, par sortie ou globalement.",
       },
     ],
 
@@ -895,12 +900,17 @@ export const t: Record<Lang, Translation> = {
       {
         emoji: "⏰",
         title: "Automatic reminders",
-        text: "The bot notifies participants the day before and the morning of the ride. Nobody forgets.",
+        text: "The bot notifies participants the day before (with the day's weather forecast) and one hour before the ride. Nobody forgets.",
       },
       {
         emoji: "🔒",
         title: "Your data stays with you",
         text: "Open-source and self-hosted. No third-party account, no SaaS, no dependency.",
+      },
+      {
+        emoji: "📆",
+        title: "Calendar export included",
+        text: "Every announcement includes an iCal file to add the ride in one click to Google Calendar or Apple Calendar.",
       },
       {
         emoji: "🗺️",
@@ -930,9 +940,9 @@ export const t: Record<Lang, Translation> = {
         text: "Number of rides, most active members, cumulative distance — a dashboard for your club.",
       },
       {
-        emoji: "📆",
-        title: "Calendar integration",
-        text: "Export confirmed rides as iCal to add them directly to Google Calendar or Apple Calendar.",
+        emoji: "🔔",
+        title: "Custom notifications",
+        text: "Choose which reminders to receive and how often, per ride or globally.",
       },
     ],
 

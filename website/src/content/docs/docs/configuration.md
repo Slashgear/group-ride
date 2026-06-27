@@ -62,19 +62,30 @@ Controls the language of all user-facing bot messages — notifications, reminde
 | `en`  | English (default) |
 | `fr`  | French            |
 
+## Weather forecasts
+
+```bash
+WEATHER_ENABLED=false   # Set to "false" to disable weather forecasts (default: enabled)
+```
+
+When enabled, the day-before reminder includes a weather forecast for the ride's meeting point. The forecast shows temperature range, sky conditions, wind speed, and precipitation chance for the ride day, using the [wttr.in](https://wttr.in) service — no API key required.
+
+If the weather service is unavailable, the reminder is still sent without a forecast.
+
 ## Summary
 
-| Variable                          | Required | Default                | Description                         |
-| --------------------------------- | -------- | ---------------------- | ----------------------------------- |
-| `ADAPTER`                         | No       | `discord`              | `discord` or `telegram`             |
-| `DISCORD_TOKEN`                   | Discord  | —                      | Bot token                           |
-| `DISCORD_CLIENT_ID`               | Discord  | —                      | Application client ID               |
-| `DISCORD_GUILD_ID`                | Discord  | —                      | Server (guild) ID                   |
-| `DISCORD_ANNOUNCEMENT_CHANNEL_ID` | Discord  | —                      | Text channel for announcements      |
-| `DISCORD_FORUM_CHANNEL_ID`        | Discord  | —                      | Forum channel for ride threads      |
-| `TELEGRAM_TOKEN`                  | Telegram | —                      | Bot token from BotFather            |
-| `TELEGRAM_GROUP_CHAT_ID`          | Telegram | —                      | Supergroup chat ID                  |
-| `DATABASE_PATH`                   | No       | `./data/group-ride.db` | SQLite file path                    |
-| `DATABASE_URL`                    | No       | —                      | PostgreSQL connection URL           |
-| `TZ`                              | No       | System default         | Timezone for reminders              |
-| `LANG`                            | No       | `en`                   | Bot message language (`en` or `fr`) |
+| Variable                          | Required | Default                | Description                                |
+| --------------------------------- | -------- | ---------------------- | ------------------------------------------ |
+| `ADAPTER`                         | No       | `discord`              | `discord` or `telegram`                    |
+| `DISCORD_TOKEN`                   | Discord  | —                      | Bot token                                  |
+| `DISCORD_CLIENT_ID`               | Discord  | —                      | Application client ID                      |
+| `DISCORD_GUILD_ID`                | Discord  | —                      | Server (guild) ID                          |
+| `DISCORD_ANNOUNCEMENT_CHANNEL_ID` | Discord  | —                      | Text channel for announcements             |
+| `DISCORD_FORUM_CHANNEL_ID`        | Discord  | —                      | Forum channel for ride threads             |
+| `TELEGRAM_TOKEN`                  | Telegram | —                      | Bot token from BotFather                   |
+| `TELEGRAM_GROUP_CHAT_ID`          | Telegram | —                      | Supergroup chat ID                         |
+| `DATABASE_PATH`                   | No       | `./data/group-ride.db` | SQLite file path                           |
+| `DATABASE_URL`                    | No       | —                      | PostgreSQL connection URL                  |
+| `TZ`                              | No       | System default         | Timezone for reminders                     |
+| `LANG`                            | No       | `en`                   | Bot message language (`en` or `fr`)        |
+| `WEATHER_ENABLED`                 | No       | `true`                 | Set to `false` to disable weather forecast |

@@ -1,6 +1,7 @@
 import type { RideRepository } from "../../../domain/ports/ride.repository"
 import { RideService } from "../../../services/ride.service"
 import { SchedulerService } from "../../../services/scheduler.service"
+import { WeatherService } from "../../../services/weather.service"
 import { logger } from "../../../logger"
 import { createBot } from "./bot"
 import { TelegramMessaging } from "./messaging"
@@ -21,7 +22,8 @@ export async function startTelegram(rideRepo: RideRepository): Promise<void> {
   const bot = createBot(token)
   const messaging = new TelegramMessaging(bot.api, Number(groupChatId))
   const rideService = new RideService(rideRepo, messaging)
-  const scheduler = new SchedulerService(rideRepo, messaging)
+  const weatherService = process.env.WEATHER_ENABLED === "false" ? undefined : new WeatherService()
+  const scheduler = new SchedulerService(rideRepo, messaging, weatherService)
 
   registerHelpCommand(bot)
   registerNewRideCommand(bot, rideService, token)

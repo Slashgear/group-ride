@@ -25,4 +25,12 @@ export const messages = {
     "A spot opened up! You've been moved from the waitlist and are now confirmed. 🚴",
   rideFull: "This ride is full and has a waitlist.",
   capConflict: "Cannot set cap: fewer spots than current confirmed participants.",
+  weatherForecast: (
+    tempMinC: number,
+    tempMaxC: number,
+    description: string,
+    windSpeedKmph: number,
+    precipitationChancePct: number,
+  ) =>
+    `🌤️ **Tomorrow's forecast:** ${description}, ${tempMinC}–${tempMaxC}°C, 💨 ${windSpeedKmph} km/h, 🌧️ ${precipitationChancePct}% chance of rain`,
 }

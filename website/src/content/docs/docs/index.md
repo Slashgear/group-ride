@@ -10,7 +10,7 @@ description: group-ride — a Discord & Telegram bot to organise group cycling r
 - **Structured announcements** — date, time, meeting point, distance, elevation and route link in one message
 - **Live participant list** — members join/leave with a button; the pinned summary updates in real time
 - **Dedicated thread per ride** — detail questions stay in their own thread, keeping the main channel clean
-- **Automatic reminders** — notifications the day before and one hour before the ride
+- **Automatic reminders** — notifications the day before (with weather forecast) and one hour before the ride
 - **Komoot, Strava & Garmin import** — paste a link and the bot fills in distance, elevation and title automatically
 - **Self-hosted** — your data stays on your infrastructure; no SaaS dependency
 

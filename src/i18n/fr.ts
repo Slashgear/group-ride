@@ -26,4 +26,12 @@ export const messages = {
   rideFull: "Cette sortie est complète et dispose d'une liste d'attente.",
   capConflict:
     "Impossible de définir le plafond : il y a moins de places que de participants confirmés.",
+  weatherForecast: (
+    tempMinC: number,
+    tempMaxC: number,
+    description: string,
+    windSpeedKmph: number,
+    precipitationChancePct: number,
+  ) =>
+    `🌤️ **Météo de demain :** ${description}, ${tempMinC}–${tempMaxC}°C, 💨 ${windSpeedKmph} km/h, 🌧️ ${precipitationChancePct}% de risque de pluie`,
 }

@@ -3,6 +3,7 @@ import type { RideRepository } from "../domain/ports/ride.repository"
 import type { Ride } from "../domain/ride"
 import { logger } from "../logger"
 import { getMessages } from "../i18n"
+import type { WeatherService } from "./weather.service"
 
 const log = logger.child({ module: "scheduler" })
 const CLOSE_DELAY_MS = 24 * 60 * 60 * 1000
@@ -11,6 +12,7 @@ export class SchedulerService {
   constructor(
     private readonly rides: RideRepository,
     private readonly messaging: MessagingPort,
+    private readonly weather?: WeatherService,
   ) {}
 
   async tick(): Promise<void> {
@@ -68,6 +70,36 @@ export class SchedulerService {
     ride.reminderDaySent = true
     await this.rides.update(ride)
     log.info({ rideId: ride.id }, "Day-before reminder sent")
+
+    if (this.weather != null) {
+      await this.sendWeatherForecast(ride)
+    }
+  }
+
+  private async sendWeatherForecast(ride: Ride): Promise<void> {
+    if (ride.threadId == null || this.weather == null) return
+    try {
+      const data = await this.weather.getWeather(
+        ride.meetingPoint,
+        ride.date,
+        ride.meetingTime ?? undefined,
+      )
+      if (data == null) return
+      const m = getMessages()
+      await this.messaging.notifyThread(
+        ride.threadId,
+        m.weatherForecast(
+          data.tempMinC,
+          data.tempMaxC,
+          data.description,
+          data.windSpeedKmph,
+          data.precipitationChancePct,
+        ),
+      )
+      log.info({ rideId: ride.id }, "Weather forecast sent with day-before reminder")
+    } catch (err) {
+      log.warn({ err, rideId: ride.id }, "Weather forecast failed — skipping")
+    }
   }
 
   private async maybeSendHourBeforeReminder(ride: Ride, now: number): Promise<void> {
