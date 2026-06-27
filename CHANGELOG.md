@@ -5,6 +5,12 @@ description: Release history for group-ride
 
 # Changelog
 
+## v1.8.0 — 2026-06-27
+
+### Features
+
+- **weather**: Add weather forecast to day-before reminders
+
 ## v1.7.6 — 2026-06-26
 
 ### Bug Fixes
