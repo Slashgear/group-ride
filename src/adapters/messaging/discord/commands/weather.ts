@@ -79,6 +79,7 @@ async function handleWeatherCommand(
     await interaction.editReply({ content: m.weatherUnavailable })
     return
   }
+  const image = await weather.getForecastImage(location)
   await interaction.editReply({
     content: m.weatherForecast(
       data.tempMinC,
@@ -90,5 +91,6 @@ async function handleWeatherCommand(
       data.precipitationChancePct,
       data.precipitationMm,
     ),
+    files: image == null ? [] : [{ attachment: image, name: "weather.png" }],
   })
 }

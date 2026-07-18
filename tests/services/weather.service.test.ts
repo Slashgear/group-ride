@@ -176,6 +176,56 @@ describe("WeatherService.getWeather", () => {
   })
 })
 
+describe("WeatherService.getForecastImage", () => {
+  test("returns a Buffer for a successful PNG response", async () => {
+    const pngBytes = new Uint8Array([0x89, 0x50, 0x4e, 0x47])
+    globalThis.fetch = mock(async () => ({
+      ok: true,
+      status: 200,
+      arrayBuffer: async () => pngBytes.buffer,
+    })) as unknown as typeof fetch
+
+    const service = new WeatherService()
+    const result = await service.getForecastImage("Paris")
+
+    expect(result).toBeInstanceOf(Buffer)
+    expect(result).toEqual(Buffer.from(pngBytes))
+  })
+
+  test("requests the 2pq PNG view for the given location", async () => {
+    let capturedUrl = ""
+    globalThis.fetch = mock(async (url: string | URL | Request) => {
+      capturedUrl = typeof url === "string" ? url : url instanceof URL ? url.href : url.url
+      return { ok: true, status: 200, arrayBuffer: async () => new ArrayBuffer(0) }
+    }) as unknown as typeof fetch
+
+    const service = new WeatherService()
+    await service.getForecastImage("Café du Parc")
+
+    expect(capturedUrl).toBe("https://wttr.in/Caf%C3%A9%20du%20Parc_2pq.png")
+  })
+
+  test("returns null when HTTP response is not ok", async () => {
+    globalThis.fetch = mock(async () => ({ ok: false, status: 500 })) as unknown as typeof fetch
+
+    const service = new WeatherService()
+    const result = await service.getForecastImage("Paris")
+
+    expect(result).toBeNull()
+  })
+
+  test("returns null when fetch throws a network error", async () => {
+    globalThis.fetch = mock(async () => {
+      throw new Error("Network error")
+    }) as unknown as typeof fetch
+
+    const service = new WeatherService()
+    const result = await service.getForecastImage("Paris")
+
+    expect(result).toBeNull()
+  })
+})
+
 describe("resolveWeatherQuery", () => {
   test("prefers GPX start coordinates when available", () => {
     const query = resolveWeatherQuery({

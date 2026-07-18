@@ -1,4 +1,4 @@
-import type { Bot } from "grammy"
+import { InputFile, type Bot } from "grammy"
 import type { RideRepository } from "../../../../domain/ports/ride.repository"
 import { resolveWeatherQuery, type WeatherService } from "../../../../services/weather.service"
 import { parseWeatherArgs } from "../../shared/parse"
@@ -51,17 +51,21 @@ export function registerWeatherCommand(
       await ctx.reply(m.weatherUnavailable)
       return
     }
-    await ctx.reply(
-      m.weatherForecast(
-        data.tempMinC,
-        data.tempMaxC,
-        data.description,
-        data.windSpeedKmph,
-        data.windGustKmph,
-        data.windDirection,
-        data.precipitationChancePct,
-        data.precipitationMm,
-      ),
+    const caption = m.weatherForecast(
+      data.tempMinC,
+      data.tempMaxC,
+      data.description,
+      data.windSpeedKmph,
+      data.windGustKmph,
+      data.windDirection,
+      data.precipitationChancePct,
+      data.precipitationMm,
     )
+    const image = await weather.getForecastImage(location)
+    if (image == null) {
+      await ctx.reply(caption)
+      return
+    }
+    await ctx.replyWithPhoto(new InputFile(image, "weather.png"), { caption })
   })
 }

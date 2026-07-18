@@ -79,13 +79,9 @@ export class WeatherService {
     date: Date,
     meetingTime?: string,
   ): Promise<WeatherData | null> {
-    const controller = new AbortController()
-    const timeout = setTimeout(() => {
-      controller.abort()
-    }, 8_000)
+    const res = await fetchWithTimeout(`https://wttr.in/${encodeURIComponent(location)}?format=j1`)
+    if (res == null) return null
     try {
-      const url = `https://wttr.in/${encodeURIComponent(location)}?format=j1`
-      const res = await fetch(url, { signal: controller.signal })
       if (!res.ok) {
         log.warn({ status: res.status, location }, "wttr.in returned non-ok status")
         return null
@@ -115,9 +111,38 @@ export class WeatherService {
     } catch (err) {
       log.warn({ err, location }, "Weather fetch failed")
       return null
-    } finally {
-      clearTimeout(timeout)
     }
+  }
+
+  /** Renders a compact forecast panel (current + today + tomorrow) as a PNG. */
+  async getForecastImage(location: string): Promise<Buffer | null> {
+    const res = await fetchWithTimeout(`https://wttr.in/${encodeURIComponent(location)}_2pq.png`)
+    if (res == null) return null
+    try {
+      if (!res.ok) {
+        log.warn({ status: res.status, location }, "wttr.in PNG returned non-ok status")
+        return null
+      }
+      return Buffer.from(await res.arrayBuffer())
+    } catch (err) {
+      log.warn({ err, location }, "Weather image fetch failed")
+      return null
+    }
+  }
+}
+
+async function fetchWithTimeout(url: string): Promise<Response | null> {
+  const controller = new AbortController()
+  const timeout = setTimeout(() => {
+    controller.abort()
+  }, 8_000)
+  try {
+    return await fetch(url, { signal: controller.signal })
+  } catch (err) {
+    log.warn({ err, url }, "Weather fetch failed")
+    return null
+  } finally {
+    clearTimeout(timeout)
   }
 }
 
