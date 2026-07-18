@@ -7,12 +7,12 @@ FROM base AS install
 RUN mkdir -p /temp/dev/website
 COPY package.json bun.lockb /temp/dev/
 COPY website/package.json /temp/dev/website/
-RUN cd /temp/dev && bun install --frozen-lockfile
+RUN cd /temp/dev && bun install --frozen-lockfile --filter=.
 
 RUN mkdir -p /temp/prod/website
 COPY package.json bun.lockb /temp/prod/
 COPY website/package.json /temp/prod/website/
-RUN cd /temp/prod && bun install --frozen-lockfile --production
+RUN cd /temp/prod && bun install --frozen-lockfile --production --filter=.
 
 # run tests against dev dependencies
 FROM base AS prerelease
