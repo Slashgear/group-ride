@@ -112,10 +112,13 @@ export class DiscordMessaging implements MessagingPort {
     await thread.members.remove(userId)
   }
 
-  async notifyThread(threadId: ThreadId, message: string): Promise<void> {
+  async notifyThread(threadId: ThreadId, message: string, image?: Buffer): Promise<void> {
     const thread = await this.client.channels.fetch(threadId)
     if (thread?.isThread() !== true) throw new Error(`Channel ${threadId} is not a thread`)
-    await thread.send(message)
+    await thread.send({
+      content: message,
+      files: image == null ? [] : [{ attachment: image, name: "weather.png" }],
+    })
   }
 
   async notifyMainChannel(message: string): Promise<void> {

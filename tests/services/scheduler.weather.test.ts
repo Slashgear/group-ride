@@ -116,6 +116,31 @@ describe("SchedulerService — weather integration", () => {
       2,
       "thread-1",
       expect.stringContaining("22"),
+      undefined,
+    )
+  })
+
+  test("passes the forecast image through to notifyThread when available", async () => {
+    jest.setSystemTime(new Date("2026-07-01T10:00:00"))
+
+    const ride = makeRide({ date: new Date("2026-07-02T10:00:00"), reminderDaySent: false })
+    const repo = mockRepo()
+    repo.findActive = mock(async () => [ride])
+    const messaging = mockMessaging()
+    const image = Buffer.from([0x89, 0x50, 0x4e, 0x47])
+    const weather = {
+      getWeather: mock(async () => weatherData),
+      getForecastImage: mock(async () => image),
+    } as unknown as WeatherService
+    const service = new SchedulerService(repo, messaging, weather)
+
+    await service.tick()
+
+    expect(messaging.notifyThread).toHaveBeenNthCalledWith(
+      2,
+      "thread-1",
+      expect.stringContaining("22"),
+      image,
     )
   })
 

@@ -85,13 +85,11 @@ export class SchedulerService {
   private async sendWeatherForecast(ride: Ride): Promise<void> {
     if (ride.threadId == null || this.weather == null) return
     try {
-      const data = await this.weather.getWeather(
-        resolveWeatherQuery(ride),
-        ride.date,
-        ride.meetingTime ?? undefined,
-      )
+      const location = resolveWeatherQuery(ride)
+      const data = await this.weather.getWeather(location, ride.date, ride.meetingTime ?? undefined)
       if (data == null) return
       const m = getMessages()
+      const image = await this.weather.getForecastImage(location)
       await this.messaging.notifyThread(
         ride.threadId,
         m.weatherForecast(
@@ -104,6 +102,7 @@ export class SchedulerService {
           data.precipitationChancePct,
           data.precipitationMm,
         ),
+        image ?? undefined,
       )
       log.info({ rideId: ride.id }, "Weather forecast sent with day-before reminder")
     } catch (err) {

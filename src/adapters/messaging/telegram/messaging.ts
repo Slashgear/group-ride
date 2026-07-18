@@ -91,7 +91,14 @@ export class TelegramMessaging implements MessagingPort {
     // No-op: Telegram topics are accessible to all group members.
   }
 
-  async notifyThread(threadId: ThreadId, message: string): Promise<void> {
+  async notifyThread(threadId: ThreadId, message: string, image?: Buffer): Promise<void> {
+    if (image != null) {
+      await this.api.sendPhoto(this.groupChatId, new InputFile(image, "weather.png"), {
+        message_thread_id: Number(threadId),
+        caption: message,
+      })
+      return
+    }
     await this.api.sendMessage(this.groupChatId, message, {
       message_thread_id: Number(threadId),
     })

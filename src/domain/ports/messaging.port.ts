@@ -22,6 +22,6 @@ export interface MessagingPort {
    *  Use silent when the proposer auto-joins on creation — no "You're in!" needed. */
   addMemberToThread(threadId: ThreadId, userId: UserId, silent?: boolean): Promise<void>
   removeMemberFromThread(threadId: ThreadId, userId: UserId): Promise<void>
-  notifyThread(threadId: ThreadId, message: string): Promise<void>
+  notifyThread(threadId: ThreadId, message: string, image?: Buffer): Promise<void>
   notifyMainChannel(message: string): Promise<void>
 }
