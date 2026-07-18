@@ -1,6 +1,6 @@
 import { type ChatInputCommandInteraction, type Client, type Interaction } from "discord.js"
 import type { RideRepository } from "../../../../domain/ports/ride.repository"
-import type { WeatherService } from "../../../../services/weather.service"
+import { resolveWeatherQuery, type WeatherService } from "../../../../services/weather.service"
 import { getMessages } from "../../../../i18n"
 import { logger } from "../../../../logger"
 
@@ -43,7 +43,11 @@ async function handleWeatherCommand(
     await interaction.editReply({ content: m.weatherNotInThread })
     return
   }
-  const data = await weather.getWeather(ride.meetingPoint, ride.date, ride.meetingTime ?? undefined)
+  const data = await weather.getWeather(
+    resolveWeatherQuery(ride),
+    ride.date,
+    ride.meetingTime ?? undefined,
+  )
   if (data == null) {
     await interaction.editReply({ content: m.weatherUnavailable })
     return

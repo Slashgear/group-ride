@@ -1,6 +1,6 @@
 import type { Bot } from "grammy"
 import type { RideRepository } from "../../../../domain/ports/ride.repository"
-import type { WeatherService } from "../../../../services/weather.service"
+import { resolveWeatherQuery, type WeatherService } from "../../../../services/weather.service"
 import type { BotContext } from "../bot"
 import { getMessages } from "../../../../i18n"
 
@@ -22,7 +22,7 @@ export function registerWeatherCommand(
       return
     }
     const data = await weather.getWeather(
-      ride.meetingPoint,
+      resolveWeatherQuery(ride),
       ride.date,
       ride.meetingTime ?? undefined,
     )

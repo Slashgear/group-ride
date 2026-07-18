@@ -17,6 +17,7 @@ const MIGRATION_FILES = [
   "006_add_reminder_flags.sql",
   "007_add_max_participants.sql",
   "008_add_waitlist.sql",
+  "009_add_weather_location.sql",
 ]
 
 function makeRide(overrides: Partial<Ride> = {}): Ride {
@@ -42,6 +43,9 @@ function makeRide(overrides: Partial<Ride> = {}): Ride {
     reminderHourSent: false,
     createdAt: new Date(),
     maxParticipants: null,
+    startLat: null,
+    startLon: null,
+    weatherCity: null,
     ...overrides,
   }
 }

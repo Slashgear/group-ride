@@ -116,6 +116,15 @@ export function buildEditRideConversation(rideService: RideService, rideRepo: Ri
     if (mpText == null) return
     if (mpText !== SKIP) changes.meetingPoint = mpText
 
+    await ctx.reply(
+      `🌤 Weather city? Used for the forecast when the meeting point isn't a real address (current: ${ride.weatherCity ?? "none"} — /skip to keep, "clear" to remove)`,
+    )
+    const weatherCityText = await waitForText(conversation, ctx)
+    if (weatherCityText == null) return
+    if (weatherCityText !== SKIP) {
+      changes.weatherCity = weatherCityText === "clear" ? undefined : weatherCityText
+    }
+
     const currentStats =
       ride.distanceKm != null || ride.elevationGain != null
         ? [

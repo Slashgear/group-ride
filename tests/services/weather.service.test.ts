@@ -1,5 +1,5 @@
 import { describe, expect, mock, test } from "bun:test"
-import { WeatherService } from "../../src/services/weather.service"
+import { WeatherService, resolveWeatherQuery } from "../../src/services/weather.service"
 
 function makeHourly(time: string, overrides: object = {}) {
   return {
@@ -173,5 +173,57 @@ describe("WeatherService.getWeather", () => {
     await service.getWeather("Café du Parc", new Date("2026-07-02T00:00:00"))
 
     expect(capturedUrl).toContain("Caf%C3%A9%20du%20Parc")
+  })
+})
+
+describe("resolveWeatherQuery", () => {
+  test("prefers GPX start coordinates when available", () => {
+    const query = resolveWeatherQuery({
+      startLat: 48.8566,
+      startLon: 2.3522,
+      weatherCity: "Lyon",
+      meetingPoint: "Devant la boulangerie",
+    })
+    expect(query).toBe("48.8566,2.3522")
+  })
+
+  test("falls back to weatherCity when no coordinates are set", () => {
+    const query = resolveWeatherQuery({
+      startLat: null,
+      startLon: null,
+      weatherCity: "Lyon",
+      meetingPoint: "Devant la boulangerie",
+    })
+    expect(query).toBe("Lyon")
+  })
+
+  test("falls back to meetingPoint when neither coordinates nor weatherCity are set", () => {
+    const query = resolveWeatherQuery({
+      startLat: null,
+      startLon: null,
+      weatherCity: null,
+      meetingPoint: "Devant la boulangerie",
+    })
+    expect(query).toBe("Devant la boulangerie")
+  })
+
+  test("falls back to meetingPoint when weatherCity is blank", () => {
+    const query = resolveWeatherQuery({
+      startLat: null,
+      startLon: null,
+      weatherCity: "   ",
+      meetingPoint: "Devant la boulangerie",
+    })
+    expect(query).toBe("Devant la boulangerie")
+  })
+
+  test("ignores weatherCity when only one coordinate is set", () => {
+    const query = resolveWeatherQuery({
+      startLat: 48.8566,
+      startLon: null,
+      weatherCity: "Lyon",
+      meetingPoint: "Devant la boulangerie",
+    })
+    expect(query).toBe("Lyon")
   })
 })

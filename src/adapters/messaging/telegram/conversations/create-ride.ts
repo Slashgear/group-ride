@@ -33,6 +33,8 @@ type Prefill = {
   gpxUrl?: string
   externalUrl?: string
   notes?: string
+  startLat?: number
+  startLon?: number
 }
 
 export function buildCreateRideConversation(rideService: RideService, telegramToken: string) {
@@ -85,6 +87,8 @@ export function buildCreateRideConversation(rideService: RideService, telegramTo
       gpxUrl: prefill.gpxUrl,
       externalUrl: prefill.externalUrl,
       notes: notes ?? undefined,
+      startLat: prefill.startLat,
+      startLon: prefill.startLon,
       mapImageBuffer: mapImage,
     })
     await ctx.reply(`🎉 Ride created for ${formatDate(date)}! The group has been notified.`)
@@ -125,12 +129,15 @@ async function stepImport(
           log.warn({ err: mapErr }, "Map generation failed, continuing without map")
         }
       }
+      const start = parsed.coordinates[0]
       const prefill: Prefill = {
         name: parsed.name,
         distanceKm: parsed.distanceKm,
         elevationGain: parsed.elevationGain,
         elevationLoss: parsed.elevationLoss,
         gpxUrl: `tg://file/${doc.file_id}`,
+        startLon: start?.[0],
+        startLat: start?.[1],
       }
       return { prefill, mapImage }
     } catch (err) {

@@ -29,6 +29,11 @@ export interface Ride {
   reminderHourSent: boolean
   createdAt: Date
   maxParticipants: number | null
+  /** Start point of the imported GPX track, if any — used for weather lookup. */
+  startLat: number | null
+  startLon: number | null
+  /** Optional city/place name used for weather lookup when no GPX start point is available. */
+  weatherCity: string | null
 }
 
 export interface CreateRideInput {
@@ -46,6 +51,9 @@ export interface CreateRideInput {
   externalUrl?: string
   notes?: string
   maxParticipants?: number
+  startLat?: number
+  startLon?: number
+  weatherCity?: string
   /** Pre-generated route map PNG. Not stored in DB — passed directly to messaging adapters. */
   mapImageBuffer?: Buffer
 }

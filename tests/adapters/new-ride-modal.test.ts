@@ -51,6 +51,9 @@ const fakeRide: Ride = {
   reminderHourSent: false,
   createdAt: new Date(2026, 5, 1),
   maxParticipants: null,
+  startLat: null,
+  startLon: null,
+  weatherCity: null,
 }
 
 describe("buildNewRideModal", () => {

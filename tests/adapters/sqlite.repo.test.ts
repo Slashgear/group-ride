@@ -15,6 +15,8 @@ const MIGRATION_FILES = [
   "006_add_reminder_flags.sql",
   "007_add_max_participants.sql",
   "008_add_waitlist.sql",
+  "009_user_ids_as_text.sql",
+  "010_add_weather_location.sql",
 ]
 
 function makeDb(): Database {
@@ -49,9 +51,43 @@ function makeRide(overrides: Partial<Ride> = {}): Ride {
     reminderHourSent: false,
     createdAt: new Date(),
     maxParticipants: null,
+    startLat: null,
+    startLon: null,
+    weatherCity: null,
     ...overrides,
   }
 }
+
+describe("SqliteRideRepository — weather location fields", () => {
+  let repo: SqliteRideRepository
+
+  beforeEach(() => {
+    repo = new SqliteRideRepository(makeDb())
+  })
+
+  test("round-trips startLat/startLon/weatherCity through save and findById", async () => {
+    const ride = makeRide({ startLat: 48.8566, startLon: 2.3522, weatherCity: "Paris" })
+    await repo.save(ride)
+
+    const result = await repo.findById(ride.id)
+
+    expect(result?.startLat).toBe(48.8566)
+    expect(result?.startLon).toBe(2.3522)
+    expect(result?.weatherCity).toBe("Paris")
+  })
+
+  test("update persists changes to weather location fields", async () => {
+    const ride = makeRide()
+    await repo.save(ride)
+
+    await repo.update({ ...ride, startLat: 45.75, startLon: 4.85, weatherCity: "Lyon" })
+    const result = await repo.findById(ride.id)
+
+    expect(result?.startLat).toBe(45.75)
+    expect(result?.startLon).toBe(4.85)
+    expect(result?.weatherCity).toBe("Lyon")
+  })
+})
 
 describe("SqliteRideRepository.findPast", () => {
   let repo: SqliteRideRepository

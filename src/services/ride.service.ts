@@ -41,6 +41,9 @@ export class RideService {
       reminderHourSent: false,
       createdAt: new Date(),
       maxParticipants: input.maxParticipants ?? null,
+      startLat: input.startLat ?? null,
+      startLon: input.startLon ?? null,
+      weatherCity: input.weatherCity ?? null,
     }
 
     const mapImage = input.mapImageBuffer

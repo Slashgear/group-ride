@@ -93,6 +93,8 @@ async function handleModalSubmit(
       gpxUrl: importedFields.gpxUrl,
       externalUrl: importedFields.externalUrl,
       notes,
+      startLat: importedFields.startLat,
+      startLon: importedFields.startLon,
       proposerId: interaction.user.id,
       proposerName: interaction.user.displayName,
     },
@@ -147,6 +149,8 @@ interface ImportResult {
     externalUrl?: string
     notes?: string
     gpxUrl?: string
+    startLat?: number
+    startLon?: number
   }
   importWarning: string
   mapImage?: Buffer
@@ -177,6 +181,7 @@ async function resolveImport(
           log.warn({ err: mapErr }, "Map generation failed, continuing without map")
         }
       }
+      const start = parsed.coordinates[0]
       return {
         importedFields: {
           ...base,
@@ -185,6 +190,8 @@ async function resolveImport(
           elevationGain: base.elevationGain ?? parsed.elevationGain,
           elevationLoss: base.elevationLoss ?? parsed.elevationLoss,
           gpxUrl: rawUrl,
+          startLon: start?.[0],
+          startLat: start?.[1],
         },
         importWarning: "",
         mapImage,
@@ -270,6 +277,8 @@ async function handleConfirm(
     gpxUrl: data.gpxUrl,
     externalUrl: data.externalUrl,
     notes: data.notes,
+    startLat: data.startLat,
+    startLon: data.startLon,
     mapImageBuffer: mapImage,
   })
 
@@ -293,6 +302,8 @@ interface RidePayload {
   gpxUrl?: string
   externalUrl?: string
   notes?: string
+  startLat?: number
+  startLon?: number
 }
 
 function encodePayload(data: RidePayload, mapImage?: Buffer): string {

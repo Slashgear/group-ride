@@ -3,7 +3,7 @@ import type { RideRepository } from "../domain/ports/ride.repository"
 import type { Ride } from "../domain/ride"
 import { logger } from "../logger"
 import { getMessages } from "../i18n"
-import type { WeatherService } from "./weather.service"
+import { resolveWeatherQuery, type WeatherService } from "./weather.service"
 
 const log = logger.child({ module: "scheduler" })
 const CLOSE_DELAY_MS = 24 * 60 * 60 * 1000
@@ -86,7 +86,7 @@ export class SchedulerService {
     if (ride.threadId == null || this.weather == null) return
     try {
       const data = await this.weather.getWeather(
-        ride.meetingPoint,
+        resolveWeatherQuery(ride),
         ride.date,
         ride.meetingTime ?? undefined,
       )

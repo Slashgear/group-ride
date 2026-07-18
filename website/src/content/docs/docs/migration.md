@@ -33,6 +33,9 @@ psql "$DATABASE_URL" -f src/adapters/database/postgres/migrations/003_add_propos
 psql "$DATABASE_URL" -f src/adapters/database/postgres/migrations/004_add_meeting_time.sql
 psql "$DATABASE_URL" -f src/adapters/database/postgres/migrations/005_add_ride_name.sql
 psql "$DATABASE_URL" -f src/adapters/database/postgres/migrations/006_add_reminder_flags.sql
+psql "$DATABASE_URL" -f src/adapters/database/postgres/migrations/007_add_max_participants.sql
+psql "$DATABASE_URL" -f src/adapters/database/postgres/migrations/008_add_waitlist.sql
+psql "$DATABASE_URL" -f src/adapters/database/postgres/migrations/009_add_weather_location.sql
 ```
 
 ## Step 3 — Export data from SQLite

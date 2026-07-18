@@ -101,12 +101,13 @@ export function buildEditModal(rideId: string, ride: Ride): ModalBuilder {
           .setValue(formatStatsValue(ride)),
       ),
       field(
-        "Route URL — optional",
+        "Weather city — optional",
         new TextInputBuilder()
-          .setCustomId("externalUrl")
+          .setCustomId("weatherCity")
           .setStyle(TextInputStyle.Short)
           .setRequired(false)
-          .setValue(ride.externalUrl ?? ""),
+          .setPlaceholder("Used for the weather forecast, e.g. Paris")
+          .setValue(ride.weatherCity ?? ""),
       ),
       field(
         "Notes — optional",
@@ -148,7 +149,7 @@ async function handleEditModalSubmit(
   const { distanceKm, elevationGain, elevationLoss } = parseStats(
     fields.getTextInputValue("stats").trim(),
   )
-  const rawExternal = fields.getTextInputValue("externalUrl").trim()
+  const rawWeatherCity = fields.getTextInputValue("weatherCity").trim()
   const rawNotes = fields.getTextInputValue("notes").trim()
 
   await interaction.deferReply({ flags: MessageFlags.Ephemeral })
@@ -161,7 +162,7 @@ async function handleEditModalSubmit(
       distanceKm,
       elevationGain,
       elevationLoss,
-      externalUrl: rawExternal === "" ? undefined : rawExternal,
+      weatherCity: rawWeatherCity === "" ? undefined : rawWeatherCity,
       notes: rawNotes === "" ? undefined : rawNotes,
     })
     await interaction.editReply({ content: m.rideUpdatedConfirm(formatDate(parsed.date)) })

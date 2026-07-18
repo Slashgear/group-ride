@@ -24,6 +24,9 @@ interface RideRow {
   reminder_hour_sent: boolean
   created_at: Date
   max_participants: number | null
+  start_lat: number | null
+  start_lon: number | null
+  weather_city: string | null
 }
 
 function rowToRide(row: RideRow): Ride {
@@ -49,6 +52,9 @@ function rowToRide(row: RideRow): Ride {
     reminderHourSent: row.reminder_hour_sent,
     createdAt: row.created_at,
     maxParticipants: row.max_participants,
+    startLat: row.start_lat,
+    startLon: row.start_lon,
+    weatherCity: row.weather_city,
   }
 }
 
@@ -64,14 +70,16 @@ export class PostgresRideRepository implements RideRepository {
       INSERT INTO rides
         (id, thread_id, proposer_id, proposer_name, name, date, meeting_time, meeting_point,
          distance_km, elevation_gain, elevation_loss, level, gpx_url, external_url, notes,
-         status, pinned_message_id, reminder_day_sent, reminder_hour_sent, created_at, max_participants)
+         status, pinned_message_id, reminder_day_sent, reminder_hour_sent, created_at, max_participants,
+         start_lat, start_lon, weather_city)
       VALUES (
         ${ride.id}, ${ride.threadId}, ${ride.proposerId}, ${ride.proposerName}, ${ride.name},
         ${ride.date}, ${ride.meetingTime}, ${ride.meetingPoint},
         ${ride.distanceKm}, ${ride.elevationGain}, ${ride.elevationLoss}, ${ride.level},
         ${ride.gpxUrl}, ${ride.externalUrl}, ${ride.notes}, ${ride.status},
         ${ride.pinnedMessageId}, ${ride.reminderDaySent}, ${ride.reminderHourSent},
-        ${ride.createdAt}, ${ride.maxParticipants}
+        ${ride.createdAt}, ${ride.maxParticipants},
+        ${ride.startLat}, ${ride.startLon}, ${ride.weatherCity}
       )
     `
   }
@@ -121,7 +129,10 @@ export class PostgresRideRepository implements RideRepository {
         pinned_message_id = ${ride.pinnedMessageId},
         reminder_day_sent = ${ride.reminderDaySent},
         reminder_hour_sent = ${ride.reminderHourSent},
-        max_participants = ${ride.maxParticipants}
+        max_participants = ${ride.maxParticipants},
+        start_lat = ${ride.startLat},
+        start_lon = ${ride.startLon},
+        weather_city = ${ride.weatherCity}
       WHERE id = ${ride.id}
     `
   }

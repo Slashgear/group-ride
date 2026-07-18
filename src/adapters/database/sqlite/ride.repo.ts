@@ -24,6 +24,9 @@ interface RideRow {
   reminder_hour_sent: number
   created_at: string
   max_participants: number | null
+  start_lat: number | null
+  start_lon: number | null
+  weather_city: string | null
 }
 
 function rowToRide(row: RideRow): Ride {
@@ -49,6 +52,9 @@ function rowToRide(row: RideRow): Ride {
     reminderHourSent: row.reminder_hour_sent !== 0,
     createdAt: new Date(row.created_at),
     maxParticipants: row.max_participants,
+    startLat: row.start_lat,
+    startLon: row.start_lon,
+    weatherCity: row.weather_city,
   }
 }
 
@@ -60,8 +66,9 @@ export class SqliteRideRepository implements RideRepository {
       `INSERT INTO rides
         (id, thread_id, proposer_id, proposer_name, name, date, meeting_time, meeting_point,
          distance_km, elevation_gain, elevation_loss, level, gpx_url, external_url, notes,
-         status, pinned_message_id, reminder_day_sent, reminder_hour_sent, created_at, max_participants)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         status, pinned_message_id, reminder_day_sent, reminder_hour_sent, created_at, max_participants,
+         start_lat, start_lon, weather_city)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         ride.id,
         ride.threadId,
@@ -84,6 +91,9 @@ export class SqliteRideRepository implements RideRepository {
         ride.reminderHourSent ? 1 : 0,
         ride.createdAt.toISOString(),
         ride.maxParticipants,
+        ride.startLat,
+        ride.startLon,
+        ride.weatherCity,
       ],
     )
     return Promise.resolve()
@@ -129,7 +139,8 @@ export class SqliteRideRepository implements RideRepository {
         thread_id = ?, name = ?, date = ?, meeting_time = ?, meeting_point = ?,
         distance_km = ?, elevation_gain = ?, elevation_loss = ?, level = ?,
         gpx_url = ?, external_url = ?, notes = ?, status = ?, pinned_message_id = ?,
-        reminder_day_sent = ?, reminder_hour_sent = ?, max_participants = ?
+        reminder_day_sent = ?, reminder_hour_sent = ?, max_participants = ?,
+        start_lat = ?, start_lon = ?, weather_city = ?
        WHERE id = ?`,
       [
         ride.threadId,
@@ -149,6 +160,9 @@ export class SqliteRideRepository implements RideRepository {
         ride.reminderDaySent ? 1 : 0,
         ride.reminderHourSent ? 1 : 0,
         ride.maxParticipants,
+        ride.startLat,
+        ride.startLon,
+        ride.weatherCity,
         ride.id,
       ],
     )

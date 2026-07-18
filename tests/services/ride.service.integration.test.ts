@@ -17,6 +17,8 @@ const MIGRATION_FILES = [
   "006_add_reminder_flags.sql",
   "007_add_max_participants.sql",
   "008_add_waitlist.sql",
+  "009_user_ids_as_text.sql",
+  "010_add_weather_location.sql",
 ]
 
 function createTestDb(): Database {

@@ -68,9 +68,17 @@ Controls the language of all user-facing bot messages — notifications, reminde
 WEATHER_ENABLED=false   # Set to "false" to disable weather forecasts (default: enabled)
 ```
 
-When enabled, the day-before reminder includes a weather forecast for the ride's meeting point. The forecast shows temperature range, sky conditions, wind speed/gusts/direction, and precipitation chance (and volume, if any is expected) for the ride day, using the [wttr.in](https://wttr.in) service — no API key required.
+When enabled, the day-before reminder includes a weather forecast. The forecast shows temperature range, sky conditions, wind speed/gusts/direction, and precipitation chance (and volume, if any is expected) for the ride day, using the [wttr.in](https://wttr.in) service — no API key required.
 
 Wind direction is shown as an arrow (⬆️↗️➡️↘️⬇️↙️⬅️↖️) rather than a text abbreviation, so it needs no translation between locales.
+
+### Which location is used for the forecast?
+
+The ride's **meeting point** is a free-text field (e.g. "in front of the bakery") and is often not a real, geocodable address. To get a reliable forecast, the bot picks a location in this order:
+
+1. The **start coordinates of an imported GPX track**, if the ride was created from a `.gpx` file or link — most accurate, set automatically.
+2. The ride's **weather city** — an optional field (e.g. "Paris") settable via `/edit`, for rides without a GPX import.
+3. The **meeting point** text itself, as a last resort — same as before, works when it happens to be a real place name.
 
 If the weather service is unavailable, the reminder is still sent without a forecast.
 

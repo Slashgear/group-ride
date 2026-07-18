@@ -1,6 +1,20 @@
+import type { Ride } from "../domain/ride"
 import { logger } from "../logger"
 
 const log = logger.child({ module: "weather" })
+
+/**
+ * The free-text meeting point is often not a real, geocodable address (e.g. "in front of the
+ * bakery"), so wttr.in resolution for it can be unreliable. Prefer the imported GPX track's
+ * start coordinates, then an explicit weather city, and only fall back to the meeting point text.
+ */
+export function resolveWeatherQuery(
+  ride: Pick<Ride, "startLat" | "startLon" | "weatherCity" | "meetingPoint">,
+): string {
+  if (ride.startLat != null && ride.startLon != null) return `${ride.startLat},${ride.startLon}`
+  if (ride.weatherCity != null && ride.weatherCity.trim() !== "") return ride.weatherCity
+  return ride.meetingPoint
+}
 
 export interface WeatherData {
   tempMinC: number
