@@ -109,8 +109,8 @@ describe("SchedulerService.closeRide", () => {
 
 describe("SchedulerService.maybeSendDayBeforeReminder", () => {
   test("sends day-before reminder when ride is tomorrow", async () => {
-    // Now: 2026-07-01T08:00:00. Tomorrow = 2026-07-02. Ride date = 2026-07-02T10:00:00.
-    jest.setSystemTime(new Date("2026-07-01T08:00:00"))
+    // Now: 2026-07-01T10:00:00. Tomorrow = 2026-07-02. Ride date = 2026-07-02T10:00:00.
+    jest.setSystemTime(new Date("2026-07-01T10:00:00"))
 
     const ride = makeRide({ date: new Date("2026-07-02T10:00:00"), reminderDaySent: false })
     const repo = mockRepo()
@@ -128,8 +128,8 @@ describe("SchedulerService.maybeSendDayBeforeReminder", () => {
   })
 
   test("does not send day-before reminder when ride is today", async () => {
-    // Now: 2026-07-01T08:00:00. Ride date = 2026-07-01T10:00:00 (today).
-    jest.setSystemTime(new Date("2026-07-01T08:00:00"))
+    // Now: 2026-07-01T10:00:00. Ride date = 2026-07-01T10:00:00 (today).
+    jest.setSystemTime(new Date("2026-07-01T10:00:00"))
 
     const ride = makeRide({ date: new Date("2026-07-01T10:00:00"), reminderDaySent: false })
     const repo = mockRepo()
@@ -143,8 +143,8 @@ describe("SchedulerService.maybeSendDayBeforeReminder", () => {
   })
 
   test("does not send day-before reminder when ride is in 2 days", async () => {
-    // Now: 2026-07-01T08:00:00. Ride date = 2026-07-03T10:00:00 (in 2 days).
-    jest.setSystemTime(new Date("2026-07-01T08:00:00"))
+    // Now: 2026-07-01T10:00:00. Ride date = 2026-07-03T10:00:00 (in 2 days).
+    jest.setSystemTime(new Date("2026-07-01T10:00:00"))
 
     const ride = makeRide({ date: new Date("2026-07-03T10:00:00"), reminderDaySent: false })
     const repo = mockRepo()
@@ -158,8 +158,8 @@ describe("SchedulerService.maybeSendDayBeforeReminder", () => {
   })
 
   test("does not send day-before reminder when reminderDaySent is already true", async () => {
-    // Now: 2026-07-01T08:00:00. Ride date = 2026-07-02 (tomorrow), but already sent.
-    jest.setSystemTime(new Date("2026-07-01T08:00:00"))
+    // Now: 2026-07-01T10:00:00. Ride date = 2026-07-02 (tomorrow), but already sent.
+    jest.setSystemTime(new Date("2026-07-01T10:00:00"))
 
     const ride = makeRide({ date: new Date("2026-07-02T10:00:00"), reminderDaySent: true })
     const repo = mockRepo()

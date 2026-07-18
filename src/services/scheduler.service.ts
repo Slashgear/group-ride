@@ -7,6 +7,8 @@ import type { WeatherService } from "./weather.service"
 
 const log = logger.child({ module: "scheduler" })
 const CLOSE_DELAY_MS = 24 * 60 * 60 * 1000
+const DAY_BEFORE_REMINDER_START_HOUR = 9
+const DAY_BEFORE_REMINDER_END_HOUR = 22
 
 export class SchedulerService {
   constructor(
@@ -32,7 +34,7 @@ export class SchedulerService {
           await this.closeRide(ride)
           continue
         }
-        await this.maybeSendDayBeforeReminder(ride, tomorrowMidnight, dayAfterMidnight)
+        await this.maybeSendDayBeforeReminder(ride, tomorrowMidnight, dayAfterMidnight, now)
         await this.maybeSendHourBeforeReminder(ride, now)
       } catch (err) {
         log.error({ err, rideId: ride.id }, "Scheduler error processing ride")
@@ -57,11 +59,15 @@ export class SchedulerService {
     ride: Ride,
     tomorrowMidnight: Date,
     dayAfterMidnight: Date,
+    now: number,
   ): Promise<void> {
     if (ride.reminderDaySent || ride.threadId == null) return
     const rideDay = new Date(ride.date)
     rideDay.setHours(0, 0, 0, 0)
     if (rideDay < tomorrowMidnight || rideDay >= dayAfterMidnight) return
+    const currentHour = new Date(now).getHours()
+    if (currentHour < DAY_BEFORE_REMINDER_START_HOUR || currentHour >= DAY_BEFORE_REMINDER_END_HOUR)
+      return
     const dayM = getMessages()
     await this.messaging.notifyThread(
       ride.threadId,

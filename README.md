@@ -200,7 +200,7 @@ sequenceDiagram
 - Created automatically by the bot for each proposal.
 - The pinned message is the source of truth for the ride details.
 - Any registered member can join, leave, edit, or cancel the ride via the action buttons.
-- If a meeting time is set, the bot sends a reminder the day before and 1 hour before.
+- The bot sends a reminder the day before (only between 9am and 10pm server time, to avoid nighttime notifications) and, if a meeting time is set, 1 hour before.
 - The thread/topic closes immediately on cancellation.
 - On Discord, the thread becomes read-only 24 hours after the ride.
 

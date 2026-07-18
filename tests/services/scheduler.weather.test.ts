@@ -86,7 +86,7 @@ afterEach(() => {
 
 describe("SchedulerService — weather integration", () => {
   test("sends weather message after day-before reminder when WeatherService returns data", async () => {
-    jest.setSystemTime(new Date("2026-07-01T08:00:00"))
+    jest.setSystemTime(new Date("2026-07-01T10:00:00"))
 
     const ride = makeRide({ date: new Date("2026-07-02T10:00:00"), reminderDaySent: false })
     const repo = mockRepo()
@@ -110,7 +110,7 @@ describe("SchedulerService — weather integration", () => {
   })
 
   test("does not send weather message when WeatherService returns null", async () => {
-    jest.setSystemTime(new Date("2026-07-01T08:00:00"))
+    jest.setSystemTime(new Date("2026-07-01T10:00:00"))
 
     const ride = makeRide({ date: new Date("2026-07-02T10:00:00"), reminderDaySent: false })
     const repo = mockRepo()
@@ -125,7 +125,7 @@ describe("SchedulerService — weather integration", () => {
   })
 
   test("reminder still sends and reminderDaySent is set even when WeatherService throws", async () => {
-    jest.setSystemTime(new Date("2026-07-01T08:00:00"))
+    jest.setSystemTime(new Date("2026-07-01T10:00:00"))
 
     const ride = makeRide({ date: new Date("2026-07-02T10:00:00"), reminderDaySent: false })
     const repo = mockRepo()
@@ -149,7 +149,7 @@ describe("SchedulerService — weather integration", () => {
   })
 
   test("does not send weather message when no weather service is provided", async () => {
-    jest.setSystemTime(new Date("2026-07-01T08:00:00"))
+    jest.setSystemTime(new Date("2026-07-01T10:00:00"))
 
     const ride = makeRide({ date: new Date("2026-07-02T10:00:00"), reminderDaySent: false })
     const repo = mockRepo()
