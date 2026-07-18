@@ -38,24 +38,27 @@ interface WttrHourly {
   precipMM: string
 }
 
+// wttr.in's winddir16Point is the direction the wind blows FROM (met. convention), but the
+// arrow should show where it's blowing TO, so each compass point maps to the opposite glyph
+// (verified against wttr.in's own PNG rendering: N → ↓, S → ↑, SSE → ↖, NNE → ↓).
 // Unicode only has 8 arrow glyphs, so adjacent 16-point compass values share one.
 const COMPASS_ARROWS: Record<string, string> = {
-  N: "⬆️",
-  NNE: "⬆️",
-  NE: "↗️",
-  ENE: "↗️",
-  E: "➡️",
-  ESE: "➡️",
-  SE: "↘️",
-  SSE: "↘️",
-  S: "⬇️",
-  SSW: "⬇️",
-  SW: "↙️",
-  WSW: "↙️",
-  W: "⬅️",
-  WNW: "⬅️",
-  NW: "↖️",
-  NNW: "↖️",
+  N: "⬇️",
+  NNE: "⬇️",
+  NE: "↙️",
+  ENE: "↙️",
+  E: "⬅️",
+  ESE: "⬅️",
+  SE: "↖️",
+  SSE: "↖️",
+  S: "⬆️",
+  SSW: "⬆️",
+  SW: "↗️",
+  WSW: "↗️",
+  W: "➡️",
+  WNW: "➡️",
+  NW: "↘️",
+  NNW: "↘️",
 }
 
 function compassToArrow(point: string): string {

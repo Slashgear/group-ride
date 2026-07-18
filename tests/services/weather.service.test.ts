@@ -90,7 +90,7 @@ describe("WeatherService.getWeather", () => {
     expect(result?.description).toBe("Overcast")
     expect(result?.windSpeedKmph).toBe(20)
     expect(result?.windGustKmph).toBe(30)
-    expect(result?.windDirection).toBe("↙️")
+    expect(result?.windDirection).toBe("↗️")
     expect(result?.precipitationChancePct).toBe(35)
     expect(result?.precipitationMm).toBe(2.5)
   })
