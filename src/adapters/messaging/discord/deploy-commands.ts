@@ -26,7 +26,19 @@ const commands = [
     .toJSON(),
   new SlashCommandBuilder()
     .setName("weather")
-    .setDescription("Get the weather forecast for this ride (use inside a ride thread)")
+    .setDescription("Get a weather forecast (defaults to this ride, inside a ride thread)")
+    .addStringOption((opt) =>
+      opt
+        .setName("location")
+        .setDescription("Location (city, address...). Defaults to this ride's location")
+        .setRequired(false),
+    )
+    .addStringOption((opt) =>
+      opt
+        .setName("date")
+        .setDescription("Date as DD/MM/YYYY, optionally with HH:MM. Defaults to this ride's date")
+        .setRequired(false),
+    )
     .toJSON(),
 ]
 

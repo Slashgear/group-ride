@@ -21,7 +21,7 @@ Use \`/rides\` to see all upcoming rides with Join buttons.
 Inside the thread, use the **Leave** button to drop out, or **Cancel ride** to cancel the whole ride (any member can do this).
 
 **Weather**
-Use \`/weather\` inside a ride thread to get the forecast for that ride on demand.`
+Use \`/weather\` inside a ride thread to get the forecast for that ride on demand, or pass \`location\` and/or \`date\` (DD/MM/YYYY) options to check any place and date.`
 
 export function registerHelpCommand(client: Client): void {
   client.on("interactionCreate", (interaction) => {

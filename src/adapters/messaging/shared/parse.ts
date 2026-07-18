@@ -11,6 +11,36 @@ export function parseDateAndTime(text: string): { date: Date; meetingTime?: stri
   return { date, meetingTime: timePart }
 }
 
+/**
+ * Parses free-text `/weather` args of the form "[DD/MM/YYYY [HH:MM]] [location]".
+ * The date, if present, must come first; anything after it (past an optional time) is
+ * treated as the location. Returns null only when a date-shaped leading token is invalid.
+ */
+export function parseWeatherArgs(text: string): {
+  date?: Date
+  meetingTime?: string
+  location?: string
+} {
+  const trimmed = text.trim()
+  if (trimmed === "") return {}
+  const tokens = trimmed.split(/\s+/u)
+  const dateToken = tokens[0] as string
+  if (!/^\d{2}\/\d{2}\/\d{4}$/u.test(dateToken)) return { location: trimmed }
+
+  const pieces = dateToken.split("/").map(Number)
+  const [day, month, year] = pieces as [number, number, number]
+  const date = new Date(year, month - 1, day)
+
+  let rest = tokens.slice(1)
+  let meetingTime: string | undefined
+  if (rest[0] != null && /^\d{2}:\d{2}$/u.test(rest[0])) {
+    meetingTime = rest[0]
+    rest = rest.slice(1)
+  }
+  const location = rest.join(" ").trim()
+  return { date, meetingTime, location: location === "" ? undefined : location }
+}
+
 export function parseStats(text: string): {
   distanceKm?: number
   elevationGain?: number

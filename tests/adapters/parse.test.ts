@@ -5,6 +5,7 @@ import {
   formatStatsValue,
   parseDateAndTime,
   parseStats,
+  parseWeatherArgs,
 } from "../../src/adapters/messaging/shared/parse"
 
 function makeRide(overrides: Partial<Ride> = {}): Ride {
@@ -65,6 +66,49 @@ describe("parseDateAndTime", () => {
   test("returns null for non-numeric date parts", () => {
     const result = parseDateAndTime("aa/bb/cccc")
     expect(result).toBeNull()
+  })
+})
+
+describe("parseWeatherArgs", () => {
+  test("returns empty object for empty string", () => {
+    expect(parseWeatherArgs("")).toEqual({})
+    expect(parseWeatherArgs("   ")).toEqual({})
+  })
+
+  test("parses location only", () => {
+    expect(parseWeatherArgs("Paris, France")).toEqual({ location: "Paris, France" })
+  })
+
+  test("parses date only", () => {
+    const result = parseWeatherArgs("15/06/2026")
+    expect(result?.date).toEqual(new Date(2026, 5, 15))
+    expect(result?.meetingTime).toBeUndefined()
+    expect(result?.location).toBeUndefined()
+  })
+
+  test("parses date and time only", () => {
+    const result = parseWeatherArgs("15/06/2026 08:30")
+    expect(result?.date).toEqual(new Date(2026, 5, 15))
+    expect(result?.meetingTime).toBe("08:30")
+    expect(result?.location).toBeUndefined()
+  })
+
+  test("parses date and location", () => {
+    const result = parseWeatherArgs("15/06/2026 Place de la République")
+    expect(result?.date).toEqual(new Date(2026, 5, 15))
+    expect(result?.meetingTime).toBeUndefined()
+    expect(result?.location).toBe("Place de la République")
+  })
+
+  test("parses date, time, and location", () => {
+    const result = parseWeatherArgs("15/06/2026 08:30 Place de la République")
+    expect(result?.date).toEqual(new Date(2026, 5, 15))
+    expect(result?.meetingTime).toBe("08:30")
+    expect(result?.location).toBe("Place de la République")
+  })
+
+  test("treats a non-date-shaped leading token as part of the location", () => {
+    expect(parseWeatherArgs("15/06 Paris")).toEqual({ location: "15/06 Paris" })
   })
 })
 

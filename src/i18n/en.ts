@@ -36,6 +36,8 @@ export const messages = {
     precipitationMm: number,
   ) =>
     `🌤️ **Forecast:** ${description}, ${tempMinC}–${tempMaxC}°C, 💨 ${windSpeedKmph} km/h ${windDirection} (gusts ${windGustKmph} km/h), 🌧️ ${precipitationChancePct}% chance of rain${precipitationMm > 0 ? ` (${precipitationMm} mm)` : ""}`,
-  weatherNotInThread: "This command only works inside a ride thread.",
-  weatherUnavailable: "Weather forecast is unavailable for this ride right now.",
+  weatherMissingArgs:
+    "Provide both a location and a date (DD/MM/YYYY), or use this command inside a ride thread.",
+  weatherInvalidDate: "Invalid date format. Please use DD/MM/YYYY or DD/MM/YYYY HH:MM.",
+  weatherUnavailable: "Weather forecast is unavailable for that location and date right now.",
 }

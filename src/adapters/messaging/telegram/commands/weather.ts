@@ -1,6 +1,7 @@
 import type { Bot } from "grammy"
 import type { RideRepository } from "../../../../domain/ports/ride.repository"
 import { resolveWeatherQuery, type WeatherService } from "../../../../services/weather.service"
+import { parseWeatherArgs } from "../../shared/parse"
 import type { BotContext } from "../bot"
 import { getMessages } from "../../../../i18n"
 
@@ -15,17 +16,37 @@ export function registerWeatherCommand(
       await ctx.reply(m.weatherUnavailable)
       return
     }
+    const args = parseWeatherArgs(ctx.match)
     const threadId = ctx.message?.message_thread_id
     const ride = threadId == null ? null : await rideRepo.findByThreadId(String(threadId))
-    if (ride == null) {
-      await ctx.reply(m.weatherNotInThread)
-      return
+
+    let date: Date
+    let meetingTime: string | undefined
+
+    if (args.date == null) {
+      if (ride == null) {
+        await ctx.reply(m.weatherMissingArgs)
+        return
+      }
+      date = ride.date
+      meetingTime = ride.meetingTime ?? undefined
+    } else {
+      date = args.date
+      meetingTime = args.meetingTime ?? ride?.meetingTime ?? undefined
     }
-    const data = await weather.getWeather(
-      resolveWeatherQuery(ride),
-      ride.date,
-      ride.meetingTime ?? undefined,
-    )
+
+    let location: string
+    if (args.location == null) {
+      if (ride == null) {
+        await ctx.reply(m.weatherMissingArgs)
+        return
+      }
+      location = resolveWeatherQuery(ride)
+    } else {
+      location = args.location
+    }
+
+    const data = await weather.getWeather(location, date, meetingTime)
     if (data == null) {
       await ctx.reply(m.weatherUnavailable)
       return

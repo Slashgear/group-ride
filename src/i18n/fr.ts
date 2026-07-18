@@ -37,6 +37,8 @@ export const messages = {
     precipitationMm: number,
   ) =>
     `🌤️ **Météo :** ${description}, ${tempMinC}–${tempMaxC}°C, 💨 ${windSpeedKmph} km/h ${windDirection} (rafales ${windGustKmph} km/h), 🌧️ ${precipitationChancePct}% de risque de pluie${precipitationMm > 0 ? ` (${precipitationMm} mm)` : ""}`,
-  weatherNotInThread: "Cette commande ne fonctionne que dans le fil d'une sortie.",
-  weatherUnavailable: "La météo n'est pas disponible pour cette sortie pour le moment.",
+  weatherMissingArgs:
+    "Indique un lieu et une date (JJ/MM/AAAA), ou utilise cette commande dans le fil d'une sortie.",
+  weatherInvalidDate: "Format de date invalide. Utilise JJ/MM/AAAA ou JJ/MM/AAAA HH:MM.",
+  weatherUnavailable: "La météo n'est pas disponible pour ce lieu et cette date pour le moment.",
 }
