@@ -5,6 +5,12 @@ description: Release history for group-ride
 
 # Changelog
 
+## v1.10.1 — 2026-07-18
+
+### Bug Fixes
+
+- **weather**: Correct wind direction arrow to point where wind blows to
+
 ## v1.10.0 — 2026-07-18
 
 ### Features
