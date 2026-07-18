@@ -5,6 +5,17 @@ description: Release history for group-ride
 
 # Changelog
 
+## v1.9.0 — 2026-07-18
+
+### Bug Fixes
+
+- **scheduler**: Restrict day-before reminders to 9am-10pm
+- **weather**: Resolve forecast location from GPX start point or explicit city
+
+### Features
+
+- **weather**: Add on-demand /weather command and richer forecasts
+
 ## v1.8.0 — 2026-06-27
 
 ### Features
