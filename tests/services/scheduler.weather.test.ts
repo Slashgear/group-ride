@@ -80,7 +80,7 @@ const weatherData: WeatherData = {
 }
 
 function mockWeather(returnValue: WeatherData | null): WeatherService {
-  return { getWeather: mock(async () => returnValue) } as unknown as WeatherService
+  return { getWeather: mock(async () => returnValue) }
 }
 
 beforeEach(() => {

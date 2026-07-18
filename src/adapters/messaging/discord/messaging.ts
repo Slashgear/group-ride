@@ -4,7 +4,6 @@ import {
   ButtonStyle,
   ChannelType,
   type Client,
-  type ForumChannel,
   type TextChannel,
 } from "discord.js"
 import type { MessagingPort } from "../../../domain/ports/messaging.port"
@@ -47,8 +46,7 @@ export class DiscordMessaging implements MessagingPort {
     const channel = await this.client.channels.fetch(this.forumChannelId)
     if (channel?.type !== ChannelType.GuildForum)
       throw new Error("Forum channel is not a GUILD_FORUM channel")
-    const forum = channel as unknown as ForumChannel
-    const thread = await forum.threads.create({
+    const thread = await channel.threads.create({
       name: formatThreadTitle(ride),
       message: { content: formatSummary(ride), components: [buildRideActionsRow(ride.id)] },
     })

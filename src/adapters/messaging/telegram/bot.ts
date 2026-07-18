@@ -11,11 +11,7 @@ export type BotContext = Context &
 
 export function createBot(token: string): Bot<BotContext> {
   const bot = new Bot<BotContext>(token)
-  // Casts needed because grammY's complex intersection types don't align perfectly
-  // with strict TypeScript variance rules — runtime behaviour is correct.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  bot.use(session({ initial: (): SessionData => ({}) }) as any)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  bot.use(conversations() as any)
+  bot.use(session({ initial: (): SessionData => ({}) }))
+  bot.use(conversations())
   return bot
 }
