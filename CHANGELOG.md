@@ -5,6 +5,13 @@ description: Release history for group-ride
 
 # Changelog
 
+## v1.10.0 — 2026-07-18
+
+### Features
+
+- **weather**: Allow /weather to take an explicit location and date
+- **weather**: Attach a PNG forecast panel to /weather replies
+
 ## v1.9.0 — 2026-07-18
 
 ### Bug Fixes
