@@ -7,7 +7,10 @@ export interface WeatherData {
   tempMaxC: number
   description: string
   windSpeedKmph: number
+  windGustKmph: number
+  windDirection: string
   precipitationChancePct: number
+  precipitationMm: number
 }
 
 interface WttrHourly {
@@ -15,7 +18,34 @@ interface WttrHourly {
   tempC: string
   weatherDesc: Array<{ value: string }>
   windspeedKmph: string
+  WindGustKmph: string
+  winddir16Point: string
   chanceofrain: string
+  precipMM: string
+}
+
+// Unicode only has 8 arrow glyphs, so adjacent 16-point compass values share one.
+const COMPASS_ARROWS: Record<string, string> = {
+  N: "⬆️",
+  NNE: "⬆️",
+  NE: "↗️",
+  ENE: "↗️",
+  E: "➡️",
+  ESE: "➡️",
+  SE: "↘️",
+  SSE: "↘️",
+  S: "⬇️",
+  SSW: "⬇️",
+  SW: "↙️",
+  WSW: "↙️",
+  W: "⬅️",
+  WNW: "⬅️",
+  NW: "↖️",
+  NNW: "↖️",
+}
+
+function compassToArrow(point: string): string {
+  return COMPASS_ARROWS[point] ?? point
 }
 
 interface WttrDay {
@@ -63,7 +93,10 @@ export class WeatherService {
         tempMaxC: parseInt(day.maxtempC, 10),
         description: hourly.weatherDesc[0]?.value ?? "N/A",
         windSpeedKmph: parseInt(hourly.windspeedKmph, 10),
+        windGustKmph: parseInt(hourly.WindGustKmph, 10),
+        windDirection: compassToArrow(hourly.winddir16Point),
         precipitationChancePct: parseInt(hourly.chanceofrain, 10),
+        precipitationMm: parseFloat(hourly.precipMM),
       }
     } catch (err) {
       log.warn({ err, location }, "Weather fetch failed")

@@ -7,7 +7,10 @@ function makeHourly(time: string, overrides: object = {}) {
     tempC: "18",
     weatherDesc: [{ value: "Sunny" }],
     windspeedKmph: "15",
+    WindGustKmph: "22",
+    winddir16Point: "NW",
     chanceofrain: "10",
+    precipMM: "0.0",
     ...overrides,
   }
 }
@@ -28,7 +31,10 @@ const HOURLY = [
   makeHourly("1200", {
     weatherDesc: [{ value: "Overcast" }],
     windspeedKmph: "20",
+    WindGustKmph: "30",
+    winddir16Point: "SW",
     chanceofrain: "35",
+    precipMM: "2.5",
   }),
   makeHourly("1500", {
     weatherDesc: [{ value: "Sunny" }],
@@ -83,7 +89,10 @@ describe("WeatherService.getWeather", () => {
     expect(result?.tempMaxC).toBe(25)
     expect(result?.description).toBe("Overcast")
     expect(result?.windSpeedKmph).toBe(20)
+    expect(result?.windGustKmph).toBe(30)
+    expect(result?.windDirection).toBe("↙️")
     expect(result?.precipitationChancePct).toBe(35)
+    expect(result?.precipitationMm).toBe(2.5)
   })
 
   test("picks the closest hourly slot to meetingTime", async () => {

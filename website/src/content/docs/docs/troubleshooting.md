@@ -82,7 +82,7 @@ The bot subscribes to `message`, `callback_query`, `chat_member`, and `inline_qu
 
 ### Reminders are not sent on Telegram
 
-1. Confirm `TZ` is set to your group's timezone (e.g. `TZ=Europe/Paris`). The day-before reminder fires at **20:00** and the hour-before fires **1 hour before** `meetingTime`.
+1. Confirm `TZ` is set to your group's timezone (e.g. `TZ=Europe/Paris`). The day-before reminder fires on the first scheduler tick between **9am and 10pm**, and the hour-before fires **1 hour before** `meetingTime`.
 2. If `meetingTime` is not set on the ride, the hour-before reminder is skipped.
 3. Check that the bot is running at the scheduled time: `docker compose ps`.
 4. If the bot was offline at reminder time, it will send the reminder on restart if the ride is still in the future.
@@ -115,7 +115,7 @@ psql "$DATABASE_URL" -f src/adapters/database/postgres/migrations/001_initial.sq
 
 ### Reminders fire at the wrong time
 
-Set `TZ` to your group's local timezone, e.g. `TZ=Europe/Paris`. The day-before reminder fires at **20:00** local time and the hour-before reminder fires **1 hour before the ride start**.
+Set `TZ` to your group's local timezone, e.g. `TZ=Europe/Paris`. The day-before reminder fires on the first scheduler tick between **9am and 10pm** local time (to avoid nighttime notifications), and the hour-before reminder fires **1 hour before the ride start**.
 
 ### The bot starts but immediately exits
 

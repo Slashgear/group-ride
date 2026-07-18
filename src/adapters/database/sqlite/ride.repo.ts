@@ -96,6 +96,13 @@ export class SqliteRideRepository implements RideRepository {
     return Promise.resolve(row == null ? null : rowToRide(row))
   }
 
+  findByThreadId(threadId: string): Promise<Ride | null> {
+    const row = this.db
+      .query("SELECT *, CAST(proposer_id AS TEXT) as proposer_id FROM rides WHERE thread_id = ?")
+      .get(threadId) as RideRow | null
+    return Promise.resolve(row == null ? null : rowToRide(row))
+  }
+
   findActive(): Promise<Ride[]> {
     const rows = this.db
       .query(

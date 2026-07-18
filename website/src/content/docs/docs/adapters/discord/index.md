@@ -20,15 +20,16 @@ The Discord adapter uses two channels:
 2. The bot creates a **forum thread** and pins the ride summary in the starter message
 3. An **announcement** is posted in the main channel with a **Join this ride** button
 4. When a member clicks **Join**, they are added to the thread and the pinned summary updates
-5. The bot sends a **day-before reminder** at 20:00 local time and an **hour-before reminder** on the day of the ride
+5. The bot sends a **day-before reminder** (between 9am and 10pm local time) and an **hour-before reminder** on the day of the ride
 
 ## Slash commands
 
-| Command    | Description                            |
-| ---------- | -------------------------------------- |
-| `/newride` | Open the ride creation modal           |
-| `/rides`   | List upcoming rides with a join button |
-| `/help`    | Show how the bot works (ephemeral)     |
+| Command    | Description                                                 |
+| ---------- | ----------------------------------------------------------- |
+| `/newride` | Open the ride creation modal                                |
+| `/rides`   | List upcoming rides with a join button                      |
+| `/weather` | Get the weather forecast for a ride (use inside its thread) |
+| `/help`    | Show how the bot works (ephemeral)                          |
 
 ## Button interactions
 

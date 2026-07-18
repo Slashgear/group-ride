@@ -15,17 +15,18 @@ The Telegram adapter requires a **supergroup** with **Topics** enabled. Topics a
 2. The bot creates a **forum topic** and pins the ride summary
 3. An announcement is posted in the group's general thread with a **Join this ride** button
 4. When a member taps **Join**, the bot sends a notification in the ride topic
-5. The bot sends a **day-before reminder** at 20:00 local time and an **hour-before reminder** on the day of the ride
+5. The bot sends a **day-before reminder** (between 9am and 10pm local time) and an **hour-before reminder** on the day of the ride
 
 ## Commands
 
-| Command    | Description                             |
-| ---------- | --------------------------------------- |
-| `/newride` | Start the multi-step ride creation flow |
-| `/rides`   | List upcoming rides with a Join button  |
-| `/edit`    | Edit a ride you proposed                |
-| `/cancel`  | Cancel an active ride                   |
-| `/help`    | Show how the bot works                  |
+| Command    | Description                                                |
+| ---------- | ---------------------------------------------------------- |
+| `/newride` | Start the multi-step ride creation flow                    |
+| `/rides`   | List upcoming rides with a Join button                     |
+| `/edit`    | Edit a ride you proposed                                   |
+| `/cancel`  | Cancel an active ride                                      |
+| `/weather` | Get the weather forecast for a ride (use inside its topic) |
+| `/help`    | Show how the bot works                                     |
 
 ## Differences from Discord
 

@@ -81,6 +81,11 @@ export class PostgresRideRepository implements RideRepository {
     return rows[0] == null ? null : rowToRide(rows[0])
   }
 
+  async findByThreadId(threadId: string): Promise<Ride | null> {
+    const rows = await this.sql<RideRow[]>`SELECT * FROM rides WHERE thread_id = ${threadId}`
+    return rows[0] == null ? null : rowToRide(rows[0])
+  }
+
   async findActive(): Promise<Ride[]> {
     const rows = await this.sql<
       RideRow[]

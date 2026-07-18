@@ -10,6 +10,7 @@ import { registerNewRideCommand } from "./commands/new-ride"
 import { registerPastRidesCommand } from "./commands/past-rides"
 import { registerRidesCommand } from "./commands/rides"
 import { registerEditCommand } from "./commands/edit"
+import { registerWeatherCommand } from "./commands/weather"
 import { registerJoinRideHandler } from "./handlers/join-ride"
 import { registerCancelRideHandler } from "./handlers/cancel-ride"
 import { registerMemberJoinedHandler } from "./handlers/member-joined"
@@ -34,6 +35,7 @@ export async function startTelegram(rideRepo: RideRepository): Promise<void> {
   registerCancelRideHandler(bot, rideRepo, rideService)
   registerMemberJoinedHandler(bot)
   registerMemberLeftHandler(bot, rideService)
+  registerWeatherCommand(bot, rideRepo, weatherService)
 
   bot.catch((err) => {
     logger.error({ err: err.error }, "Unhandled Telegram bot error")
@@ -45,6 +47,7 @@ export async function startTelegram(rideRepo: RideRepository): Promise<void> {
     { command: "rides", description: "List upcoming rides" },
     { command: "pastrides", description: "List past rides" },
     { command: "edit", description: "Edit a ride you proposed" },
+    { command: "weather", description: "Get the weather forecast for this ride" },
   ])
 
   logger.info({ adapter: "telegram" }, "Group Ride bot is running")

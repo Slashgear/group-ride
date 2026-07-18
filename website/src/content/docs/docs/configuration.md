@@ -45,7 +45,7 @@ psql $DATABASE_URL -f src/adapters/database/postgres/migrations/001_initial.sql
 TZ=Europe/Paris   # Must match your group's local timezone
 ```
 
-The `TZ` variable controls when reminders fire. The day-before reminder sends at **20:00** local time, and the hour-before reminder sends **1 hour before the ride start** on the day of the ride.
+The `TZ` variable controls when reminders fire. The day-before reminder sends on the first scheduler tick between **9am and 10pm** local time (this window exists to avoid nighttime notifications), and the hour-before reminder sends **1 hour before the ride start** on the day of the ride.
 
 Set it to your group's timezone — e.g. `Europe/London`, `America/New_York`, `Asia/Tokyo`.
 
@@ -68,9 +68,19 @@ Controls the language of all user-facing bot messages — notifications, reminde
 WEATHER_ENABLED=false   # Set to "false" to disable weather forecasts (default: enabled)
 ```
 
-When enabled, the day-before reminder includes a weather forecast for the ride's meeting point. The forecast shows temperature range, sky conditions, wind speed, and precipitation chance for the ride day, using the [wttr.in](https://wttr.in) service — no API key required.
+When enabled, the day-before reminder includes a weather forecast for the ride's meeting point. The forecast shows temperature range, sky conditions, wind speed/gusts/direction, and precipitation chance (and volume, if any is expected) for the ride day, using the [wttr.in](https://wttr.in) service — no API key required.
+
+Wind direction is shown as an arrow (⬆️↗️➡️↘️⬇️↙️⬅️↖️) rather than a text abbreviation, so it needs no translation between locales.
 
 If the weather service is unavailable, the reminder is still sent without a forecast.
+
+The forecast is also available on demand — use `/weather` inside a ride thread/topic to fetch it at any time, without waiting for the day-before reminder.
+
+Example message:
+
+```
+🌤️ Forecast: Sunny, 14–22°C, 💨 15 km/h ↖️ (gusts 22 km/h), 🌧️ 10% chance of rain
+```
 
 ## Summary
 

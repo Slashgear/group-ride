@@ -9,6 +9,7 @@ function mockRepo(): RideRepository {
   return {
     save: mock(async () => {}),
     findById: mock(async () => null),
+    findByThreadId: mock(async () => null),
     findActive: mock(async () => []),
     findActiveByMember: mock(async () => []),
     findPast: mock(async () => []),

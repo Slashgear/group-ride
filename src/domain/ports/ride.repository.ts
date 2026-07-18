@@ -3,6 +3,7 @@ import type { Ride, RideId, UserId } from "../ride"
 export interface RideRepository {
   save(ride: Ride): Promise<void>
   findById(id: RideId): Promise<Ride | null>
+  findByThreadId(threadId: string): Promise<Ride | null>
   findActive(): Promise<Ride[]>
   findActiveByMember(userId: UserId): Promise<Ride[]>
   update(ride: Ride): Promise<void>

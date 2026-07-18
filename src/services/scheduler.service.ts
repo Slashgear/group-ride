@@ -99,7 +99,10 @@ export class SchedulerService {
           data.tempMaxC,
           data.description,
           data.windSpeedKmph,
+          data.windGustKmph,
+          data.windDirection,
           data.precipitationChancePct,
+          data.precipitationMm,
         ),
       )
       log.info({ rideId: ride.id }, "Weather forecast sent with day-before reminder")

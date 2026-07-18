@@ -31,7 +31,12 @@ export const messages = {
     tempMaxC: number,
     description: string,
     windSpeedKmph: number,
+    windGustKmph: number,
+    windDirection: string,
     precipitationChancePct: number,
+    precipitationMm: number,
   ) =>
-    `🌤️ **Météo de demain :** ${description}, ${tempMinC}–${tempMaxC}°C, 💨 ${windSpeedKmph} km/h, 🌧️ ${precipitationChancePct}% de risque de pluie`,
+    `🌤️ **Météo :** ${description}, ${tempMinC}–${tempMaxC}°C, 💨 ${windSpeedKmph} km/h ${windDirection} (rafales ${windGustKmph} km/h), 🌧️ ${precipitationChancePct}% de risque de pluie${precipitationMm > 0 ? ` (${precipitationMm} mm)` : ""}`,
+  weatherNotInThread: "Cette commande ne fonctionne que dans le fil d'une sortie.",
+  weatherUnavailable: "La météo n'est pas disponible pour cette sortie pour le moment.",
 }

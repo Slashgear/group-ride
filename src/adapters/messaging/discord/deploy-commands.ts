@@ -24,6 +24,10 @@ const commands = [
     .setName("help")
     .setDescription("How to use the Group Ride bot")
     .toJSON(),
+  new SlashCommandBuilder()
+    .setName("weather")
+    .setDescription("Get the weather forecast for this ride (use inside a ride thread)")
+    .toJSON(),
 ]
 
 export async function deployCommands(

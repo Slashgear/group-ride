@@ -25,7 +25,7 @@ Each bot instance serves one Discord guild or one Telegram group, set by `DISCOR
 
 The bot uses the `TZ` environment variable (or the system timezone if unset). All reminder times are computed in that timezone:
 
-- Day-before reminder: **20:00** local time the evening before the ride
+- Day-before reminder: first scheduler tick between **9am and 10pm** local time, the day before the ride (this window exists to avoid nighttime notifications)
 - Hour-before reminder: **1 hour** before the ride's start time (based on `meetingTime`)
 
 If `meetingTime` is not set, the hour-before reminder is not sent. Set `TZ` to your group's timezone, e.g. `TZ=Europe/Paris`.
@@ -45,6 +45,10 @@ No. Reminders are sent to the thread at a single time based on the server timezo
 ### Why use `/pastrides` instead of `/past-rides`?
 
 Telegram does not allow hyphens in command names. To keep the command consistent across both platforms, it is `/pastrides` on both Discord and Telegram.
+
+### Can I check the weather without waiting for the reminder?
+
+Yes, use `/weather` inside a ride's thread/topic to fetch the forecast on demand, any time before the ride. It requires `WEATHER_ENABLED` to not be set to `false`.
 
 ### Can I edit a ride after it's been announced?
 

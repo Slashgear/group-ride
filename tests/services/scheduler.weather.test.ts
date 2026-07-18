@@ -9,6 +9,7 @@ function mockRepo(): RideRepository {
   return {
     save: mock(async () => {}),
     findById: mock(async () => null),
+    findByThreadId: mock(async () => null),
     findActive: mock(async () => []),
     findActiveByMember: mock(async () => []),
     findPast: mock(async () => []),
@@ -69,7 +70,10 @@ const weatherData: WeatherData = {
   tempMaxC: 22,
   description: "Sunny",
   windSpeedKmph: 15,
+  windGustKmph: 22,
+  windDirection: "↖️",
   precipitationChancePct: 10,
+  precipitationMm: 0,
 }
 
 function mockWeather(returnValue: WeatherData | null): WeatherService {

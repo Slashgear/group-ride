@@ -30,7 +30,12 @@ export const messages = {
     tempMaxC: number,
     description: string,
     windSpeedKmph: number,
+    windGustKmph: number,
+    windDirection: string,
     precipitationChancePct: number,
+    precipitationMm: number,
   ) =>
-    `🌤️ **Tomorrow's forecast:** ${description}, ${tempMinC}–${tempMaxC}°C, 💨 ${windSpeedKmph} km/h, 🌧️ ${precipitationChancePct}% chance of rain`,
+    `🌤️ **Forecast:** ${description}, ${tempMinC}–${tempMaxC}°C, 💨 ${windSpeedKmph} km/h ${windDirection} (gusts ${windGustKmph} km/h), 🌧️ ${precipitationChancePct}% chance of rain${precipitationMm > 0 ? ` (${precipitationMm} mm)` : ""}`,
+  weatherNotInThread: "This command only works inside a ride thread.",
+  weatherUnavailable: "Weather forecast is unavailable for this ride right now.",
 }

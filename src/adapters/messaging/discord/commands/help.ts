@@ -18,7 +18,10 @@ Each ride has its own thread in the forum channel. Only registered participants 
 Use \`/rides\` to see all upcoming rides with Join buttons.
 
 **Leave or cancel**
-Inside the thread, use the **Leave** button to drop out, or **Cancel ride** to cancel the whole ride (any member can do this).`
+Inside the thread, use the **Leave** button to drop out, or **Cancel ride** to cancel the whole ride (any member can do this).
+
+**Weather**
+Use \`/weather\` inside a ride thread to get the forecast for that ride on demand.`
 
 export function registerHelpCommand(client: Client): void {
   client.on("interactionCreate", (interaction) => {

@@ -15,6 +15,9 @@ const HELP_MESSAGE = [
   "",
   "<b>Leave or cancel</b>",
   "Use the <b>Leave</b> or <b>Cancel ride</b> buttons on the ride message.",
+  "",
+  "<b>Weather</b>",
+  "Use /weather inside a ride topic to get the forecast for that ride on demand.",
 ].join("\n")
 
 export function registerHelpCommand(bot: Bot<BotContext>): void {

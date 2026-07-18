@@ -64,6 +64,7 @@ classDiagram
         <<interface>>
         +save(ride)
         +findById(id)
+        +findByThreadId(threadId)
         +findActive()
         +findActiveByMember(userId)
         +update(ride)
