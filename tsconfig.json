@@ -10,7 +10,7 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "noUncheckedIndexedAccess": true,
-    "types": ["bun-types"],
+    "types": ["bun"],
     "paths": {
       "@domain/*": ["./src/domain/*"],
       "@services/*": ["./src/services/*"],
