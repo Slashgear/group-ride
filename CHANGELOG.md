@@ -5,6 +5,18 @@ description: Release history for group-ride
 
 # Changelog
 
+## v1.11.0 — 2026-07-18
+
+### Bug Fixes
+
+- **ci**: Trigger website deploy when CHANGELOG.md changes
+- **deps**: Override ws and undici to patch discord.js transitive vulns
+- **typecheck**: Point types at @types/bun instead of its transitive bun-types
+
+### Features
+
+- **weather**: Attach forecast image to day-before reminder
+
 ## v1.10.1 — 2026-07-18
 
 ### Bug Fixes
