@@ -54,8 +54,8 @@ All buttons are handled via Discord's interaction system:
 
 ## Message events
 
-| Event          | Behaviour                                                                                                                                                                         |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Event           | Behaviour                                                                                                                                                                                                                          |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `messageCreate` | If the ride's proposer posts a `.gpx` file in the ride's thread, the bot parses it, sets the route's start point (for weather), reposts the map, and posts the forecast. Ignored for anyone else or outside an active ride thread. |
 
 ## Required bot permissions

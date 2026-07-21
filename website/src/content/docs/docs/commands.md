@@ -80,11 +80,11 @@ All these strings are defined in `src/i18n/en.ts` and `src/i18n/fr.ts` — see [
 
 Both adapters support pasting a URL from a supported platform during ride creation. The bot fetches the route data and pre-fills name, distance, elevation gain, and elevation loss.
 
-| Platform                                     | URL format                                      |
-| -------------------------------------------- | ----------------------------------------------- |
-| [Komoot](https://www.komoot.com)             | `https://www.komoot.com/tour/<id>`              |
-| [Strava](https://www.strava.com)             | `https://www.strava.com/routes/<id>`            |
-| [Garmin Connect](https://connect.garmin.com) | `https://connect.garmin.com/modern/course/<id>` |
+| Platform                                     | URL format                                                                                                           |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| [Komoot](https://www.komoot.com)             | `https://www.komoot.com/tour/<id>`                                                                                   |
+| [Strava](https://www.strava.com)             | `https://www.strava.com/routes/<id>`                                                                                 |
+| [Garmin Connect](https://connect.garmin.com) | `https://connect.garmin.com/modern/course/<id>`                                                                      |
 | GPX file                                     | Upload a `.gpx` file directly (Telegram only — Discord modals can't accept file uploads, paste a `.gpx` URL instead) |
 
 All imported fields can be edited before the ride is confirmed.
