@@ -5,6 +5,16 @@ description: Release history for group-ride
 
 # Changelog
 
+## v1.12.0 — 2026-07-21
+
+### Features
+
+- **discord**: Let the proposer upload a GPX after ride creation
+
+### style
+
+- Fix markdown formatting in website docs
+
 ## v1.11.1 — 2026-07-18
 
 ### Bug Fixes
