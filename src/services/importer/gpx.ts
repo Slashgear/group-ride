@@ -5,7 +5,7 @@ export interface GpxParseResult {
   distanceKm?: number
   elevationGain?: number
   elevationLoss?: number
-  /** [longitude, latitude] pairs in the order required by staticmaps */
+  /** [longitude, latitude] pairs — used for the route's start point (weather lookup) */
   coordinates: [number, number][]
 }
 
@@ -73,7 +73,6 @@ export function parseGpx(buffer: Buffer): GpxParseResult {
     }
   }
 
-  // Subsample to at most 500 points so staticmaps renders quickly
   const coordinates = subsample(points, 500).map<[number, number]>((p) => [p.lon, p.lat])
 
   return {

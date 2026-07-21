@@ -20,3 +20,4 @@ export class AlreadyMemberError extends Error {
 }
 
 export { CapConflictError } from "./cap-error"
+export { NotProposerError } from "./not-proposer-error"

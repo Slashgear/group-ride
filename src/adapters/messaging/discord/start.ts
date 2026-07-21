@@ -10,6 +10,7 @@ import { registerMemberLeftHandler } from "./handlers/member-left"
 import { registerLeaveCancelHandler } from "./handlers/leave-cancel"
 import { registerEditRideHandler } from "./handlers/edit-ride"
 import { registerParticipantsHandler } from "./handlers/participants"
+import { registerGpxUploadHandler } from "./handlers/gpx-upload"
 import { registerSetCapCommand } from "./commands/set-cap"
 import { registerWeatherCommand } from "./commands/weather"
 import { DiscordMessaging } from "./messaging"
@@ -46,6 +47,7 @@ export async function startDiscord(rideRepo: RideRepository): Promise<void> {
   registerParticipantsHandler(client, rideRepo)
   registerSetCapCommand(client, rideService)
   registerWeatherCommand(client, rideRepo, weatherService)
+  registerGpxUploadHandler(client, rideRepo, rideService, weatherService)
 
   client.once("clientReady", () => {
     logger.info({ username: client.user?.tag, adapter: "discord" }, "Group Ride bot is running")

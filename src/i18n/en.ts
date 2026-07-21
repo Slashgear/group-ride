@@ -40,4 +40,8 @@ export const messages = {
     "Provide both a location and a date (DD/MM/YYYY), or use this command inside a ride thread.",
   weatherInvalidDate: "Invalid date format. Please use DD/MM/YYYY or DD/MM/YYYY HH:MM.",
   weatherUnavailable: "Weather forecast is unavailable for that location and date right now.",
+  gpxUploadInvite: (proposerMention: string) =>
+    `📎 ${proposerMention} once the route is ready, drop the ride's **.gpx** file right here — riders can grab it without needing a Komoot/Strava account, and it'll also be used to pin down the weather forecast location.`,
+  gpxProcessed: "📍 Got it! Route map and weather location updated from the GPX.",
+  gpxParseFailed: "⚠️ Couldn't read that GPX file — make sure it's a valid track export.",
 }

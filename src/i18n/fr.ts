@@ -41,4 +41,9 @@ export const messages = {
     "Indique un lieu et une date (JJ/MM/AAAA), ou utilise cette commande dans le fil d'une sortie.",
   weatherInvalidDate: "Format de date invalide. Utilise JJ/MM/AAAA ou JJ/MM/AAAA HH:MM.",
   weatherUnavailable: "La météo n'est pas disponible pour ce lieu et cette date pour le moment.",
+  gpxUploadInvite: (proposerMention: string) =>
+    `📎 ${proposerMention} quand le parcours est prêt, dépose le fichier **.gpx** de la sortie ici — les autres pourront le télécharger sans compte Komoot/Strava, et ça servira aussi à caler le lieu pour la météo.`,
+  gpxProcessed: "📍 Reçu ! Carte du parcours et lieu pour la météo mis à jour à partir du GPX.",
+  gpxParseFailed:
+    "⚠️ Impossible de lire ce fichier GPX — vérifie qu'il s'agit bien d'un export de trace valide.",
 }

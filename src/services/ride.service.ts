@@ -4,9 +4,11 @@ import type { CreateRideInput, Ride, RideId, UserId } from "../domain/ride"
 import {
   AlreadyMemberError,
   CapConflictError,
+  NotProposerError,
   RideNotActiveError,
   RideNotFoundError,
 } from "../domain/errors"
+import { parseGpx } from "./importer/gpx"
 import { logger } from "../logger"
 import { getMessages } from "../i18n"
 
@@ -59,6 +61,12 @@ export class RideService {
     await this.rides.update(ride)
     // silent = true: proposer auto-joins but doesn't need a "You're in!" notification
     await this.messaging.addMemberToThread(threadId, ride.proposerId, true)
+    if (ride.gpxUrl == null) {
+      await this.messaging.notifyThread(
+        threadId,
+        getMessages().gpxUploadInvite(`<@${ride.proposerId}>`),
+      )
+    }
     try {
       await this.messaging.announce(ride, mapImage)
     } catch (err) {
@@ -159,6 +167,42 @@ export class RideService {
       await this.messaging.notifyThread(ride.threadId, updateMsg.rideUpdated)
     }
     log.info({ rideId, changes: Object.keys(changes) }, "Ride updated")
+  }
+
+  /**
+   * Called when the proposer posts a .gpx attachment in the ride thread: fills in the route's
+   * start point (for weather), distance/elevation if missing, and reposts the route map.
+   * `mapImage` is pre-rendered by the caller (see CreateRideInput.mapImageBuffer for the same
+   * split) so this service stays free of tile-fetching network calls.
+   */
+  async attachGpx(
+    rideId: RideId,
+    uploaderId: UserId,
+    gpxContents: string,
+    gpxUrl: string,
+    mapImage?: Buffer,
+  ): Promise<Ride> {
+    const ride = await this.rides.findById(rideId)
+    if (ride == null || ride.threadId == null) throw new RideNotFoundError()
+    if (ride.status !== "active") throw new RideNotActiveError()
+    if (uploaderId !== ride.proposerId) throw new NotProposerError()
+
+    const parsed = parseGpx(Buffer.from(gpxContents, "utf-8"))
+    const start = parsed.coordinates[0]
+    ride.gpxUrl = gpxUrl
+    ride.startLon = start?.[0] ?? ride.startLon
+    ride.startLat = start?.[1] ?? ride.startLat
+    ride.distanceKm = ride.distanceKm ?? parsed.distanceKm ?? null
+    ride.elevationGain = ride.elevationGain ?? parsed.elevationGain ?? null
+    ride.elevationLoss = ride.elevationLoss ?? parsed.elevationLoss ?? null
+    await this.rides.update(ride)
+
+    const members = await this.rides.getMembers(rideId)
+    const waitlist = await this.rides.getWaitlist(rideId)
+    await this.messaging.updatePinnedSummary(ride.threadId, ride, members, waitlist)
+    await this.messaging.notifyThread(ride.threadId, getMessages().gpxProcessed, mapImage)
+    log.info({ rideId, uploaderId }, "GPX attached to ride")
+    return ride
   }
 
   async removeMemberFromAllActiveRides(userId: UserId): Promise<void> {

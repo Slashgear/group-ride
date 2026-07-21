@@ -124,7 +124,7 @@ async function stepImport(
       let mapImage: Buffer | undefined
       if (parsed.coordinates.length >= 2) {
         try {
-          mapImage = await generateRouteMap(parsed.coordinates)
+          mapImage = await generateRouteMap(buffer.toString("utf-8"))
         } catch (mapErr) {
           log.warn({ err: mapErr }, "Map generation failed, continuing without map")
         }

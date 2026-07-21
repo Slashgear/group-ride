@@ -18,9 +18,11 @@ The Discord adapter uses two channels:
 
 1. **`/newride`** — a modal collects the ride details (or imports them from a Komoot/Strava/Garmin URL)
 2. The bot creates a **forum thread** and pins the ride summary in the starter message
-3. An **announcement** is posted in the main channel with a **Join this ride** button
-4. When a member clicks **Join**, they are added to the thread and the pinned summary updates
-5. The bot sends a **day-before reminder** (between 9am and 10pm local time) and an **hour-before reminder** on the day of the ride
+3. If no GPX was provided yet, the bot asks the proposer to post the ride's `.gpx` file in the thread
+4. An **announcement** is posted in the main channel with a **Join this ride** button
+5. When a member clicks **Join**, they are added to the thread and the pinned summary updates
+6. If the proposer posts a `.gpx` attachment in the thread, the bot parses it, sets the route's start point (used for weather), reposts the map, and posts the forecast
+7. The bot sends a **day-before reminder** (between 9am and 10pm local time) and an **hour-before reminder** on the day of the ride
 
 ## Slash commands
 
@@ -50,6 +52,12 @@ All buttons are handled via Discord's interaction system:
 | `guildMemberAdd`    | Sends a welcome DM explaining how to use the bot (falls back to the system channel if DMs are closed) |
 | `guildMemberRemove` | Removes the member from all active rides they had joined                                              |
 
+## Message events
+
+| Event          | Behaviour                                                                                                                                                                         |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `messageCreate` | If the ride's proposer posts a `.gpx` file in the ride's thread, the bot parses it, sets the route's start point (for weather), reposts the map, and posts the forecast. Ignored for anyone else or outside an active ride thread. |
+
 ## Required bot permissions
 
 | Permission             | Why                                                  |
@@ -57,5 +65,6 @@ All buttons are handled via Discord's interaction system:
 | `Send Messages`        | Post announcements and thread messages               |
 | `Manage Threads`       | Create and archive forum threads                     |
 | `Read Message History` | Fetch the starter message to edit the pinned summary |
+| `Attach Files`         | Post route map images and weather forecast images    |
 
-**Privileged Gateway Intents** required: **Server Members Intent** (to detect member leaves).
+**Privileged Gateway Intents** required: **Server Members Intent** (to detect member leaves) and **Message Content Intent** (to read `.gpx` attachments posted in ride threads).

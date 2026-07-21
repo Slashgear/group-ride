@@ -23,9 +23,9 @@
     "@grammyjs/conversations": "^2.1.1",
     "discord.js": "^14.27.0",
     "fast-xml-parser": "^5.10.1",
+    "gpxsnap": "^1.1.0",
     "grammy": "^1.45.1",
-    "pino": "^10.3.1",
-    "staticmaps": "^1.13.1"
+    "pino": "^10.3.1"
   },
   "devDependencies": {
     "@types/bun": "latest",

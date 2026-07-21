@@ -157,7 +157,7 @@ src/
     │   ├── discord/                   # discord.js — implements MessagingPort
     │   │   ├── messaging.ts
     │   │   ├── commands/              # /newride, /rides, /help
-    │   │   └── handlers/              # join, leave, edit, participants, member events
+    │   │   └── handlers/              # join, leave, edit, participants, member events, gpx upload
     │   └── telegram/                  # grammY — implements MessagingPort
     │       ├── messaging.ts
     │       ├── conversations/         # multi-step /newride and /edit flows

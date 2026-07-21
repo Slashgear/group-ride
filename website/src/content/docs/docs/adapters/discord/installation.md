@@ -16,7 +16,7 @@ description: Step-by-step guide to set up group-ride on Discord
 2. Give it a name (e.g. "Group Ride") and confirm
 3. Go to the **Bot** tab and click **Add Bot**
 4. Under **Token**, click **Reset Token** and copy it — you will need it in Step 5
-5. Still on the Bot tab, enable **Server Members Intent** under Privileged Gateway Intents
+5. Still on the Bot tab, enable **Server Members Intent** and **Message Content Intent** under Privileged Gateway Intents
 
 ## Step 2 — Get the Client ID
 
@@ -42,6 +42,7 @@ To create the Forum channel: click **+** next to the channel list → **Create C
    - **Manage Threads** — create and archive forum threads
    - **Send Messages** — post announcements and thread messages
    - **Read Message History** — fetch the starter message for updates
+   - **Attach Files** — post route map images and weather forecast images
 4. Copy the generated URL and open it in your browser to invite the bot
 
 **Collect the IDs** (enable Developer Mode in Discord Settings → Advanced → Developer Mode, then right-click to copy):
@@ -78,6 +79,9 @@ Guild-scoped slash commands register immediately on startup. Make sure `DISCORD_
 
 **Bot does not respond to member join/leave events**
 The **Server Members Intent** must be enabled in the Developer Portal (Bot tab → Privileged Gateway Intents).
+
+**Bot doesn't react to `.gpx` files posted in a ride thread**
+The **Message Content Intent** must be enabled in the Developer Portal (Bot tab → Privileged Gateway Intents) — without it, the bot can't see message attachments.
 
 **Import URL not working**
 The activity must be public on the source platform. Komoot tours with a `share_token` in the URL work even if the tour is set to private.

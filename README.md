@@ -154,6 +154,13 @@ sequenceDiagram
     Bot->>Ride: Creates a dedicated thread in the Forum channel
     Note over Ride: Title, date, meeting point, level, distance, D+, GPX
 
+    alt No GPX provided yet
+        Bot->>Ride: Asks the proposer to post the ride's .gpx file
+        Proposer->>Ride: Posts a message with a .gpx attachment
+        Bot->>Bot: Parses GPX — sets start point for weather
+        Bot->>Ride: Reacts ✅, reposts the map, posts the forecast
+    end
+
     Member->>Channel: Clicks "Join this ride 🚴"
     Bot->>Ride: Adds member to thread
     Bot-->>Member: Confirmation (ephemeral)

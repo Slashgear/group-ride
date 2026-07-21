@@ -47,8 +47,36 @@ flowchart TD
     B --> C["messaging.createThread()\ncreates the forum thread"]
     C --> D["messaging.pinSummary()\nedits the thread starter message\nDiscord auto-pins it"]
     D --> E["messaging.addMemberToThread(silent=true)\nno 'You are in!' notification"]
-    E --> F["messaging.announce()\nposted last: thread already exists\nwhen members click Join"]
+    E --> F["messaging.notifyThread()\nGPX upload invite, skipped if gpxUrl is already set"]
+    F --> G["messaging.announce()\nposted last: thread already exists\nwhen members click Join"]
 ```
+
+---
+
+## GPX upload in the ride thread
+
+Discord modals can't accept file attachments, so a `.gpx` can't be uploaded from the `/newride` modal. Instead, a `messageCreate` listener (`handlers/gpx-upload.ts`) watches every ride thread for the proposer posting a `.gpx` file directly as a message:
+
+```mermaid
+sequenceDiagram
+    actor Proposer
+    participant Bot
+    participant RideService
+    participant Weather as WeatherService
+
+    Proposer->>Bot: Posts a message with a .gpx attachment in the ride thread
+    Note over Bot: Ignored unless: thread belongs to an active ride,<br/>message author is the ride's proposer,<br/>attachment name ends in .gpx
+    Bot->>Bot: Downloads the attachment, generates the route map
+    Bot->>RideService: attachGpx(rideId, uploaderId, gpxContents, url, mapImage)
+    RideService->>RideService: parseGpx() → start point, distance, elevation
+    RideService-->>Bot: updated ride
+    Bot-->>Proposer: Reacts ✅
+    Bot->>Weather: getWeather(resolveWeatherQuery(ride))
+    Weather-->>Bot: forecast
+    Bot->>Proposer: Posts the forecast in the thread
+```
+
+Requires the **Message Content Intent** (Developer Portal → Bot → Privileged Gateway Intents) in addition to Server Members Intent — without it, `messageCreate` events arrive without attachments.
 
 ---
 

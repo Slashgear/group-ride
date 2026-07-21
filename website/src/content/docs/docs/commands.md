@@ -85,6 +85,17 @@ Both adapters support pasting a URL from a supported platform during ride creati
 | [Komoot](https://www.komoot.com)             | `https://www.komoot.com/tour/<id>`              |
 | [Strava](https://www.strava.com)             | `https://www.strava.com/routes/<id>`            |
 | [Garmin Connect](https://connect.garmin.com) | `https://connect.garmin.com/modern/course/<id>` |
-| GPX file                                     | Upload a `.gpx` file directly                   |
+| GPX file                                     | Upload a `.gpx` file directly (Telegram only — Discord modals can't accept file uploads, paste a `.gpx` URL instead) |
 
 All imported fields can be edited before the ride is confirmed.
+
+### GPX upload after creation (Discord)
+
+Discord's ride-creation modal can't accept a file upload, so if no GPX was provided when the ride was created, the bot asks the proposer to post the `.gpx` file directly as a message in the ride's thread. Once posted, the bot:
+
+1. Reacts ✅ to the message
+2. Sets the route's start point, used to get an accurate weather forecast (see [Configuration → Which location is used for the forecast?](/docs/configuration/#which-location-is-used-for-the-forecast))
+3. Reposts the route map (with a distance/elevation badge and elevation profile)
+4. Posts the weather forecast for that location
+
+Only the ride's proposer can trigger this — GPX files posted by other members are ignored.

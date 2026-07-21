@@ -54,6 +54,10 @@ Yes, use `/weather` inside a ride's thread/topic to fetch the forecast on demand
 
 Yes, use `/edit` (Discord) or `/edit` (Telegram). You can change the meeting point, time, distance, elevation, level, and notes. The pinned summary is updated automatically. You cannot change the date — cancel and create a new ride instead.
 
+### Can I add a GPX after the ride's already been created?
+
+On Discord, yes — post the `.gpx` file directly as a message in the ride's thread (only the proposer's upload is taken into account). The bot parses it, sets the route's start point for the weather forecast, and reposts the map. This exists because Discord's `/newride` modal can't accept file uploads — only a pasted URL. On Telegram, upload the file during the `/newride` conversation instead.
+
 ### GPX / route import failed — what went wrong?
 
 The most common causes:
