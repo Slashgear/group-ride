@@ -5,6 +5,12 @@ description: Release history for group-ride
 
 # Changelog
 
+## v1.12.1 — 2026-07-22
+
+### Refactoring
+
+- **gpx**: Parse GPX via gpxsnap, drop fast-xml-parser
+
 ## v1.12.0 — 2026-07-21
 
 ### Features
