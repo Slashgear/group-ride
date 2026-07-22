@@ -1,4 +1,4 @@
-import { XMLParser } from "fast-xml-parser"
+import { parseGpxDocument, type GpxPoint } from "gpxsnap/gpx"
 
 export interface GpxParseResult {
   name?: string
@@ -9,52 +9,14 @@ export interface GpxParseResult {
   coordinates: [number, number][]
 }
 
-interface RawTrackPoint {
-  "@_lat"?: string | number
-  "@_lon"?: string | number
-  ele?: string | number
-}
-
-interface TrackPoint {
-  lat: number
-  lon: number
-  ele?: number
-}
-
-const parser = new XMLParser({
-  ignoreAttributes: false,
-  attributeNamePrefix: "@_",
-  isArray: (name) => name === "trk" || name === "trkseg" || name === "trkpt",
-})
+const GPX_ROOT_TAG = /<gpx[\s>]/iu
 
 export function parseGpx(buffer: Buffer): GpxParseResult {
-  const doc = parser.parse(buffer.toString("utf-8")) as {
-    gpx?: {
-      metadata?: { name?: string }
-      trk?: Array<{
-        name?: string
-        trkseg?: Array<{ trkpt?: RawTrackPoint[] }>
-      }>
-    }
-  }
-  if (doc.gpx == null) throw new Error("Not a valid GPX file")
+  const text = buffer.toString("utf-8")
+  if (!GPX_ROOT_TAG.test(text)) throw new Error("Not a valid GPX file")
 
-  const tracks = doc.gpx.trk ?? []
-  const name = tracks[0]?.name ?? doc.gpx.metadata?.name
-
-  const points: TrackPoint[] = []
-  for (const trk of tracks) {
-    for (const seg of trk.trkseg ?? []) {
-      for (const pt of seg.trkpt ?? []) {
-        const lat = Number(pt["@_lat"])
-        const lon = Number(pt["@_lon"])
-        if (isFinite(lat) && isFinite(lon)) {
-          points.push({ lat, lon, ele: pt.ele == null ? undefined : Number(pt.ele) })
-        }
-      }
-    }
-  }
-
+  const doc = parseGpxDocument(text)
+  const points = doc.tracks.flatMap((track) => track.points)
   if (points.length < 2) throw new Error("GPX file has insufficient track points")
 
   let distanceM = 0
@@ -65,8 +27,8 @@ export function parseGpx(buffer: Buffer): GpxParseResult {
     const curr = points[i]
     if (prev != null && curr != null) {
       distanceM += haversineMeters(prev, curr)
-      if (prev.ele != null && curr.ele != null) {
-        const diff = curr.ele - prev.ele
+      if (prev.elevation != null && curr.elevation != null) {
+        const diff = curr.elevation - prev.elevation
         if (diff > 0) elevationGain += diff
         else elevationLoss += Math.abs(diff)
       }
@@ -76,7 +38,7 @@ export function parseGpx(buffer: Buffer): GpxParseResult {
   const coordinates = subsample(points, 500).map<[number, number]>((p) => [p.lon, p.lat])
 
   return {
-    name: name ?? undefined,
+    name: doc.tracks[0]?.name ?? doc.name,
     distanceKm: Math.round((distanceM / 1000) * 10) / 10,
     elevationGain: Math.round(elevationGain) || undefined,
     elevationLoss: Math.round(elevationLoss) || undefined,
@@ -84,7 +46,7 @@ export function parseGpx(buffer: Buffer): GpxParseResult {
   }
 }
 
-function haversineMeters(a: TrackPoint, b: TrackPoint): number {
+function haversineMeters(a: GpxPoint, b: GpxPoint): number {
   const R = 6_371_000
   const φ1 = (a.lat * Math.PI) / 180
   const φ2 = (b.lat * Math.PI) / 180
