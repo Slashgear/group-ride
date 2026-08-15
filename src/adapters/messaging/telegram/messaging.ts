@@ -18,7 +18,7 @@ export class TelegramMessaging implements MessagingPort {
         reply_markup: keyboard,
       })
     } else {
-      await this.api.sendPhoto(this.groupChatId, new InputFile(mapImage, "route.png"), {
+      await this.api.sendPhoto(this.groupChatId, new InputFile(mapImage, "route.webp"), {
         caption: formatAnnouncement(ride),
         parse_mode: "HTML",
         reply_markup: keyboard,
@@ -32,7 +32,7 @@ export class TelegramMessaging implements MessagingPort {
   async createThread(ride: Ride, mapImage?: Buffer): Promise<ThreadId> {
     const topic = await this.api.createForumTopic(this.groupChatId, formatTopicTitle(ride))
     if (mapImage != null) {
-      await this.api.sendPhoto(this.groupChatId, new InputFile(mapImage, "route.png"), {
+      await this.api.sendPhoto(this.groupChatId, new InputFile(mapImage, "route.webp"), {
         message_thread_id: topic.message_thread_id,
       })
     }

@@ -36,7 +36,7 @@ export class DiscordMessaging implements MessagingPort {
       content: formatAnnouncement(ride),
       components: [row],
       files: [
-        ...(mapImage == null ? [] : [{ attachment: mapImage, name: "route.png" }]),
+        ...(mapImage == null ? [] : [{ attachment: mapImage, name: "route.webp" }]),
         { attachment: generateIcal(ride), name: "ride.ics" },
       ],
     })
@@ -53,7 +53,7 @@ export class DiscordMessaging implements MessagingPort {
     if (mapImage != null) {
       await thread.send({
         content: "📍 Route map",
-        files: [{ attachment: mapImage, name: "route.png" }],
+        files: [{ attachment: mapImage, name: "route.webp" }],
       })
     }
     return thread.id
