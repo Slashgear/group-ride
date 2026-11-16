@@ -7,7 +7,7 @@ Telegram requires a **supergroup** with **Topics** enabled.
 
 ## Prerequisites
 
-- [Bun](https://bun.sh) >= 1.1 (or Docker)
+- [Bun](https://bun.sh) >= 1.4 (or Docker)
 - A Telegram account
 
 ---

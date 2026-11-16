@@ -5,7 +5,7 @@ description: Step-by-step guide to set up group-ride on Discord
 
 ## Prerequisites
 
-- [Bun](https://bun.sh) >= 1.1 (or Docker)
+- [Bun](https://bun.sh) >= 1.4 (or Docker)
 - A Discord account
 
 ---

@@ -4,7 +4,7 @@ Thanks for your interest in contributing to Group Ride!
 
 ## Prerequisites
 
-- [Bun](https://bun.sh) >= 1.1
+- [Bun](https://bun.sh) >= 1.4
 - [Git](https://git-scm.com)
 - A code editor with TypeScript support (VS Code, WebStorm, etc.)
 
