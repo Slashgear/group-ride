@@ -87,7 +87,7 @@ All tests run without any external dependency.
 
 ## Code style
 
-This project uses [oxfmt](https://oxc.rs/docs/guide/usage/formatter.html) for formatting and [oxlint](https://oxc.rs/docs/guide/usage/linter.html) for linting.
+This project uses Bun's built-in formatter (`bun fmt`, configured in `bunfig.toml`) for formatting and [oxlint](https://oxc.rs/docs/guide/usage/linter.html) for linting.
 
 ```bash
 bun run fmt          # format all files
