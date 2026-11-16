@@ -1,0 +1,10 @@
+[install]
+# Keep the flat node_modules layout this project was built with.
+linker = "hoisted"
+
+[fmt]
+flavor = "oxfmt"
+printWidth = 100
+semi = false
+trailingComma = "all"
+ignorePatterns = ["CHANGELOG.md", "cliff.toml"]

@@ -1,5 +1,5 @@
 import { REST, Routes, SlashCommandBuilder } from "discord.js"
-import type { RESTGetAPIApplicationGuildCommandsResult } from "discord-api-types/v10"
+import type { RESTGetAPIApplicationGuildCommandsResult } from "discord.js"
 import { logger } from "../../../logger"
 
 const log = logger.child({ module: "discord-deploy" })

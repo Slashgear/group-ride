@@ -224,7 +224,7 @@ See [CONTRIBUTING.md](https://github.com/slashgear/group-ride/blob/main/CONTRIBU
 | Database (Postgres) | Bun SQL template tag (built-in) |
 | Logging | pino |
 | Documentation site | Astro + Starlight |
-| Formatter | oxfmt |
+| Formatter | bun fmt (built-in) |
 | Linter | oxlint |
 | CI | GitHub Actions |
 | Container registry | GitHub Container Registry (ghcr.io) |
