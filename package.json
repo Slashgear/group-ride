@@ -22,7 +22,7 @@
   "dependencies": {
     "@grammyjs/conversations": "^2.1.1",
     "discord.js": "^14.28.1",
-    "gpxsnap": "^1.2.0",
+    "gpxsnap": "^1.3.0",
     "grammy": "^1.46.0",
     "pino": "^10.4.0"
   },
